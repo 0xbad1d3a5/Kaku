@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
@@ -54,56 +55,7 @@ public class MainService extends Service {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Image image = null;
-            FileOutputStream fos = null;
-            Bitmap bitmap = null;
-
-            try {
-                image = mImageReader.acquireLatestImage();
-                if (image != null){
-                    Image.Plane[] planes = image.getPlanes();
-                    ByteBuffer buffer = planes[0].getBuffer();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * mWidth;
-
-                    // create bitmap
-                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                    bitmap.copyPixelsFromBuffer(buffer);
-
-                    Log.e(TAG, "pixelStride: " + pixelStride);
-                    Log.e(TAG, "rowStride: " + rowStride);
-                    Log.e(TAG, "rowPadding: " + rowPadding);
-                    Log.e(TAG, "mWidth: " + mWidth);
-                    Log.e(TAG, "mHeight: " + mHeight);
-
-                    // write bitmap to file
-                    fos = new FileOutputStream(STORE_DIRECTORY + "/myscreen " + IMAGES_PRODUCED + ".jpeg");
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-
-                    IMAGES_PRODUCED++;
-                    Log.e(TAG, "Captured image: " + IMAGES_PRODUCED);
-                }
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-            finally {
-                if (fos != null){
-                    try {
-                        fos.close();
-                    }
-                    catch (IOException e){
-                        e.printStackTrace();
-                    }
-                }
-                if (bitmap != null){
-                    bitmap.recycle();
-                }
-                if (image != null){
-                    image.close();
-                }
-            }
+            saveImage();
         }
     }
 
@@ -158,6 +110,64 @@ public class MainService extends Service {
         if (chatHead != null) windowManager.removeView(chatHead);
     }
 
+    private void saveImage(){
+        Image image = null;
+        FileOutputStream fos = null;
+        Bitmap bitmap = null;
+
+        try {
+            image = mImageReader.acquireLatestImage();
+            if (image != null){
+                Log.e(TAG, String.format("Image Dimensions: %dx%d", image.getWidth(), image.getHeight()));
+
+                Image.Plane[] planes = image.getPlanes();
+                ByteBuffer buffer = planes[0].getBuffer();
+                int pixelStride = planes[0].getPixelStride();
+                int rowStride = planes[0].getRowStride();
+                int rowPadding = rowStride - pixelStride * mWidth;
+
+                Log.e(TAG, String.format("pixelStride: %s | rowStride: %s | rowPadding %s", pixelStride, rowStride, rowPadding));
+
+                // create bitmap
+                bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                bitmap.copyPixelsFromBuffer(buffer);
+                bitmap = bitmap.createBitmap(bitmap, 0, 0, mWidth, mHeight);
+
+                Log.e(TAG, "pixelStride: " + pixelStride);
+                Log.e(TAG, "rowStride: " + rowStride);
+                Log.e(TAG, "rowPadding: " + rowPadding);
+                Log.e(TAG, "mWidth: " + mWidth);
+                Log.e(TAG, "mHeight: " + mHeight);
+
+                // write bitmap to file
+                fos = new FileOutputStream(STORE_DIRECTORY + "/myscreen " + IMAGES_PRODUCED + ".jpeg");
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
+                IMAGES_PRODUCED++;
+                Log.e(TAG, "Captured image: " + IMAGES_PRODUCED);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            if (fos != null){
+                try {
+                    fos.close();
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+            if (bitmap != null){
+                bitmap.recycle();
+            }
+            if (image != null){
+                image.close();
+            }
+        }
+    }
+
     private void createVirtualDisplay(){
 
         // display metrics
@@ -167,14 +177,14 @@ public class MainService extends Service {
 
         // get width and height
         Point size = new Point();
-        mDisplay.getSize(size);
+        mDisplay.getRealSize(size);
         mWidth = size.x;
         mHeight = size.y;
 
         // start capture reader
         mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
         mVirtualDisplay = mMediaProjection.createVirtualDisplay("screencap", mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
-        mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
+        //mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
     }
 
     private void initUI(){
@@ -209,6 +219,7 @@ public class MainService extends Service {
                         initialTouchY = event.getRawY();
                         return true;
                     case MotionEvent.ACTION_UP:
+                        saveImage();
                         /*
                         ImageView newChatHead = new ImageView(MainService.this);
                         newChatHead.setImageResource(R.drawable.android_head);
