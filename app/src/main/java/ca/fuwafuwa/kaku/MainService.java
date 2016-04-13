@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
@@ -19,10 +18,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,7 +31,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by 0x1bad1d3a on 4/9/2016.
  */
-public class MainService extends Service {
+public class MainService extends Service implements MoveCallback {
 
     private MediaProjectionManager mMediaProjectionManager;
     private MediaProjection mMediaProjection;
@@ -40,9 +39,11 @@ public class MainService extends Service {
     private ImageReader mImageReader;
     private Handler mHandler;
     private WindowManager windowManager;
-    private ImageView chatHead;
     private int mWidth;
     private int mHeight;
+
+    private View captureBox;
+    private WindowManager.LayoutParams params;
 
     private static String STORE_DIRECTORY;
     private static int IMAGES_PRODUCED;
@@ -52,14 +53,8 @@ public class MainService extends Service {
     public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
     private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
-    private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
-        @Override
-        public void onImageAvailable(ImageReader reader) {
-            saveImage();
-        }
-    }
-
-    @Override public IBinder onBind(Intent intent) {
+    @Override
+    public IBinder onBind(Intent intent) {
         // Not used
         return null;
     }
@@ -70,6 +65,7 @@ public class MainService extends Service {
         Intent mIntent = (Intent) intent.getExtras().get(EXTRA_RESULT_INTENT);
         int resultCode = intent.getExtras().getInt(EXTRA_RESULT_CODE);
 
+        windowManager = (WindowManager) this.getSystemService(this.WINDOW_SERVICE);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         mMediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, mIntent);
 
@@ -107,7 +103,6 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (chatHead != null) windowManager.removeView(chatHead);
     }
 
     private void saveImage(){
@@ -140,8 +135,8 @@ public class MainService extends Service {
                 Log.e(TAG, "mHeight: " + mHeight);
 
                 // write bitmap to file
-                fos = new FileOutputStream(STORE_DIRECTORY + "/myscreen " + IMAGES_PRODUCED + ".jpeg");
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos = new FileOutputStream(STORE_DIRECTORY + "/myscreen " + IMAGES_PRODUCED + ".png");
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
                 IMAGES_PRODUCED++;
                 Log.e(TAG, "Captured image: " + IMAGES_PRODUCED);
@@ -184,70 +179,41 @@ public class MainService extends Service {
         // start capture reader
         mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
         mVirtualDisplay = mMediaProjection.createVirtualDisplay("screencap", mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
-        //mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
     }
 
     private void initUI(){
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        chatHead = new ImageView(this);
-        chatHead.setImageResource(R.drawable.android_head);
+        LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(this.LAYOUT_INFLATER_SERVICE);
+        captureBox = vi.inflate(R.layout.capture_box, null);
 
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+        params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
+                0,
+                100,
                 WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.TOP | Gravity.LEFT;
-        params.x = 0;
-        params.y = 100;
 
-        chatHead.setOnTouchListener(new View.OnTouchListener() {
-            private int initialX;
-            private int initialY;
-            private float initialTouchX;
-            private float initialTouchY;
+        captureBox.getLayoutParams();
 
-            @Override public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        initialX = params.x;
-                        initialY = params.y;
-                        initialTouchX = event.getRawX();
-                        initialTouchY = event.getRawY();
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        saveImage();
-                        /*
-                        ImageView newChatHead = new ImageView(MainService.this);
-                        newChatHead.setImageResource(R.drawable.android_head);
+        windowManager.addView(captureBox, params);
 
-                        WindowManager.LayoutParams newParams = new WindowManager.LayoutParams(
-                                WindowManager.LayoutParams.WRAP_CONTENT,
-                                WindowManager.LayoutParams.WRAP_CONTENT,
-                                WindowManager.LayoutParams.TYPE_PHONE,
-                                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                                PixelFormat.TRANSLUCENT);
+        ((CaptureBox) captureBox.findViewById(R.id.capture_box)).registerMoveCallback(this);
+        ((CaptureBox) captureBox.findViewById(R.id.capture_box)).registerMoveCallback(this);
+    }
 
-                        newParams.gravity = Gravity.TOP | Gravity.LEFT;
-                        newParams.x = 0;
-                        newParams.y = 100;
+    public void moveCallback(float x, float y) {
+        params.x = (int) x;
+        params.y = (int) y;
+        windowManager.updateViewLayout(captureBox, params);
+        Log.e(TAG, String.format("%f %f", x, y));
+    }
 
-                        windowManager.addView(newChatHead, newParams);
-                        */
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
-                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
-                        windowManager.updateViewLayout(chatHead, params);
-                        return true;
-                }
-                return false;
-            }
-        });
-
-        windowManager.addView(chatHead, params);
+    public void screenshotCallback(){
+        saveImage();
     }
 }
