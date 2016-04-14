@@ -17,9 +17,6 @@ import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -31,7 +28,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by 0x1bad1d3a on 4/9/2016.
  */
-public class MainService extends Service implements MoveCallback {
+public class MainService extends Service {
 
     private MediaProjectionManager mMediaProjectionManager;
     private MediaProjection mMediaProjection;
@@ -41,9 +38,6 @@ public class MainService extends Service implements MoveCallback {
     private WindowManager windowManager;
     private int mWidth;
     private int mHeight;
-
-    private View captureBox;
-    private WindowManager.LayoutParams params;
 
     private static String STORE_DIRECTORY;
     private static int IMAGES_PRODUCED;
@@ -105,7 +99,7 @@ public class MainService extends Service implements MoveCallback {
         super.onDestroy();
     }
 
-    private void saveImage(){
+    public void saveImage(){
         Image image = null;
         FileOutputStream fos = null;
         Bitmap bitmap = null;
@@ -182,38 +176,8 @@ public class MainService extends Service implements MoveCallback {
     }
 
     private void initUI(){
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-
-        LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(this.LAYOUT_INFLATER_SERVICE);
-        captureBox = vi.inflate(R.layout.capture_box, null);
-
-        params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                0,
-                100,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
-
-        params.gravity = Gravity.TOP | Gravity.LEFT;
-
-        captureBox.getLayoutParams();
-
-        windowManager.addView(captureBox, params);
-
-        ((CaptureBox) captureBox.findViewById(R.id.capture_box)).registerMoveCallback(this);
-        ((CaptureBox) captureBox.findViewById(R.id.capture_box)).registerMoveCallback(this);
+        new CaptureWindow(this);
     }
 
-    public void moveCallback(float x, float y) {
-        params.x = (int) x;
-        params.y = (int) y;
-        windowManager.updateViewLayout(captureBox, params);
-        Log.e(TAG, String.format("%f %f", x, y));
-    }
 
-    public void screenshotCallback(){
-        saveImage();
-    }
 }
