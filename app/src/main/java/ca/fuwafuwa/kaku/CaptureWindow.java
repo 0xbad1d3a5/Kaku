@@ -8,6 +8,8 @@ import android.view.MotionEvent;
  */
 public class CaptureWindow extends Window implements CaptureWindowCallback  {
 
+    private String TAG = this.getClass().getName();
+
     private int initialX;
     private int initialY;
     private float initialTouchX;
@@ -20,8 +22,20 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
         ((ResizeView) mWindow.findViewById(R.id.resize_box)).registerCallback(this);
     }
 
+    private void setOpacity(MotionEvent e){
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mWindow.setAlpha(0.4f);
+                break;
+            case MotionEvent.ACTION_UP:
+                mWindow.setAlpha(0.1f);
+                break;
+        }
+    }
+
     @Override
     public boolean onMoveEvent(MotionEvent e) {
+        setOpacity(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 initialX = params.x;
@@ -30,8 +44,7 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 initialTouchY = e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
-                mContext.saveImage();
-                mWindowManager.updateViewLayout(mWindow, params);
+                mContext.saveImage(params.x, params.y, params.width, params.height);
                 return true;
             case MotionEvent.ACTION_MOVE:
                 params.x = initialX + (int) (e.getRawX() - initialTouchX);
@@ -39,11 +52,13 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 mWindowManager.updateViewLayout(mWindow, params);
                 return true;
         }
+        Log.e(TAG, "NOTHING");
         return false;
     }
 
     @Override
     public boolean onResizeEvent(MotionEvent e) {
+        setOpacity(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 initialX = params.width;
