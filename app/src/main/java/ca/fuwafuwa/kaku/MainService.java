@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -18,10 +19,13 @@ import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.googlecode.leptonica.android.Pix;
+import com.googlecode.leptonica.android.WriteFile;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
@@ -34,24 +38,61 @@ import java.nio.ByteBuffer;
  */
 public class MainService extends Service {
 
-    private TessBaseAPI tessBaseAPI = new TessBaseAPI();
+    public static final String TAG = MainService.class.getName();
 
+    private WindowManager windowManager;
     private MediaProjectionManager mMediaProjectionManager;
     private MediaProjection mMediaProjection;
-    private VirtualDisplay mVirtualDisplay;
     private ImageReader mImageReader;
-    private Handler mHandler;
-    private WindowManager windowManager;
+    private VirtualDisplay mVirtualDisplay;
+
     private int mWidth;
     private int mHeight;
+    private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
-    private static String STORE_DIRECTORY;
-    private static int IMAGES_PRODUCED;
+    private OrientationChangeCallback mOrientationChangeCallback;
 
-    public static final String TAG = MainService.class.getName();
+    MainServiceHandler mHandler;
+
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
-    private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
+
+    private class OrientationChangeCallback extends OrientationEventListener {
+
+        public OrientationChangeCallback(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onOrientationChanged(int orientation) {
+            synchronized (this){
+                Log.d(TAG, "Orientation changed");
+                if (mVirtualDisplay != null){
+                    mVirtualDisplay.release();
+                }
+                createVirtualDisplay();
+            }
+        }
+    }
+
+    private class MediaProjectionStopCallback extends MediaProjection.Callback{
+        @Override
+        public void onStop(){
+            Log.e(TAG, "Stopping projection");
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mVirtualDisplay != null){
+                        mVirtualDisplay.release();
+                    }
+                    if (mOrientationChangeCallback != null){
+                        mOrientationChangeCallback.disable();
+                    }
+                    mMediaProjection.unregisterCallback(MediaProjectionStopCallback.this);
+                }
+            });
+        }
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -61,34 +102,19 @@ public class MainService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-
         Intent mIntent = (Intent) intent.getExtras().get(EXTRA_RESULT_INTENT);
         int resultCode = intent.getExtras().getInt(EXTRA_RESULT_CODE);
 
-        windowManager = (WindowManager) this.getSystemService(this.WINDOW_SERVICE);
+        mHandler = new MainServiceHandler(this);
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         mMediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, mIntent);
+        mOrientationChangeCallback = new OrientationChangeCallback(this);
+        mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
 
-        if (mMediaProjection != null){
-            File externalFilesDir = getExternalFilesDir(null);
-            if (externalFilesDir != null){
-                STORE_DIRECTORY = externalFilesDir.getAbsolutePath() + "/screenshots/";
-                File storeDirectory = new File(STORE_DIRECTORY);
-                if (!storeDirectory.exists()){
-                    boolean success = storeDirectory.mkdirs();
-                    if (!success){
-                        Log.e(TAG, "Failed to create final storage directory");
-                        return START_STICKY;
-                    }
-                }
-            }
-            else {
-                Log.e(TAG, "Failed to create file storage directory, getExternalFilesDir is null");
-                return START_STICKY;
-            }
+        createVirtualDisplay();
 
-            createVirtualDisplay();
-        }
+        new CaptureWindow(this);
 
         return START_STICKY;
     }
@@ -97,10 +123,6 @@ public class MainService extends Service {
     public void onCreate() {
         super.onCreate();
         startForeground(1, new Notification());
-        String storagePath = getExternalFilesDir(null).getAbsolutePath();
-        Log.e(TAG, storagePath);
-        tessBaseAPI.init(storagePath, "jpn");
-        initUI();
     }
 
     @Override
@@ -108,61 +130,32 @@ public class MainService extends Service {
         super.onDestroy();
     }
 
-    public void saveImage(int startX, int startY, int endX, int endY){
-        Image image = null;
-        FileOutputStream fos = null;
+    public Handler getHandler(){
+        return mHandler;
+    }
+
+    public Bitmap getScreenshot(){
+
         Bitmap bitmap = null;
+        Image image = mImageReader.acquireLatestImage();
 
-        try {
-            image = mImageReader.acquireLatestImage();
-            if (image != null){
-                Log.e(TAG, String.format("Image Dimensions: %dx%d", image.getWidth(), image.getHeight()));
+        if (image != null){
+            Log.e(TAG, String.format("Image Dimensions: %dx%d", image.getWidth(), image.getHeight()));
 
-                Image.Plane[] planes = image.getPlanes();
-                ByteBuffer buffer = planes[0].getBuffer();
-                int pixelStride = planes[0].getPixelStride();
-                int rowStride = planes[0].getRowStride();
-                int rowPadding = rowStride - pixelStride * mWidth;
+            Image.Plane[] planes = image.getPlanes();
+            ByteBuffer buffer = planes[0].getBuffer();
+            int pixelStride = planes[0].getPixelStride();
+            int rowStride = planes[0].getRowStride();
+            int rowPadding = rowStride - pixelStride * mWidth;
 
-                Log.e(TAG, String.format("pixelStride: %s | rowStride: %s | rowPadding %s", pixelStride, rowStride, rowPadding));
+            Log.e(TAG, String.format("pixelStride: %s | rowStride: %s | rowPadding %s", pixelStride, rowStride, rowPadding));
 
-                // create bitmap
-                bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                bitmap.copyPixelsFromBuffer(buffer);
-                bitmap = bitmap.createBitmap(bitmap, startX, startY + getStatusBarHeight(), endX, endY);
-
-                tessBaseAPI.setImage(bitmap);
-                String text = tessBaseAPI.getUTF8Text();
-                Log.e(TAG, text);
-                Toast.makeText(this, text, Toast.LENGTH_LONG).show();
-
-                // write bitmap to file
-                fos = new FileOutputStream(STORE_DIRECTORY + "/myscreen " + IMAGES_PRODUCED + ".png");
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-
-                IMAGES_PRODUCED++;
-                Log.e(TAG, "Captured image: " + IMAGES_PRODUCED);
-            }
+            // create bitmap
+            bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+            bitmap.copyPixelsFromBuffer(buffer);
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        finally {
-            if (fos != null){
-                try {
-                    fos.close();
-                }
-                catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-            if (bitmap != null){
-                bitmap.recycle();
-            }
-            if (image != null){
-                image.close();
-            }
-        }
+
+        return bitmap;
     }
 
     private void createVirtualDisplay(){
@@ -180,20 +173,6 @@ public class MainService extends Service {
 
         // start capture reader
         mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
-        mVirtualDisplay = mMediaProjection.createVirtualDisplay("screencap", mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay(getClass().getName(), mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
     }
-
-    private void initUI(){
-        new CaptureWindow(this);
-    }
-
-    private int getStatusBarHeight() {
-        int result = 0;
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
-    }
-
 }

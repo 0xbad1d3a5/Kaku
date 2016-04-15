@@ -3,12 +3,16 @@ package ca.fuwafuwa.kaku;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.googlecode.tesseract.android.TessBaseAPI;
+
 /**
  * Created by Xyresic on 4/13/2016.
  */
 public class CaptureWindow extends Window implements CaptureWindowCallback  {
 
     private String TAG = this.getClass().getName();
+
+    TessBaseAPI tessBaseAPI;
 
     private int initialX;
     private int initialY;
@@ -17,6 +21,11 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
 
     public CaptureWindow(MainService context) {
         super(context);
+
+        tessBaseAPI = new TessBaseAPI();
+        String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
+        Log.e(TAG, storagePath);
+        tessBaseAPI.init(storagePath, "jpn");
 
         ((WindowView) mWindow.findViewById(R.id.capture_window)).registerCallback(this);
         ((ResizeView) mWindow.findViewById(R.id.resize_box)).registerCallback(this);
@@ -44,7 +53,7 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 initialTouchY = e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
-                mContext.saveImage(params.x, params.y, params.width, params.height);
+                new ScreenshotAndOcrAsyncTask(mContext, tessBaseAPI, mContext.getScreenshot(), params.x, params.y, params.width, params.height).execute();
                 return true;
             case MotionEvent.ACTION_MOVE:
                 params.x = initialX + (int) (e.getRawX() - initialTouchX);
