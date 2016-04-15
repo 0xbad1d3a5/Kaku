@@ -12,6 +12,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
@@ -19,6 +20,9 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
+
+import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,6 +33,8 @@ import java.nio.ByteBuffer;
  * Created by 0x1bad1d3a on 4/9/2016.
  */
 public class MainService extends Service {
+
+    private TessBaseAPI tessBaseAPI = new TessBaseAPI();
 
     private MediaProjectionManager mMediaProjectionManager;
     private MediaProjection mMediaProjection;
@@ -91,6 +97,9 @@ public class MainService extends Service {
     public void onCreate() {
         super.onCreate();
         startForeground(1, new Notification());
+        String storagePath = getExternalFilesDir(null).getAbsolutePath();
+        Log.e(TAG, storagePath);
+        tessBaseAPI.init(storagePath, "jpn");
         initUI();
     }
 
@@ -99,7 +108,7 @@ public class MainService extends Service {
         super.onDestroy();
     }
 
-    public void saveImage(){
+    public void saveImage(int startX, int startY, int endX, int endY){
         Image image = null;
         FileOutputStream fos = null;
         Bitmap bitmap = null;
@@ -120,13 +129,12 @@ public class MainService extends Service {
                 // create bitmap
                 bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                 bitmap.copyPixelsFromBuffer(buffer);
-                bitmap = bitmap.createBitmap(bitmap, 0, 0, mWidth, mHeight);
+                bitmap = bitmap.createBitmap(bitmap, startX, startY + getStatusBarHeight(), endX, endY);
 
-                Log.e(TAG, "pixelStride: " + pixelStride);
-                Log.e(TAG, "rowStride: " + rowStride);
-                Log.e(TAG, "rowPadding: " + rowPadding);
-                Log.e(TAG, "mWidth: " + mWidth);
-                Log.e(TAG, "mHeight: " + mHeight);
+                tessBaseAPI.setImage(bitmap);
+                String text = tessBaseAPI.getUTF8Text();
+                Log.e(TAG, text);
+                Toast.makeText(this, text, Toast.LENGTH_LONG).show();
 
                 // write bitmap to file
                 fos = new FileOutputStream(STORE_DIRECTORY + "/myscreen " + IMAGES_PRODUCED + ".png");
@@ -179,5 +187,13 @@ public class MainService extends Service {
         new CaptureWindow(this);
     }
 
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
 
 }
