@@ -1,6 +1,8 @@
 package ca.fuwafuwa.kaku;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Message;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -9,8 +11,7 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.Objects;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.nio.ByteBuffer;
 
 /**
  * Created by Xyresic on 4/16/2016.
@@ -61,7 +62,7 @@ public class TesseractThread implements Runnable {
                 Log.e(TAG, "Unable to write file");
             }
             catch (InterruptedException e){
-
+                e.printStackTrace();
             }
             finally {
                 mBox = null;
@@ -77,34 +78,37 @@ public class TesseractThread implements Runnable {
         }
     }
 
-    private Bitmap getReadyScreenshot(BoxParams box){
-        Bitmap bitmap = mContext.getScreenshot();
-        Log.d(TAG, String.format("X: %d Y: %d\nWidth: %d Height: %d", box.x, box.y + getStatusBarHeight(), box.width, box.height));
-        bitmap = bitmap.createBitmap(bitmap, box.x, box.y + getStatusBarHeight(), box.width, box.height);
-        Log.d(TAG, String.format("Pixel Identifiers:\n%d\n%d\n%d\n%d\n#%06X\n#%06X\n#%06X\n#%06X",
-                bitmap.getPixel(0,0),
-                bitmap.getPixel(1,0),
-                bitmap.getPixel(2,0),
-                bitmap.getPixel(3,0),
-                bitmap.getPixel(4,0),
-                bitmap.getPixel(5,0),
-                bitmap.getPixel(6,0),
-                bitmap.getPixel(7,0)));
-        if (bitmap.getPixel(1, 0) != ContextCompat.getColor(mContext, R.color.red)){
+    private Bitmap getReadyScreenshot(BoxParams box) {
+        Bitmap bitmapOriginal = convertImageToBitmap(mContext.getScreenshot());
+
+        Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
+
+        Bitmap borderPattern = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.border_pattern);
+        Bitmap croppedPattern = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, 8, 1);
+        if (!croppedPattern.sameAs(borderPattern)){
             if (!box.equals(mBox)){
                 return getReadyScreenshot(mBox);
             }
             return getReadyScreenshot(box);
         }
-        return bitmap;
+
+        Bitmap croppedBitmap = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, box.width, box.height);
+        return croppedBitmap;
     }
 
-    private int getStatusBarHeight() {
-        int result = 0;
-        int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = mContext.getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
+    private Bitmap convertImageToBitmap(Image image){
+        Log.d(TAG, String.format("Image Dimensions: %dx%d", image.getWidth(), image.getHeight()));
+
+        Image.Plane[] planes = image.getPlanes();
+        ByteBuffer buffer = planes[0].getBuffer();
+        int pixelStride = planes[0].getPixelStride();
+        int rowStride = planes[0].getRowStride();
+        int rowPadding = rowStride - pixelStride * image.getWidth();
+
+        Bitmap bitmap = Bitmap.createBitmap(image.getWidth() + rowPadding / pixelStride, image.getHeight(), Bitmap.Config.ARGB_8888);
+        bitmap.copyPixelsFromBuffer(buffer);
+        image.close();
+
+        return bitmap;
     }
 }
