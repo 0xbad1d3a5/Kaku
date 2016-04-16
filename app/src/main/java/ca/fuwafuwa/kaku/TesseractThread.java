@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.Message;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
@@ -51,11 +50,17 @@ public class TesseractThread implements Runnable {
                 String text = mTessBaseAPI.getUTF8Text();
                 mTessBaseAPI.clear();
 
-                Message m = Message.obtain(mContext.getHandler(), 0, text + String.format("\nScreenshot Time:%d\nOCR Time: %d", screenTime - startTime, System.currentTimeMillis() - screenTime));
-                m.sendToTarget();
+                if (text != null){
+                    Message m = Message.obtain(mContext.getHandler(), 0, text + String.format("\nScreenshot Time:%d\nOCR Time: %d", screenTime - startTime, System.currentTimeMillis() - screenTime));
+                    m.sendToTarget();
+                    mBox = null;
+                }
 
-                FileOutputStream fos = new FileOutputStream(mContext.getExternalFilesDir(null).getAbsolutePath() + String.format("/screenshots/screen %d.png", System.nanoTime()));
+                String fs = String.format("%s/screenshots/screen %d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), System.nanoTime());
+                Log.d(TAG, fs);
+                FileOutputStream fos = new FileOutputStream(fs);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                bitmap.recycle();
             }
             catch (FileNotFoundException e){
                 e.printStackTrace();
@@ -64,21 +69,19 @@ public class TesseractThread implements Runnable {
             catch (InterruptedException e){
                 e.printStackTrace();
             }
-            finally {
-                mBox = null;
-            }
         }
     }
 
     public void runTess(BoxParams box){
         synchronized (mBoxLock){
             mBox = box;
+            mTessBaseAPI.stop();
             mBoxLock.notify();
             Log.d(TAG, "NOTIFIED");
         }
     }
 
-    private Bitmap getReadyScreenshot(BoxParams box) {
+    private Bitmap getReadyScreenshot(BoxParams box) throws FileNotFoundException {
         Bitmap bitmapOriginal = convertImageToBitmap(mContext.getScreenshot());
 
         Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
@@ -93,6 +96,7 @@ public class TesseractThread implements Runnable {
         }
 
         Bitmap croppedBitmap = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, box.width, box.height);
+        bitmapOriginal.recycle();
         return croppedBitmap;
     }
 

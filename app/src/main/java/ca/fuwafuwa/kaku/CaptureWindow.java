@@ -15,10 +15,8 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
 
     private TesseractThread tesseractThread;
 
-    private int initialX;
-    private int initialY;
-    private float initialTouchX;
-    private float initialTouchY;
+    private int dX;
+    private int dY;
 
     private Point displaySize;
 
@@ -44,18 +42,16 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
         setOpacity(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                initialX = params.x;
-                initialY = params.y;
-                initialTouchX = e.getRawX();
-                initialTouchY = e.getRawY();
+                dX = params.x - (int) e.getRawX();
+                dY = params.y - (int) e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
-                fixBoxBounds();
-                tesseractThread.runTess(new BoxParams(params.x, params.y, params.width, params.height));
+                tesseractThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
                 return true;
             case MotionEvent.ACTION_MOVE:
-                params.x = initialX + (int) (e.getRawX() - initialTouchX);
-                params.y = initialY + (int) (e.getRawY() - initialTouchY);
+                params.x = dX + (int) e.getRawX();
+                params.y = dY + (int) e.getRawY();
+                fixBoxBounds();
                 mWindowManager.updateViewLayout(mWindow, params);
                 return true;
         }
@@ -67,18 +63,16 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
         setOpacity(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                initialX = params.width;
-                initialY = params.height;
-                initialTouchX = e.getRawX();
-                initialTouchY = e.getRawY();
+                dX = params.width - (int) e.getRawX();
+                dY = params.height - (int) e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
-                fixBoxBounds();
-                tesseractThread.runTess(new BoxParams(params.x, params.y, params.width, params.height));
+                tesseractThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
                 return true;
             case MotionEvent.ACTION_MOVE:
-                params.width = initialX + (int) (e.getRawX() - initialTouchX);
-                params.height = initialY + (int) (e.getRawY() - initialTouchY);
+                params.width = dX + (int) e.getRawX();
+                params.height = dY + (int) e.getRawY();
+                fixBoxBounds();
                 mWindowManager.updateViewLayout(mWindow, params);
                 return true;
         }
@@ -99,7 +93,12 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
             Log.d(TAG, "PARAMS Y: " + params.y);
             params.y = displaySize.y - params.height - getStatusBarHeight();
         }
-        params.y += getStatusBarHeight();
+        if (params.width < 100){
+            params.width = 100;
+        }
+        if (params.height < 100){
+            params.height = 100;
+        }
     }
 
     private void setOpacity(MotionEvent e){
