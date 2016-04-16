@@ -1,5 +1,6 @@
 package ca.fuwafuwa.kaku;
 
+import android.graphics.Point;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -19,8 +20,12 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
     private float initialTouchX;
     private float initialTouchY;
 
+    private Point displaySize;
+
     public CaptureWindow(MainService context) {
         super(context);
+
+        displaySize = mContext.getDisplaySize();
 
         TessBaseAPI tessBaseAPI = new TessBaseAPI();
         String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
@@ -34,17 +39,6 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
         (new Thread(tesseractThread)).start();
     }
 
-    private void setOpacity(MotionEvent e){
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border_translucent, null));
-                break;
-            case MotionEvent.ACTION_UP:
-                mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null));
-                break;
-        }
-    }
-
     @Override
     public boolean onMoveEvent(MotionEvent e) {
         setOpacity(e);
@@ -56,7 +50,7 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 initialTouchY = e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
-                //new ScreenshotAndOcrAsyncTask(mContext, tessBaseAPI, params.x, params.y, params.width, params.height).execute();
+                fixBoxBounds();
                 tesseractThread.runTess(new BoxParams(params.x, params.y, params.width, params.height));
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -79,6 +73,8 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 initialTouchY = e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
+                fixBoxBounds();
+                tesseractThread.runTess(new BoxParams(params.x, params.y, params.width, params.height));
                 return true;
             case MotionEvent.ACTION_MOVE:
                 params.width = initialX + (int) (e.getRawX() - initialTouchX);
@@ -87,5 +83,42 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 return true;
         }
         return true;
+    }
+
+    private void fixBoxBounds(){
+        if (params.x < 0){
+            params.x = 0;
+        }
+        else if (params.x + params.width > displaySize.x) {
+            params.x = displaySize.x - params.width;
+        }
+        if (params.y < 0){
+            params.y = 0;
+        }
+        else if (params.y + params.height > displaySize.y) {
+            Log.d(TAG, "PARAMS Y: " + params.y);
+            params.y = displaySize.y - params.height - getStatusBarHeight();
+        }
+        params.y += getStatusBarHeight();
+    }
+
+    private void setOpacity(MotionEvent e){
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border_translucent, null));
+                break;
+            case MotionEvent.ACTION_UP:
+                mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null));
+                break;
+        }
+    }
+
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = mContext.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }

@@ -125,29 +125,16 @@ public class MainService extends Service {
         return mHandler;
     }
 
-    public Bitmap getScreenshot(){
-
-        Bitmap bitmap = null;
+    public Image getScreenshot(){
         Image image = mImageReader.acquireLatestImage();
-
-        if (image != null){
-            Log.e(TAG, String.format("Image Dimensions: %dx%d", image.getWidth(), image.getHeight()));
-
-            Image.Plane[] planes = image.getPlanes();
-            ByteBuffer buffer = planes[0].getBuffer();
-            int pixelStride = planes[0].getPixelStride();
-            int rowStride = planes[0].getRowStride();
-            int rowPadding = rowStride - pixelStride * mDisplayWidth;
-
-            Log.e(TAG, String.format("pixelStride: %s | rowStride: %s | rowPadding %s", pixelStride, rowStride, rowPadding));
-
-            // create bitmap
-            bitmap = Bitmap.createBitmap(mDisplayWidth + rowPadding / pixelStride, mDisplayHeight, Bitmap.Config.ARGB_8888);
-            bitmap.copyPixelsFromBuffer(buffer);
-            image.close();
+        if (image == null){
+            return getScreenshot();
         }
+        return image;
+    }
 
-        return bitmap;
+    public Point getDisplaySize(){
+        return new Point(mDisplayWidth, mDisplayHeight);
     }
 
     private void createVirtualDisplay(){
