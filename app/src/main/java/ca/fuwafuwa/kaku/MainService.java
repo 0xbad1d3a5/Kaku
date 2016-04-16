@@ -21,6 +21,8 @@ import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
 
+import com.googlecode.tesseract.android.TessBaseAPI;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -35,14 +37,13 @@ public class MainService extends Service {
     private MediaProjection mMediaProjection;
     private ImageReader mImageReader;
     private VirtualDisplay mVirtualDisplay;
+    private MainServiceHandler mHandler;
 
-    private int mWidth;
-    private int mHeight;
+    private int mDisplayWidth;
+    private int mDisplayHeight;
     private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
     private OrientationChangeCallback mOrientationChangeCallback;
-
-    MainServiceHandler mHandler;
 
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
@@ -136,13 +137,14 @@ public class MainService extends Service {
             ByteBuffer buffer = planes[0].getBuffer();
             int pixelStride = planes[0].getPixelStride();
             int rowStride = planes[0].getRowStride();
-            int rowPadding = rowStride - pixelStride * mWidth;
+            int rowPadding = rowStride - pixelStride * mDisplayWidth;
 
             Log.e(TAG, String.format("pixelStride: %s | rowStride: %s | rowPadding %s", pixelStride, rowStride, rowPadding));
 
             // create bitmap
-            bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+            bitmap = Bitmap.createBitmap(mDisplayWidth + rowPadding / pixelStride, mDisplayHeight, Bitmap.Config.ARGB_8888);
             bitmap.copyPixelsFromBuffer(buffer);
+            image.close();
         }
 
         return bitmap;
@@ -158,11 +160,11 @@ public class MainService extends Service {
         // get width and height
         Point size = new Point();
         mDisplay.getRealSize(size);
-        mWidth = size.x;
-        mHeight = size.y;
+        mDisplayWidth = size.x;
+        mDisplayHeight = size.y;
 
         // start capture reader
-        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
-        mVirtualDisplay = mMediaProjection.createVirtualDisplay(getClass().getName(), mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
+        mImageReader = ImageReader.newInstance(mDisplayWidth, mDisplayHeight, PixelFormat.RGBA_8888, 2);
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay(getClass().getName(), mDisplayWidth, mDisplayHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
     }
 }
