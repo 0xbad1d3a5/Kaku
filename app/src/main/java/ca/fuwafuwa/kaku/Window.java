@@ -13,7 +13,7 @@ import android.view.WindowManager;
  */
 public class Window {
 
-    private String TAG = this.getClass().getName();
+    private static final String TAG = Window.class.getName();
 
     protected MainService mContext;
     protected WindowManager mWindowManager;

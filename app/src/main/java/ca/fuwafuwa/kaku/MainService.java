@@ -13,24 +13,14 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.OrientationEventListener;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
 
-import com.googlecode.leptonica.android.Pix;
-import com.googlecode.leptonica.android.WriteFile;
-import com.googlecode.tesseract.android.TessBaseAPI;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -116,7 +106,7 @@ public class MainService extends Service {
 
         new CaptureWindow(this);
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
