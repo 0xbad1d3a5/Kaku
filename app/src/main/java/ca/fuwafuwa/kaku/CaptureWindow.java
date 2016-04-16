@@ -2,6 +2,8 @@ package ca.fuwafuwa.kaku;
 
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewTreeObserver;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -10,7 +12,7 @@ import com.googlecode.tesseract.android.TessBaseAPI;
  */
 public class CaptureWindow extends Window implements CaptureWindowCallback  {
 
-    private String TAG = this.getClass().getName();
+    private static final String TAG = CaptureWindow.class.getName();
 
     TessBaseAPI tessBaseAPI;
 
@@ -18,6 +20,8 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
     private int initialY;
     private float initialTouchX;
     private float initialTouchY;
+
+    Boolean captureScreen = false;
 
     public CaptureWindow(MainService context) {
         super(context);
@@ -34,10 +38,12 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
     private void setOpacity(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mWindow.setAlpha(0.4f);
+                mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border_translucent, null));
+                captureScreen = false;
                 break;
             case MotionEvent.ACTION_UP:
-                mWindow.setAlpha(0.1f);
+                mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null));
+                captureScreen = true;
                 break;
         }
     }
@@ -53,7 +59,7 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 initialTouchY = e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
-                new ScreenshotAndOcrAsyncTask(mContext, tessBaseAPI, mContext.getScreenshot(), params.x, params.y, params.width, params.height).execute();
+                new ScreenshotAndOcrAsyncTask(mContext, tessBaseAPI, params.x, params.y, params.width, params.height).execute();
                 return true;
             case MotionEvent.ACTION_MOVE:
                 params.x = initialX + (int) (e.getRawX() - initialTouchX);
@@ -61,7 +67,6 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 mWindowManager.updateViewLayout(mWindow, params);
                 return true;
         }
-        Log.e(TAG, "NOTHING");
         return false;
     }
 
