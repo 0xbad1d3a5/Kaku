@@ -1,6 +1,7 @@
 package ca.fuwafuwa.kaku;
 
 import android.graphics.Point;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -18,6 +19,7 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
     private int dX;
     private int dY;
 
+    private long paramUpdateTimer = System.currentTimeMillis();
     private Point displaySize;
 
     public CaptureWindow(MainService context) {
@@ -73,7 +75,11 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 params.width = dX + (int) e.getRawX();
                 params.height = dY + (int) e.getRawY();
                 fixBoxBounds();
-                mWindowManager.updateViewLayout(mWindow, params);
+                long currTime = System.currentTimeMillis();
+                if (currTime - paramUpdateTimer > 50){
+                    paramUpdateTimer = currTime;
+                    mWindowManager.updateViewLayout(mWindow, params);
+                }
                 return true;
         }
         return true;
@@ -110,6 +116,15 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null));
                 break;
         }
+    }
+
+    private int getNavigationBarHeight(){
+        int result = 0;
+        int resourceId = mContext.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0){
+            result = mContext.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     private int getStatusBarHeight() {

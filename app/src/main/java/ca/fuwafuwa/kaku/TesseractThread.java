@@ -64,7 +64,12 @@ public class TesseractThread implements Runnable {
             }
             catch (FileNotFoundException e){
                 e.printStackTrace();
-                Log.e(TAG, "Unable to write file");
+            }
+            catch (OutOfMemoryError e){
+                e.printStackTrace();
+            }
+            catch (StackOverflowError e){
+                e.printStackTrace();
             }
             catch (InterruptedException e){
                 e.printStackTrace();
@@ -81,7 +86,7 @@ public class TesseractThread implements Runnable {
         }
     }
 
-    private Bitmap getReadyScreenshot(BoxParams box) throws FileNotFoundException {
+    private Bitmap getReadyScreenshot(BoxParams box) throws OutOfMemoryError, StackOverflowError {
         Bitmap bitmapOriginal = convertImageToBitmap(mContext.getScreenshot());
 
         Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
@@ -100,7 +105,7 @@ public class TesseractThread implements Runnable {
         return croppedBitmap;
     }
 
-    private Bitmap convertImageToBitmap(Image image){
+    private Bitmap convertImageToBitmap(Image image) throws OutOfMemoryError {
         Log.d(TAG, String.format("Image Dimensions: %dx%d", image.getWidth(), image.getHeight()));
 
         Image.Plane[] planes = image.getPlanes();
