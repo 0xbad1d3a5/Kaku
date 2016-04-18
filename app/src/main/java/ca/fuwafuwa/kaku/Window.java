@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -39,6 +40,16 @@ public class Window {
         params.gravity = Gravity.TOP | Gravity.LEFT;
 
         mWindowManager.addView(mWindow, params);
+    }
+
+    public void close(){
+        mWindowManager.removeView(mWindow);
+        Log.d(TAG, "WINDOW CLOSED");
+    }
+
+    public void finalize() throws Throwable{
+        super.finalize();
+        Log.d(TAG, "WINDOW FINALIZED");
     }
 }
 

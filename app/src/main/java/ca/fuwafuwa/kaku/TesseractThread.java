@@ -21,8 +21,8 @@ public class TesseractThread implements Runnable {
 
     private MainService mContext;
     private TessBaseAPI mTessBaseAPI;
+    private boolean running = true;
     private BoxParams mBox;
-
     private Object mBoxLock = new Object();
 
     public TesseractThread(MainService context, TessBaseAPI tessBaseAPI){
@@ -33,7 +33,10 @@ public class TesseractThread implements Runnable {
 
     @Override
     public void run() {
-        while(true){
+        while(running){
+
+            Log.d(TAG, "THREAD STARTING NEW LOOP");
+
             try {
                 if (mBox == null){
                     synchronized (mBoxLock){
@@ -75,6 +78,11 @@ public class TesseractThread implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void stop(){
+        Log.d(TAG, "THREAD STOPPED");
+        running = false;
     }
 
     public void runTess(BoxParams box){
