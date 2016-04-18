@@ -3,6 +3,7 @@ package ca.fuwafuwa.kaku;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -52,6 +53,17 @@ public class MainService extends Service {
 
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
+
+    Window mWindow;
+
+    public static class CloseMainService extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "GOT CLOSE");
+            context.stopService(new Intent(context, MainService.class));
+        }
+    }
 
     private class OrientationChangeCallback extends OrientationEventListener {
 
@@ -110,7 +122,10 @@ public class MainService extends Service {
 
         createVirtualDisplay();
 
-        new CaptureWindow(this);
+        if (mWindow != null){
+            mWindow.close();
+        }
+        mWindow = new CaptureWindow(this);
 
         return START_NOT_STICKY;
     }
@@ -118,11 +133,12 @@ public class MainService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        RemoteViews rv = new RemoteViews(getPackageName(), R.layout.notification);
-
+        Log.d(TAG, "CREATING MAINSERVICE: " + System.identityHashCode(this));
         Notification n = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContent(rv)
+                .setContentTitle("Kaku is running")
+                .setContentText("Tap here to close Kaku")
+                .setContentIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, CloseMainService.class), 0))
                 .build();
 
         startForeground(1, n);
@@ -131,6 +147,9 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        mWindow.close();
+        Log.d(TAG, "DESTORYING MAINSERVICE: " + System.identityHashCode(this));
     }
 
     public Handler getHandler(){
