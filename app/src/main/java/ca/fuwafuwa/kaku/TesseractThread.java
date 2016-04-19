@@ -20,15 +20,21 @@ public class TesseractThread implements Runnable {
     private static final String TAG = TesseractThread.class.getName();
 
     private MainService mContext;
+    private CaptureWindow mCaptureWindow;
     private TessBaseAPI mTessBaseAPI;
     private boolean running = true;
     private BoxParams mBox;
     private Object mBoxLock = new Object();
 
-    public TesseractThread(MainService context, TessBaseAPI tessBaseAPI){
+    public TesseractThread(MainService context, CaptureWindow captureWindow){
         mContext = context;
-        mTessBaseAPI = tessBaseAPI;
+        mCaptureWindow = captureWindow;
         mBox = null;
+
+        mTessBaseAPI = new TessBaseAPI();
+        String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
+        Log.e(TAG, storagePath);
+        mTessBaseAPI.init(storagePath, "jpn");
     }
 
     @Override
@@ -49,6 +55,8 @@ public class TesseractThread implements Runnable {
                 Bitmap bitmap = getReadyScreenshot(mBox);
                 long screenTime = System.currentTimeMillis();
 
+                mCaptureWindow.showLoadingAnimation();
+                
                 mTessBaseAPI.setImage(bitmap);
                 String text = mTessBaseAPI.getUTF8Text();
                 mTessBaseAPI.clear();
@@ -58,6 +66,8 @@ public class TesseractThread implements Runnable {
                     m.sendToTarget();
                     mBox = null;
                 }
+
+                mCaptureWindow.stopLoadingAnimation();
 
                 String fs = String.format("%s/screenshots/screen %d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), System.nanoTime());
                 Log.d(TAG, fs);

@@ -1,11 +1,12 @@
 package ca.fuwafuwa.kaku;
 
 import android.graphics.Point;
-import android.provider.Settings;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
-
-import com.googlecode.tesseract.android.TessBaseAPI;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
@@ -15,6 +16,12 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
     private static final String TAG = CaptureWindow.class.getName();
 
     private TesseractThread tesseractThread;
+    private WindowView windowView;
+    private ResizeView resizeView;
+    private View windowBox;
+    private Animation fadeRepeat;
+    private Drawable borderTranslucent;
+    private Drawable border9PatchTransparent;
 
     private int dX;
     private int dY;
@@ -27,15 +34,18 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
 
         displaySize = mContext.getDisplaySize();
 
-        TessBaseAPI tessBaseAPI = new TessBaseAPI();
-        String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
-        Log.e(TAG, storagePath);
-        tessBaseAPI.init(storagePath, "jpn");
+        windowView = (WindowView) mWindow.findViewById(R.id.capture_window);
+        resizeView = (ResizeView) mWindow.findViewById(R.id.resize_box);
+        windowBox = mWindow.findViewById(R.id.capture_box);
 
-        ((WindowView) mWindow.findViewById(R.id.capture_window)).registerCallback(this);
-        ((ResizeView) mWindow.findViewById(R.id.resize_box)).registerCallback(this);
+        fadeRepeat = AnimationUtils.loadAnimation(mContext, R.anim.fade_repeat);
+        borderTranslucent = mContext.getResources().getDrawable(R.drawable.border_translucent, null);
+        border9PatchTransparent = mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null);
 
-        tesseractThread = new TesseractThread(mContext, tessBaseAPI);
+        windowView.registerCallback(this);
+        resizeView.registerCallback(this);
+
+        tesseractThread = new TesseractThread(mContext, this);
         (new Thread(tesseractThread)).start();
     }
 
@@ -85,6 +95,38 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
         return true;
     }
 
+    public void showLoadingAnimation(){
+        mContext.getHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                windowBox.setAnimation(fadeRepeat);
+                windowBox.startAnimation(fadeRepeat);
+                windowBox.setBackground(borderTranslucent);
+            }
+        });
+    }
+
+    public void stopLoadingAnimation(){
+        mContext.getHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                windowBox.setBackground(border9PatchTransparent);
+                windowBox.clearAnimation();
+            }
+        });
+    }
+
+    private void setOpacity(MotionEvent e){
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                windowBox.setBackground(borderTranslucent);
+                break;
+            case MotionEvent.ACTION_UP:
+                windowBox.setBackground(border9PatchTransparent);
+                break;
+        }
+    }
+
     private void fixBoxBounds(){
         if (params.x < 0){
             params.x = 0;
@@ -104,17 +146,6 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
         }
         if (params.height < 100){
             params.height = 100;
-        }
-    }
-
-    private void setOpacity(MotionEvent e){
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border_translucent, null));
-                break;
-            case MotionEvent.ACTION_UP:
-                mWindow.findViewById(R.id.capture_box).setBackground(mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null));
-                break;
         }
     }
 
