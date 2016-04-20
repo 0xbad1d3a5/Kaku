@@ -2,7 +2,6 @@
 <ca.fuwafuwa.kaku.WindowView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/capture_window"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <FrameLayout
@@ -22,7 +21,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"></ca.fuwafuwa.kaku.ResizeView>
+                android:layout_alignParentRight="true" />
         </RelativeLayout>
     </FrameLayout>
 </ca.fuwafuwa.kaku.WindowView>

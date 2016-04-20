@@ -1,18 +1,13 @@
 package ca.fuwafuwa.kaku;
 
-import android.content.Context;
 import android.graphics.PixelFormat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
-/**
- * Created by 0x1bad1d3a on 4/13/2016.
- */
-public class Window {
+public abstract class Window implements Stoppable {
 
     private static final String TAG = Window.class.getName();
 
@@ -30,26 +25,31 @@ public class Window {
         mWindow = inflater.inflate(R.layout.capture_window, null);
         mWindow.setTag(this);
 
-        params = new WindowManager.LayoutParams(
+        params = getDefaultParams();
+
+        mWindowManager.addView(mWindow, params);
+    }
+
+    protected WindowManager.LayoutParams getDefaultParams(){
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 400,
                 400,
                 WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
-
+        params.x = 0;
+        params.y = 0;
         params.gravity = Gravity.TOP | Gravity.LEFT;
-
-        mWindowManager.addView(mWindow, params);
+        return params;
     }
 
-    public void close(){
+    @Override
+    public final void stop() {
+        Log.d(TAG, "WINDOW CLOSING");
+        cleanup();
         mWindowManager.removeView(mWindow);
-        Log.d(TAG, "WINDOW CLOSED");
     }
 
-    public void finalize() throws Throwable{
-        super.finalize();
-        Log.d(TAG, "WINDOW FINALIZED");
-    }
+    protected abstract void cleanup();
 }
 
