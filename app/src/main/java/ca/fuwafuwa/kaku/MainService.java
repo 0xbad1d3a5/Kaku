@@ -6,8 +6,6 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
@@ -22,14 +20,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
-import android.widget.RemoteViews;
-
-import com.googlecode.tesseract.android.TessBaseAPI;
-
-import java.nio.ByteBuffer;
 
 /**
  * Created by Xyresic on 4/9/2016.
@@ -38,12 +30,14 @@ public class MainService extends Service {
 
     public static final String TAG = MainService.class.getName();
 
-    private WindowManager windowManager;
+    private WindowManager mWindowManager;
     private MediaProjectionManager mMediaProjectionManager;
     private MediaProjection mMediaProjection;
     private ImageReader mImageReader;
+    private Display mDisplay;
     private VirtualDisplay mVirtualDisplay;
     private MainServiceHandler mHandler;
+    private int mRotation;
 
     private int mDisplayWidth;
     private int mDisplayHeight;
@@ -54,7 +48,7 @@ public class MainService extends Service {
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
 
-    Window mWindow;
+    CaptureWindow mWindow;
 
     public static class CloseMainService extends BroadcastReceiver {
 
@@ -74,11 +68,22 @@ public class MainService extends Service {
         @Override
         public void onOrientationChanged(int orientation) {
             synchronized (this){
-                Log.d(TAG, "Orientation changed");
-                if (mVirtualDisplay != null){
-                    mVirtualDisplay.release();
+                final int rotation = mDisplay.getRotation();
+                if (rotation != mRotation){
+
+                    mRotation = rotation;
+                    Log.d(TAG, "Orientation changed");
+
+                    if (mVirtualDisplay != null){
+                        mVirtualDisplay.release();
+                    }
+                    if (mImageReader != null){
+                        mImageReader.setOnImageAvailableListener(null, null);
+                    }
+                    createVirtualDisplay();
+
+                    mWindow.reInit();
                 }
-                createVirtualDisplay();
             }
         }
     }
@@ -114,18 +119,24 @@ public class MainService extends Service {
         int resultCode = intent.getExtras().getInt(EXTRA_RESULT_CODE);
 
         mHandler = new MainServiceHandler(this);
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         mMediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, mIntent);
-        mOrientationChangeCallback = new OrientationChangeCallback(this);
         mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
+
+        mOrientationChangeCallback = new OrientationChangeCallback(this);
+        if (mOrientationChangeCallback.canDetectOrientation()){
+            mOrientationChangeCallback.enable();
+        }
 
         createVirtualDisplay();
 
-        if (mWindow != null){
-            mWindow.close();
+        if (mWindow == null){
+            mWindow = new CaptureWindow(this);
         }
-        mWindow = new CaptureWindow(this);
+        else {
+            mWindow.reInit();
+        }
 
         return START_NOT_STICKY;
     }
@@ -146,10 +157,9 @@ public class MainService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-
-        mWindow.close();
         Log.d(TAG, "DESTORYING MAINSERVICE: " + System.identityHashCode(this));
+        mWindow.stop();
+        super.onDestroy();
     }
 
     public Handler getHandler(){
@@ -173,7 +183,7 @@ public class MainService extends Service {
         // display metrics
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int mDensity = metrics.densityDpi;
-        Display mDisplay = windowManager.getDefaultDisplay();
+        mDisplay = mWindowManager.getDefaultDisplay();
 
         // get width and height
         Point size = new Point();
