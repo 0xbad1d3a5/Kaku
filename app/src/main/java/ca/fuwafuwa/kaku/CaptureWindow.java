@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
@@ -68,6 +67,7 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 dY = params.y - (int) e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
+                fixBoxBounds();
                 mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -89,6 +89,7 @@ public class CaptureWindow extends Window implements CaptureWindowCallback  {
                 dY = params.height - (int) e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
+                fixBoxBounds();
                 mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
                 return true;
             case MotionEvent.ACTION_MOVE:
