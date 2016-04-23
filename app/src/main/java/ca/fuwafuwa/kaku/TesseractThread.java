@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
+import ca.fuwafuwa.kaku.Windows.CaptureWindow;
+
 /**
  * Created by 0x1bad1d3a on 4/16/2016.
  */

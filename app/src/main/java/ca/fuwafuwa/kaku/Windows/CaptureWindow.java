@@ -1,4 +1,4 @@
-package ca.fuwafuwa.kaku;
+package ca.fuwafuwa.kaku.Windows;
 
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
@@ -7,6 +7,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+
+import ca.fuwafuwa.kaku.BoxParams;
+import ca.fuwafuwa.kaku.MainService;
+import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.TesseractThread;
 
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
