@@ -43,7 +43,8 @@ public abstract class Window implements Stoppable {
         return params;
     }
 
-    /* stop() MUST be called or the window does not get removed from the android screen
+    /**
+     * stop() MUST be called or the window does not get removed from the android screen
      * otherwise, the view remains on the screen even after you stop the service
      */
     @Override
@@ -53,7 +54,8 @@ public abstract class Window implements Stoppable {
         mWindowManager.removeView(mWindow);
     }
 
-    /* Implementing classes of Window MUST call cleanup if they need to release resources
+    /**
+     * Implementing classes of Window MUST call cleanup if they need to release resources
      */
     protected abstract void cleanup();
 }

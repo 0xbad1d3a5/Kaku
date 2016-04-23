@@ -16,6 +16,7 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -26,9 +27,12 @@ import android.view.WindowManager;
 /**
  * Created by Xyresic on 4/9/2016.
  */
-public class MainService extends Service {
+public class MainService extends Service implements Stoppable {
 
     public static final String TAG = MainService.class.getName();
+    public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
+    public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
+    private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
     private WindowManager mWindowManager;
     private MediaProjectionManager mMediaProjectionManager;
@@ -37,18 +41,14 @@ public class MainService extends Service {
     private Display mDisplay;
     private VirtualDisplay mVirtualDisplay;
     private MainServiceHandler mHandler;
-    private int mRotation;
 
+    private int mRotation;
     private int mDisplayWidth;
     private int mDisplayHeight;
-    private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
+    private MediaProjectionStopCallback mMediaProjectionStopCallback;
     private OrientationChangeCallback mOrientationChangeCallback;
-
-    public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
-    public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
-
-    CaptureWindow mWindow;
+    private CaptureWindow mCaptureWindow;
 
     public static class CloseMainService extends BroadcastReceiver {
 
@@ -74,15 +74,9 @@ public class MainService extends Service {
                     mRotation = rotation;
                     Log.d(TAG, "Orientation changed");
 
-                    if (mVirtualDisplay != null){
-                        mVirtualDisplay.release();
-                    }
-                    if (mImageReader != null){
-                        mImageReader.setOnImageAvailableListener(null, null);
-                    }
                     createVirtualDisplay();
 
-                    mWindow.reInit();
+                    mCaptureWindow.reInit();
                 }
             }
         }
@@ -95,6 +89,7 @@ public class MainService extends Service {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                if (MediaProjectionStopCallback.this == mMediaProjectionStopCallback){
                     if (mVirtualDisplay != null){
                         mVirtualDisplay.release();
                     }
@@ -102,6 +97,7 @@ public class MainService extends Service {
                         mOrientationChangeCallback.disable();
                     }
                     mMediaProjection.unregisterCallback(MediaProjectionStopCallback.this);
+                }
                 }
             });
         }
@@ -115,14 +111,21 @@ public class MainService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+
+        Log.d(TAG, "New onStartCommand");
+
         Intent mIntent = (Intent) intent.getExtras().get(EXTRA_RESULT_INTENT);
         int resultCode = intent.getExtras().getInt(EXTRA_RESULT_CODE);
 
         mHandler = new MainServiceHandler(this);
-        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mMediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, mIntent);
-        mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
+
+        if (mMediaProjection == null){
+            Log.d(TAG, "mMediaProjection is null");
+            mMediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, mIntent);
+            mMediaProjectionStopCallback = new MediaProjectionStopCallback();
+            mMediaProjection.registerCallback(mMediaProjectionStopCallback, mHandler);
+        }
 
         mOrientationChangeCallback = new OrientationChangeCallback(this);
         if (mOrientationChangeCallback.canDetectOrientation()){
@@ -131,11 +134,12 @@ public class MainService extends Service {
 
         createVirtualDisplay();
 
-        if (mWindow == null){
-            mWindow = new CaptureWindow(this);
+        if (mCaptureWindow == null){
+            Log.d(TAG, "CaptureWindow is null");
+            mCaptureWindow = new CaptureWindow(this);
         }
         else {
-            mWindow.reInit();
+            mCaptureWindow.reInit();
         }
 
         return START_NOT_STICKY;
@@ -158,15 +162,23 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "DESTORYING MAINSERVICE: " + System.identityHashCode(this));
-        mWindow.stop();
+        mCaptureWindow.stop();
+        stop();
         super.onDestroy();
+    }
+
+    @Override
+    public void stop() {
+        if (mMediaProjection != null){
+            mMediaProjection.stop();
+        }
     }
 
     public Handler getHandler(){
         return mHandler;
     }
 
-    public Image getScreenshot(){
+    public Image getScreenshot() {
         Image image = mImageReader.acquireLatestImage();
         if (image == null){
             return getScreenshot();
@@ -181,6 +193,7 @@ public class MainService extends Service {
     private void createVirtualDisplay(){
 
         // display metrics
+        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int mDensity = metrics.densityDpi;
         mDisplay = mWindowManager.getDefaultDisplay();
@@ -192,6 +205,10 @@ public class MainService extends Service {
         mDisplayHeight = size.y;
 
         // start capture reader
+        Log.e(TAG, "Starting Projection");
+        if (mVirtualDisplay != null){
+            mVirtualDisplay.release();
+        }
         mImageReader = ImageReader.newInstance(mDisplayWidth, mDisplayHeight, PixelFormat.RGBA_8888, 2);
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(getClass().getName(), mDisplayWidth, mDisplayHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
     }
