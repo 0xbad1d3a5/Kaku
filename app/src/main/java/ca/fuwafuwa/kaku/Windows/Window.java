@@ -1,4 +1,4 @@
-package ca.fuwafuwa.kaku;
+package ca.fuwafuwa.kaku.Windows;
 
 import android.graphics.PixelFormat;
 import android.util.Log;
@@ -6,6 +6,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+
+import ca.fuwafuwa.kaku.MainService;
+import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Stoppable;
 
 public abstract class Window implements Stoppable {
 

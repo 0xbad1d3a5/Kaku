@@ -1,27 +1,26 @@
-package ca.fuwafuwa.kaku;
+package ca.fuwafuwa.kaku.Windows;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
 
 /**
  * Created by Xyresic on 4/13/2016.
  */
-public class WindowView extends LinearLayout {
+public class ResizeView extends LinearLayout {
 
     private CaptureWindowCallback captureWindowCallback;
 
-    public WindowView(Context context) {
+    public ResizeView(Context context) {
         super(context);
     }
 
-    public WindowView(Context context, AttributeSet attrs) {
+    public ResizeView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public WindowView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ResizeView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -31,6 +30,6 @@ public class WindowView extends LinearLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
-        return captureWindowCallback.onMoveEvent(e);
+        return captureWindowCallback.onResizeEvent(e);
     }
 }
