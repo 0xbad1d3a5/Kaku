@@ -1,8 +1,6 @@
 package ca.fuwafuwa.kaku.Windows;
 
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -16,31 +14,25 @@ import ca.fuwafuwa.kaku.TesseractThread;
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
  */
-public class CaptureWindow extends Window implements CaptureWindowCallback  {
+public class CaptureWindow extends Window implements WindowCallback {
 
     private static final String TAG = CaptureWindow.class.getName();
 
     private TesseractThread mTessThread;
-    private WindowView windowView;
-    private ResizeView resizeView;
+
     private View windowBox;
     private Animation fadeRepeat;
     private Drawable borderTranslucent;
     private Drawable border9PatchTransparent;
 
     public CaptureWindow(MainService context) {
-        super(context);
+        super(context, R.layout.capture_window);
 
-        windowView = (WindowView) mWindow.findViewById(R.id.capture_window);
-        resizeView = (ResizeView) mWindow.findViewById(R.id.resize_box);
         windowBox = mWindow.findViewById(R.id.capture_box);
 
         fadeRepeat = AnimationUtils.loadAnimation(mContext, R.anim.fade_repeat);
         borderTranslucent = mContext.getResources().getDrawable(R.drawable.border_translucent, null);
         border9PatchTransparent = mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null);
-
-        windowView.registerCallback(this);
-        resizeView.registerCallback(this);
 
         mTessThread = new TesseractThread(mContext, this);
         Thread tessThread = new Thread(mTessThread);

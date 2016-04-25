@@ -8,11 +8,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
+
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Stoppable;
 
-public abstract class Window implements Stoppable, CaptureWindowCallback {
+public abstract class Window implements Stoppable, WindowCallback {
 
     private static final String TAG = Window.class.getName();
 
@@ -21,36 +23,34 @@ public abstract class Window implements Stoppable, CaptureWindowCallback {
     protected View mWindow;
     protected WindowManager.LayoutParams params;
 
+    private WindowView windowView;
+    private ResizeView resizeView;
+
     private int dX;
     private int dY;
     private Point displaySize;
     private long paramUpdateTimer = System.currentTimeMillis();
 
-    public Window(MainService context){
+    public Window(MainService context, int contentView){
         this.mContext = context;
 
         mWindowManager = (WindowManager) mContext.getSystemService(context.WINDOW_SERVICE);
         LayoutInflater inflater = (LayoutInflater) mContext.getApplicationContext().getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
-        mWindow = inflater.inflate(R.layout.capture_window, null);
+        mWindow = inflater.inflate(R.layout.window, null);
         mWindow.setTag(this);
+
+        windowView = (WindowView) mWindow.findViewById(R.id.window_view);
+        resizeView = (ResizeView) mWindow.findViewById(R.id.resize_view);
+        windowView.registerCallback(this);
+        resizeView.registerCallback(this);
+
+        RelativeLayout relativeLayout = (RelativeLayout) mWindow.findViewById(R.id.content_view);
+        relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
 
         displaySize = mContext.getDisplaySize();
         params = getDefaultParams();
 
         mWindowManager.addView(mWindow, params);
-    }
-
-    protected WindowManager.LayoutParams getDefaultParams(){
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                400,
-                400,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
-        params.x = 0;
-        params.y = 0;
-        params.gravity = Gravity.TOP | Gravity.LEFT;
-        return params;
     }
 
     public void reInit(){
@@ -71,15 +71,15 @@ public abstract class Window implements Stoppable, CaptureWindowCallback {
     }
 
     /**
-     * Implementing classes of Window MUST call cleanup if they need to release resources
+     * Implementing classes of Window MUST implement cleanup if they need to release resources
      */
     protected abstract void cleanup();
 
     /**
      * Override this if implementing Window does not need to move around
      *
-     * @param e
-     * @return
+     * @param e MotionEvent for moving the Window
+     * @return Returns whether the MotionEvent was handled
      */
     public boolean onMoveEvent(MotionEvent e){
         switch (e.getAction()) {
@@ -103,8 +103,8 @@ public abstract class Window implements Stoppable, CaptureWindowCallback {
     /**
      * Override this if implementing Window does not need to resize
      *
-     * @param e
-     * @return
+     * @param e MotionEvent for resizing the Window
+     * @return Returns whether the MotionEvent was handled
      */
     @Override
     public boolean onResizeEvent(MotionEvent e){
@@ -128,6 +128,37 @@ public abstract class Window implements Stoppable, CaptureWindowCallback {
                 return true;
         }
         return false;
+    }
+
+    protected WindowManager.LayoutParams getDefaultParams(){
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                400,
+                400,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+        params.x = 0;
+        params.y = 0;
+        params.gravity = Gravity.TOP | Gravity.LEFT;
+        return params;
+    }
+
+    protected int getNavigationBarHeight(){
+        int result = 0;
+        int resourceId = mContext.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0){
+            result = mContext.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    protected int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = mContext.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     private void fixBoxBounds(){
@@ -155,24 +186,6 @@ public abstract class Window implements Stoppable, CaptureWindowCallback {
         if (params.height < 100){
             params.height = 100;
         }
-    }
-
-    protected int getNavigationBarHeight(){
-        int result = 0;
-        int resourceId = mContext.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0){
-            result = mContext.getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
-    }
-
-    protected int getStatusBarHeight() {
-        int result = 0;
-        int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = mContext.getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
     }
 }
 

@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
  */
 public class ResizeView extends LinearLayout {
 
-    private CaptureWindowCallback captureWindowCallback;
+    private WindowCallback windowCallback;
 
     public ResizeView(Context context) {
         super(context);
@@ -24,12 +24,12 @@ public class ResizeView extends LinearLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void registerCallback(CaptureWindowCallback captureWindowCallback){
-        this.captureWindowCallback = captureWindowCallback;
+    public void registerCallback(WindowCallback windowCallback){
+        this.windowCallback = windowCallback;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
-        return captureWindowCallback.onResizeEvent(e);
+        return windowCallback.onResizeEvent(e);
     }
 }
