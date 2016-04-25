@@ -8,7 +8,7 @@ import ca.fuwafuwa.kaku.MainService;
 public class InformationWindow extends Window {
 
     public InformationWindow(MainService context) {
-        super(context);
+        super(context, 0);
     }
 
     @Override

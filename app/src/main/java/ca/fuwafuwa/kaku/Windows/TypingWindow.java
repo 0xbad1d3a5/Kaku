@@ -8,7 +8,7 @@ import ca.fuwafuwa.kaku.MainService;
 public class TypingWindow extends Window{
 
     public TypingWindow(MainService context) {
-        super(context);
+        super(context, 0);
     }
 
     @Override

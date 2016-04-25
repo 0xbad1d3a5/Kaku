@@ -1,27 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ca.fuwafuwa.kaku.Windows.WindowView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/capture_window"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/border_transparent" />
-        <RelativeLayout
-            android:id="@+id/capture_box"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/border9patch_transparent">
-            <ca.fuwafuwa.kaku.Windows.ResizeView
-                android:id="@+id/resize_box"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true" />
-        </RelativeLayout>
-    </FrameLayout>
-</ca.fuwafuwa.kaku.Windows.WindowView>
+        android:layout_height="match_parent"
+        android:background="@drawable/border_transparent" />
+    <RelativeLayout
+        android:id="@+id/capture_box"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/border9patch_transparent">
+    </RelativeLayout>
+</FrameLayout>
