@@ -1,25 +1,30 @@
 package ca.fuwafuwa.kaku.Windows;
 
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Stoppable;
 
-public abstract class Window implements Stoppable {
+public abstract class Window implements Stoppable, CaptureWindowCallback {
 
     private static final String TAG = Window.class.getName();
 
     protected MainService mContext;
     protected WindowManager mWindowManager;
     protected View mWindow;
-
     protected WindowManager.LayoutParams params;
+
+    private int dX;
+    private int dY;
+    private Point displaySize;
+    private long paramUpdateTimer = System.currentTimeMillis();
 
     public Window(MainService context){
         this.mContext = context;
@@ -29,6 +34,7 @@ public abstract class Window implements Stoppable {
         mWindow = inflater.inflate(R.layout.capture_window, null);
         mWindow.setTag(this);
 
+        displaySize = mContext.getDisplaySize();
         params = getDefaultParams();
 
         mWindowManager.addView(mWindow, params);
@@ -47,6 +53,12 @@ public abstract class Window implements Stoppable {
         return params;
     }
 
+    public void reInit(){
+        displaySize = mContext.getDisplaySize();
+        fixBoxBounds();
+        mWindowManager.updateViewLayout(mWindow, params);
+    }
+
     /**
      * stop() MUST be called or the window does not get removed from the android screen
      * otherwise, the view remains on the screen even after you stop the service
@@ -62,5 +74,105 @@ public abstract class Window implements Stoppable {
      * Implementing classes of Window MUST call cleanup if they need to release resources
      */
     protected abstract void cleanup();
+
+    /**
+     * Override this if implementing Window does not need to move around
+     *
+     * @param e
+     * @return
+     */
+    public boolean onMoveEvent(MotionEvent e){
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                dX = params.x - (int) e.getRawX();
+                dY = params.y - (int) e.getRawY();
+                return true;
+            case MotionEvent.ACTION_UP:
+                fixBoxBounds();
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                params.x = dX + (int) e.getRawX();
+                params.y = dY + (int) e.getRawY();
+                fixBoxBounds();
+                mWindowManager.updateViewLayout(mWindow, params);
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Override this if implementing Window does not need to resize
+     *
+     * @param e
+     * @return
+     */
+    @Override
+    public boolean onResizeEvent(MotionEvent e){
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                dX = params.width - (int) e.getRawX();
+                dY = params.height - (int) e.getRawY();
+                return true;
+            case MotionEvent.ACTION_UP:
+                fixBoxBounds();
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                params.width = dX + (int) e.getRawX();
+                params.height = dY + (int) e.getRawY();
+                fixBoxBounds();
+                long currTime = System.currentTimeMillis();
+                if (currTime - paramUpdateTimer > 50){
+                    paramUpdateTimer = currTime;
+                    mWindowManager.updateViewLayout(mWindow, params);
+                }
+                return true;
+        }
+        return false;
+    }
+
+    private void fixBoxBounds(){
+        if (params.x < 0){
+            params.x = 0;
+        }
+        else if (params.x + params.width > displaySize.x) {
+            params.x = displaySize.x - params.width;
+        }
+        if (params.y < 0){
+            params.y = 0;
+        }
+        else if (params.y + params.height > displaySize.y) {
+            params.y = displaySize.y - params.height - getStatusBarHeight();
+        }
+        if (params.width > displaySize.x){
+            params.width = displaySize.x;
+        }
+        if (params.height > displaySize.y){
+            params.height = displaySize.y;
+        }
+        if (params.width < 100){
+            params.width = 100;
+        }
+        if (params.height < 100){
+            params.height = 100;
+        }
+    }
+
+    protected int getNavigationBarHeight(){
+        int result = 0;
+        int resourceId = mContext.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0){
+            result = mContext.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    protected int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = mContext.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
 }
 
