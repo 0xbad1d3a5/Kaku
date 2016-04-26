@@ -24,6 +24,7 @@ import android.view.OrientationEventListener;
 import android.view.WindowManager;
 
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
+import ca.fuwafuwa.kaku.XmlParsers.JmDictParser;
 
 /**
  * Created by Xyresic on 4/9/2016.

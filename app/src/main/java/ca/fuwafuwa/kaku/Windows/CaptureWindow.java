@@ -10,6 +10,7 @@ import ca.fuwafuwa.kaku.BoxParams;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.TesseractThread;
+import ca.fuwafuwa.kaku.XmlParsers.JmDictParser;
 
 /**
  * Created by Xyresic on 4/13/2016.
@@ -25,6 +26,8 @@ public class CaptureWindow extends Window implements WindowCallback {
     private Drawable borderTranslucent;
     private Drawable border9PatchTransparent;
 
+    JmDictParser jmDict;
+
     public CaptureWindow(MainService context) {
         super(context, R.layout.capture_window);
 
@@ -33,6 +36,8 @@ public class CaptureWindow extends Window implements WindowCallback {
         fadeRepeat = AnimationUtils.loadAnimation(mContext, R.anim.fade_repeat);
         borderTranslucent = mContext.getResources().getDrawable(R.drawable.border_translucent, null);
         border9PatchTransparent = mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null);
+
+        JmDictParser jmDict = new JmDictParser(mContext);
 
         mTessThread = new TesseractThread(mContext, this);
         Thread tessThread = new Thread(mTessThread);
@@ -46,6 +51,7 @@ public class CaptureWindow extends Window implements WindowCallback {
         boolean handled = super.onMoveEvent(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_UP:
+
                 mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
                 break;
         }
