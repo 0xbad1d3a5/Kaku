@@ -5,15 +5,17 @@ import android.util.Log;
 
 import junit.framework.Assert;
 
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStreamReader;
+
+import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmDict;
 
 /**
  * Created by Xyresic on 4/25/2016.
@@ -26,41 +28,24 @@ public class JmDictParser {
 
     private static final String TAG = JmDictParser.class.getName();
 
+    private Context mContext;
+
     FileInputStream jmDictXml;
 
     public JmDictParser(Context mContext) {
 
+        this.mContext = mContext;
+    }
+
+    public void parseDict() throws Exception{
         Log.d(TAG, "INITIALIZING DICTIONARY");
-
+        System.setProperty("jdk.xml.entityExpansionLimit", "0");
         long startTime = System.currentTimeMillis();
-        try {
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            XmlPullParser parser = factory.newPullParser();
-
-            File file = new File(mContext.getExternalFilesDir(null), "JMDict.xml");
-            jmDictXml = new FileInputStream(file);
-
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(jmDictXml, null);
-
-            int eventType = parser.getEventType();
-
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                switch (eventType) {
-                    case XmlPullParser.START_TAG:
-                        parser.getName();
-                        break;
-                    case XmlPullParser.TEXT:
-                        parser.getText();
-                    default:
-                        break;
-                }
-                eventType = parser.nextToken();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Serializer serializer = new Persister();
+        String fileLoc = mContext.getExternalFilesDir(null).getAbsolutePath();
+        File file = new File(fileLoc, "JMDict.xml");
+        InputStreamReader r = new InputStreamReader(new FileInputStream(file), "UTF8");
+        JmDict dict = serializer.read(JmDict.class, r, false);
         Log.d(TAG, String.format("FINISHED, TOOK %d", System.currentTimeMillis() - startTime));
     }
 
@@ -151,6 +136,7 @@ public class JmDictParser {
         }
     }
 
+    /*
     private JmEntry parseEntry(XmlPullParser parser) throws IOException, XmlPullParserException {
         return parseGeneric(parser, new IParse<JmEntry>() {
             @Override
@@ -255,4 +241,5 @@ public class JmDictParser {
 
         return returnType;
     }
+    */
 }
