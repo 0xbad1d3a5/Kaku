@@ -26,7 +26,7 @@ public class CaptureWindow extends Window implements WindowCallback {
     private Drawable borderTranslucent;
     private Drawable border9PatchTransparent;
 
-    JmDictParser jmDict;
+    private JmDictParser jmDict;
 
     public CaptureWindow(MainService context) {
         super(context, R.layout.capture_window);
@@ -37,7 +37,7 @@ public class CaptureWindow extends Window implements WindowCallback {
         borderTranslucent = mContext.getResources().getDrawable(R.drawable.border_translucent, null);
         border9PatchTransparent = mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null);
 
-        JmDictParser jmDict = new JmDictParser(mContext);
+        this.jmDict = new JmDictParser(mContext);
 
         mTessThread = new TesseractThread(mContext, this);
         Thread tessThread = new Thread(mTessThread);
@@ -51,7 +51,12 @@ public class CaptureWindow extends Window implements WindowCallback {
         boolean handled = super.onMoveEvent(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_UP:
-
+                try {
+                    jmDict.parseDict();
+                }
+                catch (Exception x){
+                    x.printStackTrace();
+                }
                 mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
                 break;
         }
