@@ -22,7 +22,7 @@ public class ExampleUnitTest {
     @Test
     public void wtfXmlSrsly() throws Exception {
         Serializer serializer = new Persister();
-        File file = new File("D:\\Android\\JMDictOriginal.xml");
+        File file = new File("D:\\Android\\JMDict.xml");
         JmDict dict = serializer.read(JmDict.class, file, false);
     }
 }

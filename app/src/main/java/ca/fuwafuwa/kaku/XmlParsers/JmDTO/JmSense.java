@@ -56,9 +56,10 @@ public class JmSense {
      * in an entry, the part-of-speech of an earlier sense will apply to
      * later senses unless there is a new part-of-speech indicated.
      */
+    /*
     public List<String> getPos(){
         return this.pos;
-    }
+    }*/
 
     /**
      * This element is used to indicate a cross-reference to another

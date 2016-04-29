@@ -13,7 +13,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmDict;
 
@@ -38,14 +37,17 @@ public class JmDictParser {
     }
 
     public void parseDict() throws Exception{
+
         Log.d(TAG, "INITIALIZING DICTIONARY");
-        System.setProperty("jdk.xml.entityExpansionLimit", "0");
+
         long startTime = System.currentTimeMillis();
+
         Serializer serializer = new Persister();
         String fileLoc = mContext.getExternalFilesDir(null).getAbsolutePath();
         File file = new File(fileLoc, "JMDict.xml");
-        InputStreamReader r = new InputStreamReader(new FileInputStream(file), "UTF8");
-        JmDict dict = serializer.read(JmDict.class, r, false);
+        Log.d(TAG, file.getAbsolutePath());
+        JmDict dict = serializer.read(JmDict.class, file, false);
+
         Log.d(TAG, String.format("FINISHED, TOOK %d", System.currentTimeMillis() - startTime));
     }
 

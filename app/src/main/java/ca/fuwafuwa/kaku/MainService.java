@@ -23,8 +23,9 @@ import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
 
+import java.util.concurrent.TimeoutException;
+
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
-import ca.fuwafuwa.kaku.XmlParsers.JmDictParser;
 
 /**
  * Created by 0x1bad1d3a on 4/9/2016.
@@ -180,10 +181,11 @@ public class MainService extends Service implements Stoppable {
         return mHandler;
     }
 
-    public Image getScreenshot() {
+    public Image getScreenshot() throws TimeoutException {
+        long startTime = System.currentTimeMillis();
         Image image = mImageReader.acquireLatestImage();
-        if (image == null){
-            return getScreenshot();
+        while (image == null && startTime + 1000 > System.currentTimeMillis()){
+            image = mImageReader.acquireLatestImage();
         }
         return image;
     }

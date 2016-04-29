@@ -11,6 +11,7 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeoutException;
 
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
@@ -99,6 +100,9 @@ public class TesseractThread implements Runnable, Stoppable {
             catch (InterruptedException e){
                 e.printStackTrace();
             }
+            catch (TimeoutException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -121,7 +125,7 @@ public class TesseractThread implements Runnable, Stoppable {
         }
     }
 
-    private Bitmap getReadyScreenshotBox(BoxParams box, int attempts) throws OutOfMemoryError, StackOverflowError, FileNotFoundException {
+    private Bitmap getReadyScreenshotBox(BoxParams box, int attempts) throws OutOfMemoryError, StackOverflowError, TimeoutException {
 
         if (attempts > 10){
             return null;
