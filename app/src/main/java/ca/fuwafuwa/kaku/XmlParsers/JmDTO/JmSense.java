@@ -1,8 +1,5 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
 import java.util.List;
 
 /**
@@ -11,33 +8,35 @@ import java.util.List;
  * are several distinctly different meanings of the word, multiple
  * sense elements will be employed.
  */
-@Root(name = "sense")
 public class JmSense {
 
-    @ElementList(entry = "stagk", inline = true, required = false)
     private List<String> stagk;
-    @ElementList(entry = "stagr", inline = true, required = false)
     private List<String> stagr;
-    @ElementList(entry = "pos", inline = true, required = false)
     private List<String> pos;
-    @ElementList(entry = "xref", inline = true, required = false)
     private List<String> xref;
-    @ElementList(entry = "ant", inline = true, required = false)
     private List<String> ant;
-    @ElementList(entry = "field", inline = true, required = false)
     private List<String> field;
-    @ElementList(entry = "misc", inline = true, required = false)
     private List<String> misc;
-    @ElementList(entry = "s_inf", inline = true, required = false)
     private List<String> s_inf;
-    @ElementList(entry = "lsource", inline = true, required = false)
     private List<String> lsource;
-    @ElementList(entry = "dial", inline = true, required = false)
     private List<String> dial;
-    @ElementList(entry = "gloss", inline = true, required = false)
     private List<String> gloss;
-    @ElementList(entry = "example", inline = true, required = false)
     private List<String> example;
+
+    public JmSense(List<String> stagk, List<String> stagr, List<String> pos, List<String> xref, List<String> ant, List<String> field, List<String> misc, List<String> s_inf, List<String> lsource, List<String> dial, List<String> gloss, List<String> example) {
+        this.stagk = stagk;
+        this.stagr = stagr;
+        this.pos = pos;
+        this.xref = xref;
+        this.ant = ant;
+        this.field = field;
+        this.misc = misc;
+        this.s_inf = s_inf;
+        this.lsource = lsource;
+        this.dial = dial;
+        this.gloss = gloss;
+        this.example = example;
+    }
 
     /**
      * These elements, if present, indicate that the sense is restricted

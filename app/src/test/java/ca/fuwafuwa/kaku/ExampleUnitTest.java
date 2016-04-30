@@ -20,6 +20,13 @@ public class ExampleUnitTest {
     }
 
     @Test
+    public void test() throws Exception {
+        Serializer serializer = new Persister();
+        File file = new File("D:\\Android\\Test.xml");
+        XmlTest dict = serializer.read(XmlTest.class, file, false);
+    }
+
+    @Test
     public void wtfXmlSrsly() throws Exception {
         Serializer serializer = new Persister();
         File file = new File("D:\\Android\\JMDict.xml");

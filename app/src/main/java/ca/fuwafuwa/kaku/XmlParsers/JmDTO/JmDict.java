@@ -1,15 +1,14 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
 import java.util.List;
 
-@Root(name="JMdict")
 public class JmDict {
 
-    @ElementList(entry = "entry", inline = true)
-    List<JmEntry> entry;
+    private List<JmEntry> entry;
+
+    public JmDict(List<JmEntry> entry) {
+        this.entry = entry;
+    }
 
     public List<JmEntry> getEntries(){
         return this.entry;

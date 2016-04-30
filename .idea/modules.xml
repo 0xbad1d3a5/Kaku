@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Kaku.iml" filepath="$PROJECT_DIR$/Kaku.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/simple-xml-2.7.1/simple-xml-2.7.1.iml" filepath="$PROJECT_DIR$/simple-xml-2.7.1/simple-xml-2.7.1.iml" />
     </modules>
   </component>
 </project>

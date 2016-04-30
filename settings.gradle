@@ -1,1 +1,1 @@
-include ':app', ':simple-xml-2.7.1'
+include ':app'

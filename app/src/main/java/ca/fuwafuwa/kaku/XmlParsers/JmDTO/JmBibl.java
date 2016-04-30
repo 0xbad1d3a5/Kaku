@@ -1,20 +1,19 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
-
 /**
  * Bibliographic information about the entry. The bib_tag will a
  * coded reference to an entry in an external bibliographic database.
  * The bib_txt field may be used for brief (local) descriptions.
  */
-@Root(name = "bibl")
-public class Bibl {
+public class JmBibl {
 
-    @Element(name = "bib_tag", required = false)
     private String bib_tag;
-    @Element(name = "bib_txt", required = false)
     private String bib_txt;
+
+    public JmBibl(String bib_tag, String bib_txt) {
+        this.bib_tag = bib_tag;
+        this.bib_txt = bib_txt;
+    }
 
     public String getBibTag(){
         return this.bib_tag;

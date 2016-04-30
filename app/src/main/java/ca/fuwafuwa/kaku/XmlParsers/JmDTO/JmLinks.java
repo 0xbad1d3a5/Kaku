@@ -1,8 +1,5 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
-
 /**
  * This element holds details of linking information to
  * entries in other electronic repositories. The link_tag will be
@@ -10,15 +7,17 @@ import org.simpleframework.xml.Root;
  * link_desc will provided a textual label for the link, and the
  * link_uri contains the actual URI.
  */
-@Root(name = "links")
-public class Links {
+public class JmLinks {
 
-    @Element(name = "link_tag")
     private String link_tag;
-    @Element(name = "link_desc")
     private String link_desc;
-    @Element(name = "link_uri")
     private String link_uri;
+
+    public JmLinks(String link_tag, String link_desc, String link_uri) {
+        this.link_tag = link_tag;
+        this.link_desc = link_desc;
+        this.link_uri = link_uri;
+    }
 
     public String getLinkTag(){
         return this.link_tag;

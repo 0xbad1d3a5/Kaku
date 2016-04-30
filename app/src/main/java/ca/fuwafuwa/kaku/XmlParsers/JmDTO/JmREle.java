@@ -1,9 +1,5 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
 import java.util.List;
 
 /**
@@ -14,19 +10,21 @@ import java.util.List;
  * kanji element, i.e. in the case of a word or phrase written
  * entirely in kana, these elements will define the entry.
  */
-@Root(name = "r_ele")
 public class JmREle {
 
-    @Element(name = "reb")
     private String reb;
-    @Element(name = "re_nokanji", required = false)
     private String re_nokanji;
-    @ElementList(entry = "re_restr", inline = true, required = false)
     private List<String> re_restr;
-    @ElementList(entry = "re_inf", inline = true, required = false)
     private List<String> re_inf;
-    @ElementList(entry = "re_pri", inline = true, required = false)
     private List<String> re_pri;
+
+    public JmREle(String reb, String re_nokanji, List<String> re_restr, List<String> re_inf, List<String> re_pri) {
+        this.reb = reb;
+        this.re_nokanji = re_nokanji;
+        this.re_restr = re_restr;
+        this.re_inf = re_inf;
+        this.re_pri = re_pri;
+    }
 
     /**
      * this element content is restricted to kana and related

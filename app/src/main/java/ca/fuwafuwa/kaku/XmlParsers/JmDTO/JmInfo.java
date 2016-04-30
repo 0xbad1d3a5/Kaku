@@ -1,24 +1,23 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
 import java.util.List;
 
 /**
  * general coded information relating to the entry as a whole.
  */
-@Root(name = "info")
 public class JmInfo {
 
-    @ElementList(entry = "links", inline = true, required = false)
-    private List<Links> links;
-    @ElementList(entry = "bibl", inline = true, required = false)
-    private List<Bibl> bibl;
-    @ElementList(entry = "etym", inline = true, required = false)
+    private List<JmLinks> links;
+    private List<JmBibl> bibl;
     private List<String> etym;
-    @ElementList(entry = "audit", inline = true, required = false)
-    private List<Audit> audit;
+    private List<JmAudit> audit;
+
+    public JmInfo(List<JmLinks> links, List<JmBibl> bibl, List<String> etym, List<JmAudit> audit) {
+        this.links = links;
+        this.bibl = bibl;
+        this.etym = etym;
+        this.audit = audit;
+    }
 
     /**
      * This field is used to hold information about the etymology
@@ -29,15 +28,15 @@ public class JmInfo {
         return this.etym;
     }
 
-    public List<Links> getLinks(){
+    public List<JmLinks> getLinks(){
         return this.links;
     }
 
-    public List<Bibl> getBibl(){
+    public List<JmBibl> getBibl(){
         return this.bibl;
     }
 
-    public List<Audit> getAudit(){
+    public List<JmAudit> getAudit(){
         return this.audit;
     }
 }
