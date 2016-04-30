@@ -1,6 +1,14 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
+import ca.fuwafuwa.kaku.XmlParsers.JmConsts;
 
 /**
  * Created by Xyresic on 4/25/2016.
@@ -20,14 +28,33 @@ import java.util.List;
  */
 public class JmKEle {
 
-    private String keb;
-    private List<String> ke_inf;
-    private List<String> ke_pri;
+    private static final String JMTAG = JmConsts.K_ELE;
 
-    public JmKEle(String keb, List<String> ke_inf, List<String> ke_pri) {
-        this.keb = keb;
-        this.ke_inf = ke_inf;
-        this.ke_pri = ke_pri;
+    private String keb = null;
+    private List<String> ke_inf = new ArrayList<>();
+    private List<String> ke_pri = new ArrayList<>();
+
+    public JmKEle(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.nextToken();
+
+        while (!JMTAG.equals(parser.getName())){
+            String name = parser.getName() == null ? "" : parser.getName();
+            switch(name){
+                case JmConsts.KEB:
+                    keb = CommonParser.parseString(parser);
+                    break;
+                case JmConsts.KE_INF:
+                    ke_inf.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.KE_PRI:
+                    ke_pri.add(CommonParser.parseString(parser));
+                    break;
+            }
+            parser.nextToken();
+        }
+
+        parser.require(XmlPullParser.END_TAG, null, JMTAG);
     }
 
     /**

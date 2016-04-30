@@ -1,21 +1,52 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
+import ca.fuwafuwa.kaku.XmlParsers.JmConsts;
 
 public class JmEntry {
 
-    private String ent_seq;
-    private List<JmKEle> k_ele;
-    private List<JmREle> r_ele;
-    private JmInfo info;
-    private List<JmSense> sense;
+    private static final String JMTAG = JmConsts.ENTRY;
+    
+    private String ent_seq = null;
+    private List<JmKEle> k_ele = new ArrayList<>();
+    private List<JmREle> r_ele = new ArrayList<>();
+    private JmInfo info = null;
+    private List<JmSense> sense = new ArrayList<>();
 
-    public JmEntry(String ent_seq, List<JmKEle> k_ele, List<JmREle> r_ele, JmInfo info, List<JmSense> sense) {
-        this.ent_seq = ent_seq;
-        this.k_ele = k_ele;
-        this.r_ele = r_ele;
-        this.info = info;
-        this.sense = sense;
+    public JmEntry(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.nextToken();
+
+        while (!JMTAG.equals(parser.getName())){
+            String name = parser.getName() == null ? "" : parser.getName();
+            switch (name) {
+                case JmConsts.ENT_SEQ:
+                    ent_seq = CommonParser.parseString(parser);
+                    break;
+                case JmConsts.K_ELE:
+                    k_ele.add(new JmKEle(parser));
+                    break;
+                case JmConsts.R_ELE:
+                    r_ele.add(new JmREle(parser));
+                    break;
+                case JmConsts.INFO:
+                    info = new JmInfo(parser);
+                    break;
+                case JmConsts.SENSE:
+                    sense.add(new JmSense(parser));
+                    break;
+            }
+            parser.nextToken();
+        }
+
+        parser.require(XmlPullParser.END_TAG, null, JMTAG);
     }
 
     /**

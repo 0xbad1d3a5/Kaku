@@ -1,6 +1,14 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
+import ca.fuwafuwa.kaku.XmlParsers.JmConsts;
 
 /**
  * The sense element will record the translational equivalent
@@ -10,32 +18,69 @@ import java.util.List;
  */
 public class JmSense {
 
-    private List<String> stagk;
-    private List<String> stagr;
-    private List<String> pos;
-    private List<String> xref;
-    private List<String> ant;
-    private List<String> field;
-    private List<String> misc;
-    private List<String> s_inf;
-    private List<String> lsource;
-    private List<String> dial;
-    private List<String> gloss;
-    private List<String> example;
+    private static final String JMTAG = JmConsts.SENSE;
 
-    public JmSense(List<String> stagk, List<String> stagr, List<String> pos, List<String> xref, List<String> ant, List<String> field, List<String> misc, List<String> s_inf, List<String> lsource, List<String> dial, List<String> gloss, List<String> example) {
-        this.stagk = stagk;
-        this.stagr = stagr;
-        this.pos = pos;
-        this.xref = xref;
-        this.ant = ant;
-        this.field = field;
-        this.misc = misc;
-        this.s_inf = s_inf;
-        this.lsource = lsource;
-        this.dial = dial;
-        this.gloss = gloss;
-        this.example = example;
+    private List<String> stagk = new ArrayList<>();
+    private List<String> stagr = new ArrayList<>();
+    private List<String> pos = new ArrayList<>();
+    private List<String> xref = new ArrayList<>();
+    private List<String> ant = new ArrayList<>();
+    private List<String> field = new ArrayList<>();
+    private List<String> misc = new ArrayList<>();
+    private List<String> s_inf = new ArrayList<>();
+    private List<JmLsource> lsource = new ArrayList<>();
+    private List<String> dial = new ArrayList<>();
+    private List<JmGloss> gloss = new ArrayList<>();
+    private List<String> example = new ArrayList<>();
+
+    public JmSense(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.nextToken();
+
+        while (!JMTAG.equals(parser.getName())){
+            String name = parser.getName() == null ? "" : parser.getName();
+            switch(name){
+                case JmConsts.STAGK:
+                    stagk.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.STAGR:
+                    stagr.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.POS:
+                    pos.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.XREF:
+                    xref.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.ANT:
+                    ant.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.FIELD:
+                    field.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.MISC:
+                    misc.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.S_INF:
+                    s_inf.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.LSOURCE:
+                    lsource.add(new JmLsource(parser));
+                    break;
+                case JmConsts.DIAL:
+                    dial.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.GLOSS:
+                    gloss.add(new JmGloss(parser));
+                    break;
+                case JmConsts.EXAMPLE:
+                    example.add(CommonParser.parseString(parser));
+                    break;
+            }
+            parser.nextToken();
+        }
+
+        parser.require(XmlPullParser.END_TAG, null, JMTAG);
     }
 
     /**
@@ -116,7 +161,7 @@ public class JmSense {
      * than English, the language is indicated by the xml:lang attribute.
      * The element value (if any) is the source word or phrase.
      */
-    public List<String> getLSource(){
+    public List<JmLsource> getLSource(){
         return this.lsource;
     }
 
@@ -141,7 +186,7 @@ public class JmSense {
      *       establish a set of target-language words which can effectively be
      *       used as head-words in a reverse target-language/Japanese relationship.
      */
-    public List<String> getGloss(){
+    public List<JmGloss> getGloss(){
         return this.gloss;
     }
 

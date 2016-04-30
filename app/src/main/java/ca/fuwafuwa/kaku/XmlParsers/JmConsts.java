@@ -3,7 +3,10 @@ package ca.fuwafuwa.kaku.XmlParsers;
 /**
  * Created by Xyresic on 4/25/2016.
  */
-public class JmDictConstants {
+public class JmConsts {
+
+    // Elements
+    public static final String JMDICT = "JMdict";
     public static final String ENTRY = "entry";
     public static final String ENT_SEQ = "ent_seq";
     public static final String K_ELE = "k_ele";
@@ -41,4 +44,10 @@ public class JmDictConstants {
     public static final String DIAL = "dial";
     public static final String GLOSS = "gloss";
     public static final String EXAMPLE = "example";
+
+    // Attributes
+    public static final String XML_LANG = "xml:lang";
+    public static final String G_GEND = "g_gend";
+    public static final String LS_TYPE = "ls_type";
+    public static final String LS_WASEI = "ls_wasei";
 }

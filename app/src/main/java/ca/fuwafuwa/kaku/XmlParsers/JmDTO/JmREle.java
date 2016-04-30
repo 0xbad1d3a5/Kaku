@@ -1,6 +1,14 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
+import ca.fuwafuwa.kaku.XmlParsers.JmConsts;
 
 /**
  * The reading element typically contains the valid readings
@@ -12,18 +20,41 @@ import java.util.List;
  */
 public class JmREle {
 
-    private String reb;
-    private String re_nokanji;
-    private List<String> re_restr;
-    private List<String> re_inf;
-    private List<String> re_pri;
+    private static final String JMTAG = JmConsts.R_ELE;
 
-    public JmREle(String reb, String re_nokanji, List<String> re_restr, List<String> re_inf, List<String> re_pri) {
-        this.reb = reb;
-        this.re_nokanji = re_nokanji;
-        this.re_restr = re_restr;
-        this.re_inf = re_inf;
-        this.re_pri = re_pri;
+    private String reb = null;
+    private String re_nokanji = null;
+    private List<String> re_restr = new ArrayList<>();
+    private List<String> re_inf = new ArrayList<>();
+    private List<String> re_pri = new ArrayList<>();
+
+    public JmREle(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.nextToken();
+
+        while (!JMTAG.equals(parser.getName())){
+            String name = parser.getName() == null ? "" : parser.getName();
+            switch(name){
+                case JmConsts.REB:
+                    reb = CommonParser.parseString(parser);
+                    break;
+                case JmConsts.RE_NOKANJI:
+                    re_nokanji = CommonParser.parseString(parser);
+                    break;
+                case JmConsts.RE_RESTR:
+                    re_restr.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.RE_INF:
+                    re_inf.add(CommonParser.parseString(parser));
+                    break;
+                case JmConsts.RE_PRI:
+                    re_pri.add(CommonParser.parseString(parser));
+                    break;
+            }
+            parser.nextToken();
+        }
+
+        parser.require(XmlPullParser.END_TAG, null, JMTAG);
     }
 
     /**

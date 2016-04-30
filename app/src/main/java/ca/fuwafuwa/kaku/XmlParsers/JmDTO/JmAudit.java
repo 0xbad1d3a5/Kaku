@@ -1,5 +1,13 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
+import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
+import ca.fuwafuwa.kaku.XmlParsers.JmConsts;
+
 /**
  * The audit element will contain the date and other information
  * about updates to the entry. Can be used to record the source of
@@ -7,12 +15,29 @@ package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
  */
 public class JmAudit {
 
-    private String upd_date;
-    private String upd_detl;
+    private static final String JMTAG = JmConsts.AUDIT;
 
-    public JmAudit(String upd_date, String upd_detl) {
-        this.upd_date = upd_date;
-        this.upd_detl = upd_detl;
+    private String upd_date = null;
+    private String upd_detl = null;
+
+    public JmAudit(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.nextToken();
+
+        while (!JMTAG.equals(parser.getName())){
+            String name = parser.getName() == null ? "" : parser.getName();
+            switch(name){
+                case JmConsts.UPD_DATE:
+                    upd_date = CommonParser.parseString(parser);
+                    break;
+                case JmConsts.UPD_DETL:
+                    upd_detl = CommonParser.parseString(parser);
+                    break;
+            }
+            parser.nextToken();
+        }
+
+        parser.require(XmlPullParser.END_TAG, null, JMTAG);
     }
 
     public String getUpdDate(){
