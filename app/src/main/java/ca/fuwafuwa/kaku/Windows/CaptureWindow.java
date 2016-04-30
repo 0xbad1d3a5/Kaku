@@ -9,7 +9,7 @@ import android.view.animation.AnimationUtils;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.TesseractThread;
-import ca.fuwafuwa.kaku.XmlParsers.JmDictParser;
+import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
@@ -25,7 +25,7 @@ public class CaptureWindow extends Window implements WindowCallback {
     private Drawable borderTranslucent;
     private Drawable border9PatchTransparent;
 
-    private JmDictParser jmDict;
+    private CommonParser jmDict;
 
     public CaptureWindow(MainService context) {
         super(context, R.layout.capture_window);
@@ -36,7 +36,7 @@ public class CaptureWindow extends Window implements WindowCallback {
         borderTranslucent = mContext.getResources().getDrawable(R.drawable.border_translucent, null);
         border9PatchTransparent = mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null);
 
-        this.jmDict = new JmDictParser(mContext);
+        this.jmDict = new CommonParser(mContext);
 
         mTessThread = new TesseractThread(mContext, this);
         Thread tessThread = new Thread(mTessThread);

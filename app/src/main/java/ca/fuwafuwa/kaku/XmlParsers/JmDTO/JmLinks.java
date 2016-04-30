@@ -1,5 +1,13 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
+import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
+import ca.fuwafuwa.kaku.XmlParsers.JmConsts;
+
 /**
  * This element holds details of linking information to
  * entries in other electronic repositories. The link_tag will be
@@ -9,14 +17,33 @@ package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
  */
 public class JmLinks {
 
-    private String link_tag;
-    private String link_desc;
-    private String link_uri;
+    private static final String JMTAG = JmConsts.LINKS;
 
-    public JmLinks(String link_tag, String link_desc, String link_uri) {
-        this.link_tag = link_tag;
-        this.link_desc = link_desc;
-        this.link_uri = link_uri;
+    private String link_tag = null;
+    private String link_desc = null;
+    private String link_uri = null;
+
+    public JmLinks(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.nextToken();
+
+        while (!JMTAG.equals(parser.getName())){
+            String name = parser.getName() == null ? "" : parser.getName();
+            switch(name){
+                case JmConsts.LINK_TAG:
+                    link_tag = CommonParser.parseString(parser);
+                    break;
+                case JmConsts.LINK_DESC:
+                    link_desc = CommonParser.parseString(parser);
+                    break;
+                case JmConsts.LINK_URI:
+                    link_uri = CommonParser.parseString(parser);
+                    break;
+            }
+            parser.nextToken();
+        }
+
+        parser.require(XmlPullParser.END_TAG, null, JMTAG);
     }
 
     public String getLinkTag(){
