@@ -5,16 +5,20 @@ import android.util.Log;
 
 import junit.framework.Assert;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmDict;
+import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmEntry;
+import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmInfo;
+import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmKEle;
+import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmREle;
+import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmSense;
 
 /**
  * Created by 0x1bad1d3a on 4/25/2016.
@@ -42,11 +46,9 @@ public class JmDictParser {
 
         long startTime = System.currentTimeMillis();
 
-        Serializer serializer = new Persister();
         String fileLoc = mContext.getExternalFilesDir(null).getAbsolutePath();
-        File file = new File(fileLoc, "JMDict.xml");
+        File file = new File(fileLoc, "Test.xml");
         Log.d(TAG, file.getAbsolutePath());
-        JmDict dict = serializer.read(JmDict.class, file, false);
 
         Log.d(TAG, String.format("FINISHED, TOOK %d", System.currentTimeMillis() - startTime));
     }
@@ -138,7 +140,6 @@ public class JmDictParser {
         }
     }
 
-    /*
     private JmEntry parseEntry(XmlPullParser parser) throws IOException, XmlPullParserException {
         return parseGeneric(parser, new IParse<JmEntry>() {
             @Override
@@ -243,5 +244,4 @@ public class JmDictParser {
 
         return returnType;
     }
-    */
 }

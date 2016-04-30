@@ -1,9 +1,5 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
 import java.util.List;
 
 /**
@@ -22,15 +18,17 @@ import java.util.List;
  * fields. Synonyms are not included; they may be indicated in the
  * cross-reference field associated with the sense element.
  */
-@Root(name = "k_ele")
 public class JmKEle {
 
-    @Element(name = "keb")
     private String keb;
-    @ElementList(entry = "ke_inf", inline = true, required = false)
     private List<String> ke_inf;
-    @ElementList(entry = "ke_pri", inline = true, required = false)
     private List<String> ke_pri;
+
+    public JmKEle(String keb, List<String> ke_inf, List<String> ke_pri) {
+        this.keb = keb;
+        this.ke_inf = ke_inf;
+        this.ke_pri = ke_pri;
+    }
 
     /**
      * This element will contain a word or short phrase in Japanese
