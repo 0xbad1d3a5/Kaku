@@ -12,8 +12,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
-import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmDict;
-
 /**
  * Created by Xyresic on 4/25/2016.
  */
@@ -37,7 +35,7 @@ public class CommonParser {
 
         Log.d(TAG, "INITIALIZING DICTIONARY");
 
-        long startTime = System.currentTimeMillis();
+
 
         XmlPullParser parser = Xml.newPullParser();
         File file = new File(mContext.getExternalFilesDir(null), "JMDictOriginal.xml");
@@ -46,14 +44,46 @@ public class CommonParser {
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
         parser.setInput(jmDictXml, null);
 
-        while (!JmConsts.JMDICT.equals(parser.getName())){
+        JmDictThread mJmDictThread = new JmDictThread(parser);
+        Thread dictThread = new Thread(mJmDictThread);
+        dictThread.setDaemon(true);
+        dictThread.start();
+    }
+
+    /*
+    public static String parseString(XmlPullParser parser) throws IOException, XmlPullParserException {
+
+        if (parser.isEmptyElementTag()){
             parser.nextToken();
+            return null;
         }
 
-        JmDict dict = new JmDict(parser);
+        Log.d(TAG, String.format("LINE NUMBER: %s", parser.getLineNumber()));
 
-        Log.d(TAG, String.format("FINISHED, TOOK %d", System.currentTimeMillis() - startTime));
+        String tagName = parser.getName();
+        parser.require(XmlPullParser.START_TAG, null, parser.getName());
+        Log.d(TAG, String.format("START TAG: %s", parser.getName()));
+        parser.nextToken();
+        Log.d(TAG, String.format("AFTER START TAG: %s", parser.getName()));
+
+        if (parser.getEventType() == XmlPullParser.ENTITY_REF){
+            Log.d(TAG, String.format("ENTITY TAG: %s", parser.getName()));
+            parser.nextToken();
+            Log.d(TAG, String.format("AFTER ENTITY TAG: %s", parser.getName()));
+        }
+        String text =  parser.getText();
+        Log.d(TAG, String.format("TEXT: %s", text));
+        parser.nextToken();
+        Log.d(TAG, String.format("AFTER TEXT TAG: %s", parser.getName()));
+
+        parser.require(XmlPullParser.END_TAG, null, parser.getName());
+        Log.d(TAG, String.format("END TAG: %s", parser.getName()));
+        parser.nextToken();
+        Log.d(TAG, String.format("AFTER END TAG: %s", parser.getName()));
+
+        return text;
     }
+    */
 
     public static String parseString(XmlPullParser parser) throws IOException, XmlPullParserException {
 
@@ -62,21 +92,27 @@ public class CommonParser {
             return null;
         }
 
-        String tagName = parser.getName();
-        parser.require(XmlPullParser.START_TAG, null, tagName);
+        Log.d(TAG, String.format("LINE NUMBER: %s", parser.getLineNumber()));
+
+        StringBuilder sb = new StringBuilder();
+        String JMTAG = parser.getName();
+        parser.require(XmlPullParser.START_TAG, null, JMTAG);
         parser.nextToken();
 
-        if (parser.getEventType() == XmlPullParser.ENTITY_REF){
+        while (!JMTAG.equals(parser.getName())) {
+            switch (parser.getEventType()) {
+                case XmlPullParser.TEXT:
+                    sb.append(parser.getText());
+                    break;
+                case XmlPullParser.ENTITY_REF:
+                    sb.append(parser.getText().trim());
+                    break;
+            }
             parser.nextToken();
         }
-        String text =  parser.getText();
-        Log.d(TAG, text);
-        parser.nextToken();
 
-        parser.require(XmlPullParser.END_TAG, null, tagName);
-        parser.nextToken();
-
-        return text;
+        parser.require(XmlPullParser.END_TAG, null, JMTAG);
+        return sb.toString();
     }
 
     public static <T> T parseGeneric(XmlPullParser parser, IParse<T> func) throws IOException, XmlPullParserException {

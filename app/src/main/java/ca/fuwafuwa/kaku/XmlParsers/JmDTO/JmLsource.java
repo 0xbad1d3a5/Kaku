@@ -16,6 +16,7 @@ public class JmLsource {
 
     private static final String JMTAG = JmConsts.LSOURCE;
 
+    private String text = null;
     private String lang = null;
     private String ls_type = null;
     private String ls_wasei = null;
@@ -27,5 +28,22 @@ public class JmLsource {
         lang = attrMap.get(JmConsts.XML_LANG);
         ls_type = attrMap.get(JmConsts.LS_TYPE);
         ls_wasei = attrMap.get(JmConsts.LS_WASEI);
+        text = CommonParser.parseString(parser);
+    }
+
+    public String getText(){
+        return text;
+    }
+
+    public String getLang(){
+        return lang;
+    }
+
+    public String getLsType(){
+        return ls_type;
+    }
+
+    public String getLsWasei(){
+        return ls_wasei;
     }
 }
