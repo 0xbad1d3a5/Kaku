@@ -1,5 +1,7 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import com.google.common.base.Joiner;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -55,6 +57,19 @@ public class JmREle {
         }
 
         parser.require(XmlPullParser.END_TAG, null, JMTAG);
+    }
+
+    /**
+     * @return String representation of {@link JmREle}
+     */
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("reb: %s\n", reb));
+        sb.append(String.format("re_nokanji: %s\n", re_nokanji));
+        sb.append(String.format("re_restr: [%s]\n", Joiner.on(", ").join(re_restr)));
+        sb.append(String.format("re_inf: [%s]\n", Joiner.on(", ").join(re_inf)));
+        sb.append(String.format("re_pri: [%s]\n", Joiner.on(", ").join(re_pri)));
+        return sb.toString();
     }
 
     /**

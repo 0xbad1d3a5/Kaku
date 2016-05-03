@@ -1,5 +1,7 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import com.google.common.base.Joiner;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -81,6 +83,12 @@ public class JmSense {
         }
 
         parser.require(XmlPullParser.END_TAG, null, JMTAG);
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("gloss: [%s]\n", Joiner.on(", ").join(gloss)));
+        return sb.toString();
     }
 
     /**

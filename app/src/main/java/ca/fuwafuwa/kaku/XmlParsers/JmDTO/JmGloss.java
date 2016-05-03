@@ -29,6 +29,13 @@ public class JmGloss {
         text = CommonParser.parseString(parser);
     }
 
+    public String toString(){
+        if ("eng".equals(lang)){
+            return text;
+        }
+        return "";
+    }
+
     public String getText(){
         return text;
     }

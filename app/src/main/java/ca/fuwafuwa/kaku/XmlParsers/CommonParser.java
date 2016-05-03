@@ -2,13 +2,10 @@ package ca.fuwafuwa.kaku.XmlParsers;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -25,8 +22,6 @@ public class CommonParser {
 
     private Context mContext;
 
-    FileInputStream jmDictXml;
-
     public CommonParser(Context mContext) {
         this.mContext = mContext;
     }
@@ -35,55 +30,11 @@ public class CommonParser {
 
         Log.d(TAG, "INITIALIZING DICTIONARY");
 
-
-
-        XmlPullParser parser = Xml.newPullParser();
-        File file = new File(mContext.getExternalFilesDir(null), "JMDictOriginal.xml");
-        jmDictXml = new FileInputStream(file);
-
-        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-        parser.setInput(jmDictXml, null);
-
-        JmDictThread mJmDictThread = new JmDictThread(parser);
+        JmDictThread mJmDictThread = new JmDictThread(mContext);
         Thread dictThread = new Thread(mJmDictThread);
         dictThread.setDaemon(true);
         dictThread.start();
     }
-
-    /*
-    public static String parseString(XmlPullParser parser) throws IOException, XmlPullParserException {
-
-        if (parser.isEmptyElementTag()){
-            parser.nextToken();
-            return null;
-        }
-
-        Log.d(TAG, String.format("LINE NUMBER: %s", parser.getLineNumber()));
-
-        String tagName = parser.getName();
-        parser.require(XmlPullParser.START_TAG, null, parser.getName());
-        Log.d(TAG, String.format("START TAG: %s", parser.getName()));
-        parser.nextToken();
-        Log.d(TAG, String.format("AFTER START TAG: %s", parser.getName()));
-
-        if (parser.getEventType() == XmlPullParser.ENTITY_REF){
-            Log.d(TAG, String.format("ENTITY TAG: %s", parser.getName()));
-            parser.nextToken();
-            Log.d(TAG, String.format("AFTER ENTITY TAG: %s", parser.getName()));
-        }
-        String text =  parser.getText();
-        Log.d(TAG, String.format("TEXT: %s", text));
-        parser.nextToken();
-        Log.d(TAG, String.format("AFTER TEXT TAG: %s", parser.getName()));
-
-        parser.require(XmlPullParser.END_TAG, null, parser.getName());
-        Log.d(TAG, String.format("END TAG: %s", parser.getName()));
-        parser.nextToken();
-        Log.d(TAG, String.format("AFTER END TAG: %s", parser.getName()));
-
-        return text;
-    }
-    */
 
     public static String parseString(XmlPullParser parser) throws IOException, XmlPullParserException {
 
