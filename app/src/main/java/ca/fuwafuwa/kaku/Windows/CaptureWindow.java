@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import ca.fuwafuwa.kaku.BoxParams;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.TesseractThread;
@@ -50,13 +51,7 @@ public class CaptureWindow extends Window implements WindowCallback {
         boolean handled = super.onMoveEvent(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_UP:
-                try {
-                    jmDict.parseDict();
-                }
-                catch (Exception x){
-                    x.printStackTrace();
-                }
-                //mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
+                mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
                 break;
         }
         return handled;
@@ -68,7 +63,7 @@ public class CaptureWindow extends Window implements WindowCallback {
         boolean handled = super.onResizeEvent(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_UP:
-                //mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
+                mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
                 break;
         }
         return handled;

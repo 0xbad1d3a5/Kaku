@@ -64,7 +64,7 @@ public class TesseractThread implements Runnable, Stoppable {
                 long screenTime = System.currentTimeMillis();
 
                 if (bitmap == null){
-                    sendMessageToMainThread("Error getting image\nScreenshot Time:%d", screenTime - startTime);
+                    sendMessageToMainThread(new OcrResult("Error getting image", screenTime - startTime, 0));
                     mBox = null;
                     continue;
                 }
@@ -76,7 +76,7 @@ public class TesseractThread implements Runnable, Stoppable {
                 mTessBaseAPI.clear();
 
                 if (text != null){
-                    sendMessageToMainThread("%s\nScreenshot Time:%d\nOCR Time:%d", text, screenTime - startTime, System.currentTimeMillis() - screenTime);
+                    sendMessageToMainThread(new OcrResult(text, screenTime - startTime, System.currentTimeMillis() - screenTime));
                     mBox = null;
                 }
 
@@ -167,8 +167,8 @@ public class TesseractThread implements Runnable, Stoppable {
         return bitmap;
     }
 
-    private void sendMessageToMainThread(String message, Object ... args){
-        Message m = Message.obtain(mContext.getHandler(), 0, String.format(message, args));
+    private void sendMessageToMainThread(OcrResult result){
+        Message m = Message.obtain(mContext.getHandler(), 0, result);
         m.sendToTarget();
     }
 }
