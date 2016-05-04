@@ -19,8 +19,20 @@ public class InformationWindow extends Window {
 
     private static final String TAG = InformationWindow.class.getName();
 
+    private int dY;
+
     public InformationWindow(MainService context) {
         super(context, R.layout.info_window);
+
+        /*
+        Button b = (Button) mWindow.findViewById(R.id.info_close);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stop();
+            }
+        });
+        */
     }
 
     private String searchDict(String text){
@@ -58,21 +70,33 @@ public class InformationWindow extends Window {
     @Override
     protected WindowManager.LayoutParams getDefaultParams() {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-            -1,
-            -1,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_PHONE,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT);
         params.x = 0;
         params.y = 0;
-        params.gravity = Gravity.TOP | Gravity.LEFT;
+        params.gravity = Gravity.TOP | Gravity.CENTER;
         return params;
     }
 
     @Override
     public boolean onMoveEvent(MotionEvent e){
-        stop();
-        return true;
+        Log.d(TAG, e.toString());
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                dY = params.y - (int) e.getRawY();
+                return true;
+            case MotionEvent.ACTION_UP:
+                mWindow.animate().translationY(-getDisplaySize().y);
+                stop();
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                params.y = dY + (int) e.getRawY();
+                return true;
+        }
+        return false;
     }
 
     @Override
