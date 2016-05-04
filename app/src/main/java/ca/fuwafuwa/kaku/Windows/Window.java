@@ -71,11 +71,6 @@ public abstract class Window implements Stoppable, WindowCallback {
     }
 
     /**
-     * Implementing classes of Window MUST implement cleanup if they need to release resources
-     */
-    protected abstract void cleanup();
-
-    /**
      * Override this if implementing Window does not need to move around
      *
      * @param e MotionEvent for moving the Window
@@ -128,6 +123,18 @@ public abstract class Window implements Stoppable, WindowCallback {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Implementing classes of Window MUST implement cleanup if they need to release resources
+     */
+    protected abstract void cleanup();
+
+    /**
+     * @return Display size of the current screen
+     */
+    protected Point getDisplaySize(){
+        return displaySize;
     }
 
     protected WindowManager.LayoutParams getDefaultParams(){
