@@ -10,9 +10,4 @@ public class TypingWindow extends Window{
     public TypingWindow(MainService context) {
         super(context, 0);
     }
-
-    @Override
-    protected void cleanup() {
-
-    }
 }

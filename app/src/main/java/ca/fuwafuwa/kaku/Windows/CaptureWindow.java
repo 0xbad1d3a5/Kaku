@@ -46,9 +46,9 @@ public class CaptureWindow extends Window implements WindowCallback {
     }
 
     @Override
-    public boolean onMoveEvent(MotionEvent e) {
+    public boolean onTouchEvent(MotionEvent e) {
         setOpacity(e);
-        boolean handled = super.onMoveEvent(e);
+        boolean handled = super.onTouchEvent(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_UP:
                 mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
@@ -91,8 +91,9 @@ public class CaptureWindow extends Window implements WindowCallback {
     }
 
     @Override
-    protected void cleanup() {
+    public void stop() {
         mTessThread.stop();
+        super.stop();
     }
 
     private void setOpacity(MotionEvent e){
