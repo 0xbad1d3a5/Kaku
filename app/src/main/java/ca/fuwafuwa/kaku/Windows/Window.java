@@ -61,12 +61,13 @@ public abstract class Window implements Stoppable, WindowCallback {
 
     /**
      * stop() MUST be called or the window does not get removed from the android screen
-     * otherwise, the view remains on the screen even after you stop the service
+     * otherwise, the view remains on the screen even after you stop the service.
+     *
+     * If you choose to override stop(), you should call super.stop() to remove the view.
      */
     @Override
-    public final void stop() {
+    public void stop() {
         Log.d(TAG, "WINDOW CLOSING");
-        cleanup();
         mWindowManager.removeView(mWindow);
     }
 
@@ -76,7 +77,7 @@ public abstract class Window implements Stoppable, WindowCallback {
      * @param e MotionEvent for moving the Window
      * @return Returns whether the MotionEvent was handled
      */
-    public boolean onMoveEvent(MotionEvent e){
+    public boolean onTouchEvent(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 dX = params.x - (int) e.getRawX();
@@ -124,11 +125,6 @@ public abstract class Window implements Stoppable, WindowCallback {
         }
         return false;
     }
-
-    /**
-     * Implementing classes of Window MUST implement cleanup if they need to release resources
-     */
-    protected abstract void cleanup();
 
     /**
      * @return Display size of the current screen

@@ -30,6 +30,6 @@ public class WindowView extends RelativeLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
-        return windowCallback.onMoveEvent(e);
+        return windowCallback.onTouchEvent(e);
     }
 }

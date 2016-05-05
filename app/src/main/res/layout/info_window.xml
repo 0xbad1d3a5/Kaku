@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/info_window"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -30,16 +31,6 @@
                 android:textColor="@android:color/white"
                 android:text="TEST"/>
         </ScrollView>
-
-        <!--
-        <Button
-            android:id="@+id/info_close"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="CLOSE"
-            android:background="@drawable/info_button_selector">
-        </Button>
-        -->
 
     </LinearLayout>
 

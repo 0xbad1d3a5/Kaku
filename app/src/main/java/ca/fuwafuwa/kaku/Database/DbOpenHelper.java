@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ca.fuwafuwa.kaku.Database.Models.Entry;
 
 /**
@@ -47,23 +50,27 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         db.insert(DictContract.JmEntry.TABLE_NAME, null, values);
     }
 
-    public Entry getEntry(String kanji){
+    public List<Entry> getEntries(String kanji){
         SQLiteDatabase db = this.getWritableDatabase();
 
         Cursor c = db.query(DictContract.JmEntry.TABLE_NAME, null,
                 String.format("%s LIKE ?", DictContract.JmEntry.COLUMN_KANJI),
                 new String[] { String.format("%s%%", kanji) }, null, null, null);
 
-        Entry entry = new Entry();
+        ArrayList<Entry> entries = new ArrayList<>();
 
         if (c != null && c.getCount() != 0){
-            c.moveToFirst();
+            for (int i = 0; i < c.getCount(); i++){
+                c.moveToPosition(i);
+                Entry entry = new Entry();
+                entry.setKanji(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_KANJI)));
+                entry.setReading(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_READING)));
+                entry.setSense(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_SENSE)));
+                entries.add(entry);
+            }
 
-            entry.setKanji(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_KANJI)));
-            entry.setReading(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_READING)));
-            entry.setSense(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_SENSE)));
         }
 
-        return entry;
+        return entries;
     }
 }
