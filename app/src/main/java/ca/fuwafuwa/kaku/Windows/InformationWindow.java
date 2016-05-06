@@ -26,6 +26,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     private static final String TAG = InformationWindow.class.getName();
 
+    private static final float FLICK_THRESHOLD = -0.05f;
     private GestureDetector mGestureDetector = new GestureDetector(mContext, this);
     private float maxFlingVelocity;
 
@@ -130,7 +131,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         Log.d(TAG, String.format("Fling strength: %f", v1 / maxFlingVelocity));
         Log.d(TAG, String.format("Distance moved: %f", distanceMoved));
 
-        if ((v1 / maxFlingVelocity) < -0.1){
+        if ((v1 / maxFlingVelocity) < FLICK_THRESHOLD){
             stop();
             return true;
         }
