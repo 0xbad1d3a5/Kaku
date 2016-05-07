@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -10,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,26 +24,49 @@ import ca.fuwafuwa.kaku.R;
 /**
  * Created by 0x1bad1d3a on 4/23/2016.
  */
-public class InformationWindow extends Window implements GestureDetector.OnGestureListener{
+public class InformationWindow extends Window implements GestureDetector.OnGestureListener, KanjiViewCallback{
 
     private static final String TAG = InformationWindow.class.getName();
 
     private static final float FLICK_THRESHOLD = -0.05f;
-    private GestureDetector mGestureDetector = new GestureDetector(mContext, this);
+    private GestureDetector mGestureDetector;
     private float maxFlingVelocity;
 
     public InformationWindow(MainService context) {
         super(context, R.layout.info_window);
-
         maxFlingVelocity = ViewConfiguration.get(mContext).getScaledMaximumFlingVelocity();
+        mGestureDetector = new GestureDetector(mContext, this);
     }
 
     public void setText(String text){
+        KanjiGridView kanjiGrid = (KanjiGridView) mWindow.findViewById(R.id.kanji_grid);
+        kanjiGrid.setText(this, text);
+    }
+
+
+    @Override
+    public void onKanjiTouched(KanjiCharacterView kanjiView) {
+        /*
         TextView tv = (TextView) mWindow.findViewById(R.id.info_text);
         long startTime = System.currentTimeMillis();
-        tv.setText(searchDict(text));
+        tv.setText(searchDict(kanjiView.getText().toString()));
         String timeTaken = String.format("Search Time: %d", System.currentTimeMillis() - startTime);
-        tv.postInvalidate();
+        */
+
+        //KanjiGridView kanjiGrid = (KanjiGridView) mWindow.findViewById(R.id.kanji_grid);
+        //kanjiGrid.removeView(kanjiView);
+        //tv.postInvalidate();
+
+        long startTime = System.currentTimeMillis();
+
+        ScrollView sv = (ScrollView) mWindow.findViewById(R.id.info_text);
+        sv.removeAllViews();
+        TextView tv = new TextView(mContext);
+        tv.setText(searchDict(kanjiView.getText().toString()));
+        tv.setTextColor(Color.WHITE);
+        sv.addView(tv);
+
+        String timeTaken = String.format("Search Time: %d", System.currentTimeMillis() - startTime);
 
         Log.d(TAG, timeTaken);
         Toast.makeText(mContext, timeTaken, Toast.LENGTH_LONG).show();
@@ -107,9 +132,6 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     @Override
     public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-
-        Log.d(TAG, "onScroll");
-
         params.y = (int) (motionEvent1.getRawY() - motionEvent.getRawY());
         if (params.y > 0){
             params.y = 0;
@@ -143,8 +165,6 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
         DbOpenHelper db = new DbOpenHelper(mContext);
         StringBuilder sb = new StringBuilder();
-        sb.append(text);
-        sb.append("\n");
 
         int length = text.length();
         for (int offset = 0; offset < length; ){
