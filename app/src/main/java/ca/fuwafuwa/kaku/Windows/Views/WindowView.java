@@ -1,16 +1,18 @@
-package ca.fuwafuwa.kaku.Windows;
+package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
+import ca.fuwafuwa.kaku.Windows.Interfaces.IWindowCallback;
+
 /**
  * Created by Xyresic on 4/13/2016.
  */
 public class WindowView extends RelativeLayout {
 
-    private WindowCallback windowCallback;
+    private IWindowCallback mWindowCallback;
 
     public WindowView(Context context) {
         super(context);
@@ -24,12 +26,12 @@ public class WindowView extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void registerCallback(WindowCallback windowCallback){
-        this.windowCallback = windowCallback;
+    public void registerCallback(IWindowCallback windowCallback){
+        this.mWindowCallback = windowCallback;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
-        return windowCallback.onTouchEvent(e);
+        return mWindowCallback.onTouchEvent(e);
     }
 }

@@ -27,9 +27,9 @@ public class JmDictThread implements Runnable {
     private static final String TAG = JmDictThread.class.getName();
 
     private Context mContext;
-    FileInputStream jmDictXml;
-    private XmlPullParser parser;
-    private JmDict dict;
+    private FileInputStream mJmDictXml;
+    private XmlPullParser mParser;
+    private JmDict mDict;
 
     public JmDictThread(Context context) {
         mContext = context;
@@ -41,17 +41,17 @@ public class JmDictThread implements Runnable {
         long startTime = System.currentTimeMillis();
 
         try {
-            parser = Xml.newPullParser();
+            mParser = Xml.newPullParser();
             File file = new File(mContext.getExternalFilesDir(null), "JMDictOriginal.xml");
-            jmDictXml = new FileInputStream(file);
+            mJmDictXml = new FileInputStream(file);
 
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(jmDictXml, null);
+            mParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            mParser.setInput(mJmDictXml, null);
 
-            while (!JmConsts.JMDICT.equals(parser.getName())){
-                parser.nextToken();
+            while (!JmConsts.JMDICT.equals(mParser.getName())){
+                mParser.nextToken();
             }
-            dict = new JmDict(parser);
+            mDict = new JmDict(mParser);
 
         } catch (XmlPullParserException e) {
             e.printStackTrace();
@@ -63,7 +63,7 @@ public class JmDictThread implements Runnable {
 
         DbOpenHelper db = new DbOpenHelper(mContext);
 
-        for (JmEntry jmEntry : dict.getEntries()){
+        for (JmEntry jmEntry : mDict.getEntries()){
             for (JmKEle kEle : jmEntry.getKEle()){
                 Entry entry = new Entry();
                 entry.setKanji(kEle.getKeb());

@@ -20,48 +20,51 @@ import com.google.common.base.Joiner;
 import ca.fuwafuwa.kaku.Database.DbOpenHelper;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Windows.Interfaces.IKanjiViewCallback;
+import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
+import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 
 /**
  * Created by Xyresic on 4/23/2016.
  */
-public class InformationWindow extends Window implements GestureDetector.OnGestureListener, KanjiViewCallback{
+public class InformationWindow extends Window implements GestureDetector.OnGestureListener, IKanjiViewCallback {
 
     private static final String TAG = InformationWindow.class.getName();
-
     private static final float FLICK_THRESHOLD = -0.05f;
+
     private GestureDetector mGestureDetector;
-    private float maxFlingVelocity;
+    private float mMaxFlingVelocity;
 
     public InformationWindow(MainService context) {
         super(context, R.layout.info_window);
-        maxFlingVelocity = ViewConfiguration.get(mContext).getScaledMaximumFlingVelocity();
-        mGestureDetector = new GestureDetector(mContext, this);
+        mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
+        mGestureDetector = new GestureDetector(this.context, this);
     }
 
     public void setText(String text){
-        KanjiGridView kanjiGrid = (KanjiGridView) mWindow.findViewById(R.id.kanji_grid);
+        KanjiGridView kanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
         kanjiGrid.setText(this, text);
     }
 
 
     @Override
-    public void onKanjiTouched(KanjiCharacterView kanjiView) {
+    public void onKanjiViewTouch(KanjiCharacterView kanjiView, MotionEvent e) {
         /*
-        TextView tv = (TextView) mWindow.findViewById(R.id.info_text);
+        TextView tv = (TextView) window.findViewById(R.id.info_text);
         long startTime = System.currentTimeMillis();
         tv.setText(searchDict(kanjiView.getText().toString()));
         String timeTaken = String.format("Search Time: %d", System.currentTimeMillis() - startTime);
         */
 
-        //KanjiGridView kanjiGrid = (KanjiGridView) mWindow.findViewById(R.id.kanji_grid);
+        //KanjiGridView kanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
         //kanjiGrid.removeView(kanjiView);
         //tv.postInvalidate();
 
         long startTime = System.currentTimeMillis();
 
-        ScrollView sv = (ScrollView) mWindow.findViewById(R.id.info_text);
+        ScrollView sv = (ScrollView) window.findViewById(R.id.info_text);
         sv.removeAllViews();
-        TextView tv = new TextView(mContext);
+        TextView tv = new TextView(context);
         tv.setText(searchDict(kanjiView.getText().toString()));
         tv.setTextColor(Color.WHITE);
         sv.addView(tv);
@@ -69,7 +72,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         String timeTaken = String.format("Search Time: %d", System.currentTimeMillis() - startTime);
 
         Log.d(TAG, timeTaken);
-        Toast.makeText(mContext, timeTaken, Toast.LENGTH_LONG).show();
+        Toast.makeText(context, timeTaken, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -96,7 +99,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
         if (e.getAction() == MotionEvent.ACTION_UP){
             params.y = 0;
-            mWindowManager.updateViewLayout(mWindow, params);
+            windowManager.updateViewLayout(window, params);
             return true;
         }
 
@@ -105,11 +108,11 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     @Override
     public void stop() {
-        mWindow.animate().translationY(-getDisplaySize().y).setListener(new AnimatorListenerAdapter() {
+        window.animate().translationY(-getDisplaySize().y).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                mWindow.setVisibility(View.INVISIBLE);
+                window.setVisibility(View.INVISIBLE);
                 InformationWindow.super.stop();
             }
         });
@@ -136,7 +139,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         if (params.y > 0){
             params.y = 0;
         }
-        mWindowManager.updateViewLayout(mWindow, params);
+        windowManager.updateViewLayout(window, params);
 
         return true;
     }
@@ -150,10 +153,10 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
         float distanceMoved = motionEvent.getRawY() - motionEvent1.getRawY();
 
-        Log.d(TAG, String.format("Fling strength: %f", v1 / maxFlingVelocity));
+        Log.d(TAG, String.format("Fling strength: %f", v1 / mMaxFlingVelocity));
         Log.d(TAG, String.format("Distance moved: %f", distanceMoved));
 
-        if ((v1 / maxFlingVelocity) < FLICK_THRESHOLD){
+        if ((v1 / mMaxFlingVelocity) < FLICK_THRESHOLD){
             stop();
             return true;
         }
@@ -163,7 +166,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     private String searchDict(String text){
 
-        DbOpenHelper db = new DbOpenHelper(mContext);
+        DbOpenHelper db = new DbOpenHelper(context);
         StringBuilder sb = new StringBuilder();
 
         int length = text.length();

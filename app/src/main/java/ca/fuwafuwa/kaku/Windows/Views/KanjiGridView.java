@@ -1,16 +1,19 @@
-package ca.fuwafuwa.kaku.Windows;
+package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import ca.fuwafuwa.kaku.KakuTools;
+import ca.fuwafuwa.kaku.Windows.InformationWindow;
+import ca.fuwafuwa.kaku.Windows.Interfaces.IKanjiViewCallback;
 
 /**
  * Created by Xyresic on 5/5/2016.
  */
-public class KanjiGridView extends ViewGroup {
+public class KanjiGridView extends ViewGroup implements IKanjiViewCallback {
 
     private static final String TAG = KanjiGridView.class.getName();
 
@@ -43,8 +46,6 @@ public class KanjiGridView extends ViewGroup {
     private void Init(Context context){
         mContext = context;
         mCellSize = KakuTools.dpToPx(mContext, 37);
-
-
     }
 
     public void setText(InformationWindow infoWin, String text){
@@ -62,6 +63,11 @@ public class KanjiGridView extends ViewGroup {
             offset += Character.charCount(curr);
         }
         postInvalidate();
+    }
+
+    @Override
+    public void onKanjiViewTouch(KanjiCharacterView kanjiView, MotionEvent e) {
+
     }
 
     @Override

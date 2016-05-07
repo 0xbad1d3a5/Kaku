@@ -5,10 +5,10 @@ package ca.fuwafuwa.kaku;
  */
 public final class BoxParams {
 
-    final public int x;
-    final public int y;
-    final public int width;
-    final public int height;
+    public final int x;
+    public final int y;
+    public final int width;
+    public final int height;
 
     public BoxParams(int x, int y, int width, int height){
         this.x = x;

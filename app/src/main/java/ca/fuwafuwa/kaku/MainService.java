@@ -25,17 +25,19 @@ import android.view.WindowManager;
 
 import java.util.concurrent.TimeoutException;
 
+import ca.fuwafuwa.kaku.Interfaces.IStoppable;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
 /**
  * Created by Xyresic on 4/9/2016.
  */
-public class MainService extends Service implements Stoppable {
+public class MainService extends Service implements IStoppable {
 
-    public static final String TAG = MainService.class.getName();
+    private  static final String TAG = MainService.class.getName();
+    private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
+
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
-    private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
     private WindowManager mWindowManager;
     private MediaProjectionManager mMediaProjectionManager;
