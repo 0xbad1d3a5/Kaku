@@ -12,30 +12,56 @@ import ca.fuwafuwa.kaku.KakuTools;
  */
 public class KanjiGridView extends ViewGroup {
 
-    private int mCellSize = 100;
+    private static final String TAG = KanjiGridView.class.getName();
+
+    private Context mContext;
+    private int mRows = 0;
+    private int mColumns = 0;
+    private int mKanjiCount = 0;
+    private int mCellSize = 0;
 
     public KanjiGridView(Context context) {
         super(context);
-        setCellSize(context);
+        Init(context);
     }
 
     public KanjiGridView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setCellSize(context);
+        Init(context);
     }
 
     public KanjiGridView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setCellSize(context);
+        Init(context);
     }
 
     public KanjiGridView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        setCellSize(context);
+        Init(context);
     }
 
-    private void setCellSize(Context context){
-        mCellSize = KakuTools.dpToPx(context, 40);
+    private void Init(Context context){
+        mContext = context;
+        mCellSize = KakuTools.dpToPx(mContext, 37);
+
+
+    }
+
+    public void setText(InformationWindow infoWin, String text){
+        mKanjiCount = 0;
+        int length = text.length();
+        for (int offset = 0; offset < length; ){
+            int curr = text.codePointAt(offset);
+            String kanji = new String(new int[] { curr }, 0, 1);
+
+            KanjiCharacterView kanji_view = new KanjiCharacterView(mContext);
+            kanji_view.setKanjiViewCallback(infoWin);
+            kanji_view.setText(kanji);
+            addView(kanji_view);
+            mKanjiCount++;
+            offset += Character.charCount(curr);
+        }
+        postInvalidate();
     }
 
     @Override
@@ -53,7 +79,10 @@ public class KanjiGridView extends ViewGroup {
         // Use the size our parents gave us
         //setMeasuredDimension(resolveSize(mCellWidth*count, widthMeasureSpec), resolveSize(mCellHeight*count, heightMeasureSpec));
         int x = resolveSize(mCellSize * count, widthMeasureSpec);
-        int y = mCellSize * 3;
+        mRows = (int) Math.ceil((double) mKanjiCount / (double) (x / mCellSize));
+        mRows = mRows <= 0 ? 1 : mRows;
+        mRows = mRows >= 4 ? 4 : mRows;
+        int y = mCellSize * mRows;
 
         setMeasuredDimension(x, y);
     }
@@ -61,12 +90,13 @@ public class KanjiGridView extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
-        int columns = (r - l) / mCellSize;
-        if (columns < 0) {
-            columns = 1;
+        mColumns = (r - l) / mCellSize;
+        int xStart = ((r - l)  - (mCellSize * mColumns)) / 2;
+        if (mColumns < 0) {
+            mColumns = 1;
         }
 
-        int x = 0;
+        int x = xStart;
         int y = 0;
         int i = 0;
         int count = getChildCount();
@@ -77,10 +107,10 @@ public class KanjiGridView extends ViewGroup {
             int left = x + ((mCellSize - w) / 2);
             int top = y + ((mCellSize - h) / 2);
             child.layout(left, top, left + w, top + h);
-            if (i >= (columns - 1)) {
+            if (i >= (mColumns - 1)) {
                 // advance to next row
                 i = 0;
-                x = 0;
+                x = xStart;
                 y += mCellSize;
             } else {
                 i++;
