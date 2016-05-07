@@ -12,51 +12,53 @@ import android.widget.RelativeLayout;
 
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Stoppable;
+import ca.fuwafuwa.kaku.Interfaces.IStoppable;
+import ca.fuwafuwa.kaku.Windows.Interfaces.IWindowCallback;
+import ca.fuwafuwa.kaku.Windows.Views.ResizeView;
+import ca.fuwafuwa.kaku.Windows.Views.WindowView;
 
-public abstract class Window implements Stoppable, WindowCallback {
+public abstract class Window implements IStoppable, IWindowCallback {
 
     private static final String TAG = Window.class.getName();
 
-    protected MainService mContext;
-    protected WindowManager mWindowManager;
-    protected View mWindow;
+    private WindowView mWindowView;
+    private ResizeView mResizeView;
+    private int mDX;
+    private int mDY;
+    private Point mDisplaySize;
+    private long mParamUpdateTimer = System.currentTimeMillis();
+
+    protected MainService context;
+    protected WindowManager windowManager;
+    protected View window;
     protected WindowManager.LayoutParams params;
 
-    private WindowView windowView;
-    private ResizeView resizeView;
-
-    private int dX;
-    private int dY;
-    private Point displaySize;
-    private long paramUpdateTimer = System.currentTimeMillis();
-
     public Window(MainService context, int contentView){
-        this.mContext = context;
+        this.context = context;
 
-        mWindowManager = (WindowManager) mContext.getSystemService(context.WINDOW_SERVICE);
-        LayoutInflater inflater = (LayoutInflater) mContext.getApplicationContext().getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
-        mWindow = inflater.inflate(R.layout.window, null);
-        mWindow.setTag(this);
+        windowManager = (WindowManager) this.context.getSystemService(context.WINDOW_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) this.context.getApplicationContext().getSystemService(this.context.LAYOUT_INFLATER_SERVICE);
+        window = inflater.inflate(R.layout.window, null);
+        window.setTag(this);
 
-        windowView = (WindowView) mWindow.findViewById(R.id.window_view);
-        resizeView = (ResizeView) mWindow.findViewById(R.id.resize_view);
-        windowView.registerCallback(this);
-        resizeView.registerCallback(this);
+        mWindowView = (WindowView) window.findViewById(R.id.window_view);
+        mResizeView = (ResizeView) window.findViewById(R.id.resize_view);
+        mWindowView.registerCallback(this);
+        mResizeView.registerCallback(this);
 
-        RelativeLayout relativeLayout = (RelativeLayout) mWindow.findViewById(R.id.content_view);
+        RelativeLayout relativeLayout = (RelativeLayout) window.findViewById(R.id.content_view);
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
 
-        displaySize = mContext.getDisplaySize();
+        mDisplaySize = this.context.getDisplaySize();
         params = getDefaultParams();
 
-        mWindowManager.addView(mWindow, params);
+        windowManager.addView(window, params);
     }
 
     public void reInit(){
-        displaySize = mContext.getDisplaySize();
+        mDisplaySize = context.getDisplaySize();
         fixBoxBounds();
-        mWindowManager.updateViewLayout(mWindow, params);
+        windowManager.updateViewLayout(window, params);
     }
 
     /**
@@ -68,7 +70,7 @@ public abstract class Window implements Stoppable, WindowCallback {
     @Override
     public void stop() {
         Log.d(TAG, "WINDOW CLOSING");
-        mWindowManager.removeView(mWindow);
+        windowManager.removeView(window);
     }
 
     /**
@@ -80,17 +82,17 @@ public abstract class Window implements Stoppable, WindowCallback {
     public boolean onTouchEvent(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                dX = params.x - (int) e.getRawX();
-                dY = params.y - (int) e.getRawY();
+                mDX = params.x - (int) e.getRawX();
+                mDY = params.y - (int) e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
                 fixBoxBounds();
                 return true;
             case MotionEvent.ACTION_MOVE:
-                params.x = dX + (int) e.getRawX();
-                params.y = dY + (int) e.getRawY();
+                params.x = mDX + (int) e.getRawX();
+                params.y = mDY + (int) e.getRawY();
                 fixBoxBounds();
-                mWindowManager.updateViewLayout(mWindow, params);
+                windowManager.updateViewLayout(window, params);
                 return true;
         }
         return false;
@@ -106,20 +108,20 @@ public abstract class Window implements Stoppable, WindowCallback {
     public boolean onResizeEvent(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                dX = params.width - (int) e.getRawX();
-                dY = params.height - (int) e.getRawY();
+                mDX = params.width - (int) e.getRawX();
+                mDY = params.height - (int) e.getRawY();
                 return true;
             case MotionEvent.ACTION_UP:
                 fixBoxBounds();
                 return true;
             case MotionEvent.ACTION_MOVE:
-                params.width = dX + (int) e.getRawX();
-                params.height = dY + (int) e.getRawY();
+                params.width = mDX + (int) e.getRawX();
+                params.height = mDY + (int) e.getRawY();
                 fixBoxBounds();
                 long currTime = System.currentTimeMillis();
-                if (currTime - paramUpdateTimer > 50){
-                    paramUpdateTimer = currTime;
-                    mWindowManager.updateViewLayout(mWindow, params);
+                if (currTime - mParamUpdateTimer > 50){
+                    mParamUpdateTimer = currTime;
+                    windowManager.updateViewLayout(window, params);
                 }
                 return true;
         }
@@ -130,7 +132,7 @@ public abstract class Window implements Stoppable, WindowCallback {
      * @return Display size of the current screen
      */
     protected Point getDisplaySize(){
-        return displaySize;
+        return mDisplaySize;
     }
 
     protected WindowManager.LayoutParams getDefaultParams(){
@@ -148,18 +150,18 @@ public abstract class Window implements Stoppable, WindowCallback {
 
     protected int getNavigationBarHeight(){
         int result = 0;
-        int resourceId = mContext.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
         if (resourceId > 0){
-            result = mContext.getResources().getDimensionPixelSize(resourceId);
+            result = context.getResources().getDimensionPixelSize(resourceId);
         }
         return result;
     }
 
     protected int getStatusBarHeight() {
         int result = 0;
-        int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
-            result = mContext.getResources().getDimensionPixelSize(resourceId);
+            result = context.getResources().getDimensionPixelSize(resourceId);
         }
         return result;
     }
@@ -168,20 +170,20 @@ public abstract class Window implements Stoppable, WindowCallback {
         if (params.x < 0){
             params.x = 0;
         }
-        else if (params.x + params.width > displaySize.x) {
-            params.x = displaySize.x - params.width;
+        else if (params.x + params.width > mDisplaySize.x) {
+            params.x = mDisplaySize.x - params.width;
         }
         if (params.y < 0){
             params.y = 0;
         }
-        else if (params.y + params.height > displaySize.y) {
-            params.y = displaySize.y - params.height - getStatusBarHeight();
+        else if (params.y + params.height > mDisplaySize.y) {
+            params.y = mDisplaySize.y - params.height - getStatusBarHeight();
         }
-        if (params.width > displaySize.x){
-            params.width = displaySize.x;
+        if (params.width > mDisplaySize.x){
+            params.width = mDisplaySize.x;
         }
-        if (params.height > displaySize.y){
-            params.height = displaySize.y;
+        if (params.height > mDisplaySize.y){
+            params.height = mDisplaySize.y;
         }
         if (params.width < 100){
             params.width = 100;

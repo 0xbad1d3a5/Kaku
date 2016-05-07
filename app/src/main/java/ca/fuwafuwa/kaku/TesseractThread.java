@@ -13,19 +13,20 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeoutException;
 
+import ca.fuwafuwa.kaku.Interfaces.IStoppable;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
 /**
  * Created by 0x1bad1d3a on 4/16/2016.
  */
-public class TesseractThread implements Runnable, Stoppable {
+public class TesseractThread implements Runnable, IStoppable {
 
     private static final String TAG = TesseractThread.class.getName();
 
     private MainService mContext;
     private CaptureWindow mCaptureWindow;
     private TessBaseAPI mTessBaseAPI;
-    private boolean running = true;
+    private boolean mRunning = true;
     private BoxParams mBox;
     private Object mBoxLock = new Object();
 
@@ -42,7 +43,7 @@ public class TesseractThread implements Runnable, Stoppable {
 
     @Override
     public void run() {
-        while(running){
+        while(mRunning){
 
             Log.d(TAG, "THREAD STARTING NEW LOOP");
 
@@ -118,7 +119,7 @@ public class TesseractThread implements Runnable, Stoppable {
     @Override
     public void stop(){
         synchronized (mBoxLock){
-            running = false;
+            mRunning = false;
             mTessBaseAPI.stop();
             mBoxLock.notify();
             Log.d(TAG, "THREAD STOPPED");

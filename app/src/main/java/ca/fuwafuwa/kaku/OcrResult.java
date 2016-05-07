@@ -5,29 +5,29 @@ package ca.fuwafuwa.kaku;
  */
 public class OcrResult {
 
-    private String text;
-    private long screenshotTime;
-    private long ocrTime;
+    private String mText;
+    private long mScreenshotTime;
+    private long mOcrTime;
 
     public OcrResult(String text, long screenshotTime, long ocrTime){
-        this.text = text;
-        this.screenshotTime = screenshotTime;
-        this.ocrTime = ocrTime;
+        this.mText = text;
+        this.mScreenshotTime = screenshotTime;
+        this.mOcrTime = ocrTime;
     }
 
     public String getText(){
-        return text;
+        return mText;
     }
 
     public long getScreenshotTime(){
-        return screenshotTime;
+        return mScreenshotTime;
     }
 
     public long getOcrTime(){
-        return ocrTime;
+        return mOcrTime;
     }
 
     public String toString(){
-        return String.format("%s\nScreenshot Time: %d\nOcrTime: %d", text, screenshotTime, ocrTime);
+        return String.format("%s\nScreenshot Time: %d\nOcrTime: %d", mText, mScreenshotTime, mOcrTime);
     }
 }

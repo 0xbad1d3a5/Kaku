@@ -8,14 +8,14 @@ import android.os.Bundle;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_SCREENSHOT = 100;
-    private MediaProjectionManager mediaProjectionManager;
+    private MediaProjectionManager mMediaProjectionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_SCREENSHOT);
+        mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_SCREENSHOT);
     }
 
     @Override

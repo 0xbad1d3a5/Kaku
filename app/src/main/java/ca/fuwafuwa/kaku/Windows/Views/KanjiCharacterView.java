@@ -1,4 +1,4 @@
-package ca.fuwafuwa.kaku.Windows;
+package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Windows.Interfaces.IKanjiViewCallback;
 
 /**
  * Created by 0x1bad1d3a on 5/5/2016.
@@ -22,9 +23,10 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     private static final String TAG = KanjiCharacterView.class.getName();
 
-    private Point offset;
+    private int mCharPos;
+    private Point mOffset;
     private Context mContext;
-    private KanjiViewCallback callback;
+    private IKanjiViewCallback mCallback;
     private GestureDetector mGestureDetector;
 
     public KanjiCharacterView(Context context) {
@@ -49,12 +51,12 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     private void Init(Context context){
         mContext = context;
-        offset = new Point(0, 0);
+        mOffset = new Point(0, 0);
         mGestureDetector = new GestureDetector(mContext, this);
     }
 
-    public void setKanjiViewCallback(KanjiViewCallback callback){
-        this.callback = callback;
+    public void setKanjiViewCallback(IKanjiViewCallback callback){
+        this.mCallback = callback;
     }
 
     @Override
@@ -73,8 +75,8 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         mGestureDetector.onTouchEvent(e);
 
         if (e.getAction() == MotionEvent.ACTION_UP){
-            offset.x = (int) getX();
-            offset.y = (int) getY();
+            mOffset.x = (int) getX();
+            mOffset.y = (int) getY();
         }
 
         return true;
@@ -83,8 +85,8 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     @Override
     public boolean onDown(MotionEvent motionEvent) {
         Log.d(TAG, String.format("onDown: %f x %f", getX(), getY()));
-        offset.x = (int) getX();
-        offset.y = (int) getY();
+        mOffset.x = (int) getX();
+        mOffset.y = (int) getY();
         return false;
     }
 
@@ -94,18 +96,18 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     }
 
     @Override
-    public boolean onSingleTapUp(MotionEvent motionEvent) {
+    public boolean onSingleTapUp(MotionEvent e) {
         Log.d(TAG, "onSingleTapUp");
         Drawable bg = mContext.getDrawable(R.drawable.border_translucent);
         setBackground(bg);
-        callback.onKanjiTouched(this);
+        mCallback.onKanjiViewTouch(this, e);
         return true;
     }
 
     @Override
     public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-        setX(motionEvent1.getRawX() - motionEvent.getRawX() + offset.x);
-        setY(motionEvent1.getRawY() - motionEvent.getRawY() + offset.y);
+        setX(motionEvent1.getRawX() - motionEvent.getRawX() + mOffset.x);
+        setY(motionEvent1.getRawY() - motionEvent.getRawY() + mOffset.y);
         return true;
     }
 

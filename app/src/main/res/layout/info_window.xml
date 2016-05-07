@@ -24,13 +24,13 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp">
 
-            <ca.fuwafuwa.kaku.Windows.KanjiGridView
+            <ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
                 android:id="@+id/kanji_grid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
                 android:layout_margin="5dp">
-            </ca.fuwafuwa.kaku.Windows.KanjiGridView>
+            </ca.fuwafuwa.kaku.Windows.Views.KanjiGridView>
 
             <ScrollView
                 android:id="@+id/info_text"

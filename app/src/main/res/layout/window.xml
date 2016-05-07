@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ca.fuwafuwa.kaku.Windows.WindowView
+<ca.fuwafuwa.kaku.Windows.Views.WindowView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/window_view"
     android:layout_width="match_parent"
@@ -8,10 +8,10 @@
         android:id="@+id/content_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    <ca.fuwafuwa.kaku.Windows.ResizeView
+    <ca.fuwafuwa.kaku.Windows.Views.ResizeView
         android:id="@+id/resize_view"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true" />
-</ca.fuwafuwa.kaku.Windows.WindowView>
+</ca.fuwafuwa.kaku.Windows.Views.WindowView>

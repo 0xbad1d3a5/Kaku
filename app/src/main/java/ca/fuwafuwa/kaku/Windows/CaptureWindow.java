@@ -10,36 +10,36 @@ import ca.fuwafuwa.kaku.BoxParams;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.TesseractThread;
+import ca.fuwafuwa.kaku.Windows.Interfaces.IWindowCallback;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
  */
-public class CaptureWindow extends Window implements WindowCallback {
+public class CaptureWindow extends Window implements IWindowCallback {
 
     private static final String TAG = CaptureWindow.class.getName();
 
     private TesseractThread mTessThread;
-
-    private View windowBox;
-    private Animation fadeRepeat;
-    private Drawable borderTranslucent;
-    private Drawable border9PatchTransparent;
+    private View mWindowBox;
+    private Animation mFadeRepeat;
+    private Drawable mBorderTranslucent;
+    private Drawable mBorder9PatchTransparent;
 
     private CommonParser jmDict;
 
     public CaptureWindow(MainService context) {
         super(context, R.layout.capture_window);
 
-        windowBox = mWindow.findViewById(R.id.capture_box);
+        mWindowBox = window.findViewById(R.id.capture_box);
 
-        fadeRepeat = AnimationUtils.loadAnimation(mContext, R.anim.fade_repeat);
-        borderTranslucent = mContext.getResources().getDrawable(R.drawable.border_translucent, null);
-        border9PatchTransparent = mContext.getResources().getDrawable(R.drawable.border9patch_transparent, null);
+        mFadeRepeat = AnimationUtils.loadAnimation(this.context, R.anim.fade_repeat);
+        mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.border_translucent, null);
+        mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border9patch_transparent, null);
 
-        this.jmDict = new CommonParser(mContext);
+        this.jmDict = new CommonParser(this.context);
 
-        mTessThread = new TesseractThread(mContext, this);
+        mTessThread = new TesseractThread(this.context, this);
         Thread tessThread = new Thread(mTessThread);
         tessThread.setDaemon(true);
         tessThread.start();
@@ -70,22 +70,22 @@ public class CaptureWindow extends Window implements WindowCallback {
     }
 
     public void showLoadingAnimation(){
-        mContext.getHandler().post(new Runnable() {
+        context.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                windowBox.setAnimation(fadeRepeat);
-                windowBox.startAnimation(fadeRepeat);
-                windowBox.setBackground(borderTranslucent);
+                mWindowBox.setAnimation(mFadeRepeat);
+                mWindowBox.startAnimation(mFadeRepeat);
+                mWindowBox.setBackground(mBorderTranslucent);
             }
         });
     }
 
     public void stopLoadingAnimation(){
-        mContext.getHandler().post(new Runnable() {
+        context.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                windowBox.setBackground(border9PatchTransparent);
-                windowBox.clearAnimation();
+                mWindowBox.setBackground(mBorder9PatchTransparent);
+                mWindowBox.clearAnimation();
             }
         });
     }
@@ -99,10 +99,10 @@ public class CaptureWindow extends Window implements WindowCallback {
     private void setOpacity(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                windowBox.setBackground(borderTranslucent);
+                mWindowBox.setBackground(mBorderTranslucent);
                 break;
             case MotionEvent.ACTION_UP:
-                windowBox.setBackground(border9PatchTransparent);
+                mWindowBox.setBackground(mBorder9PatchTransparent);
                 break;
         }
     }
