@@ -5,14 +5,14 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
 
-import ca.fuwafuwa.kaku.Windows.Interfaces.IWindowCallback;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 
 /**
  * Created by Xyresic on 4/13/2016.
  */
 public class ResizeView extends LinearLayout {
 
-    private IWindowCallback mWindowCallback;
+    private WindowListener mWindowListener;
 
     public ResizeView(Context context) {
         super(context);
@@ -26,12 +26,12 @@ public class ResizeView extends LinearLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void registerCallback(IWindowCallback windowCallback){
-        this.mWindowCallback = windowCallback;
+    public void setWindowListener(WindowListener windowListener){
+        this.mWindowListener = windowListener;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
-        return mWindowCallback.onResizeEvent(e);
+        return mWindowListener.onResizeEvent(e);
     }
 }
