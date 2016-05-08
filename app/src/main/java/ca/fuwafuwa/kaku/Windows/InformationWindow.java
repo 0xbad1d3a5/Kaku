@@ -20,14 +20,14 @@ import com.google.common.base.Joiner;
 import ca.fuwafuwa.kaku.Database.DbOpenHelper;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Interfaces.IKanjiViewCallback;
+import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 
 /**
  * Created by 0x1bad1d3a on 4/23/2016.
  */
-public class InformationWindow extends Window implements GestureDetector.OnGestureListener, IKanjiViewCallback {
+public class InformationWindow extends Window implements GestureDetector.OnGestureListener, KanjiViewListener {
 
     private static final String TAG = InformationWindow.class.getName();
     private static final float FLICK_THRESHOLD = -0.05f;

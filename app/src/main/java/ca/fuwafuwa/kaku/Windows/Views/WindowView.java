@@ -5,14 +5,14 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-import ca.fuwafuwa.kaku.Windows.Interfaces.IWindowCallback;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
  */
 public class WindowView extends RelativeLayout {
 
-    private IWindowCallback mWindowCallback;
+    private WindowListener mWindowListener;
 
     public WindowView(Context context) {
         super(context);
@@ -26,12 +26,12 @@ public class WindowView extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void registerCallback(IWindowCallback windowCallback){
-        this.mWindowCallback = windowCallback;
+    public void setWindowListener(WindowListener windowListener){
+        this.mWindowListener = windowListener;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
-        return mWindowCallback.onTouchEvent(e);
+        return mWindowListener.onTouchEvent(e);
     }
 }

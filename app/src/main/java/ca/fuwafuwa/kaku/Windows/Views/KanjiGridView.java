@@ -8,12 +8,12 @@ import android.view.ViewGroup;
 
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.Windows.InformationWindow;
-import ca.fuwafuwa.kaku.Windows.Interfaces.IKanjiViewCallback;
+import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 
 /**
  * Created by 0x1bad1d3a on 5/5/2016.
  */
-public class KanjiGridView extends ViewGroup implements IKanjiViewCallback {
+public class KanjiGridView extends ViewGroup implements KanjiViewListener {
 
     private static final String TAG = KanjiGridView.class.getName();
 

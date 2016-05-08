@@ -12,14 +12,19 @@ import android.widget.RelativeLayout;
 
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Interfaces.IStoppable;
-import ca.fuwafuwa.kaku.Windows.Interfaces.IWindowCallback;
+import ca.fuwafuwa.kaku.Interfaces.Stoppable;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.Windows.Views.ResizeView;
 import ca.fuwafuwa.kaku.Windows.Views.WindowView;
 
-public abstract class Window implements IStoppable, IWindowCallback {
+public abstract class Window implements Stoppable, WindowListener {
 
     private static final String TAG = Window.class.getName();
+
+    protected MainService context;
+    protected WindowManager windowManager;
+    protected View window;
+    protected WindowManager.LayoutParams params;
 
     private WindowView mWindowView;
     private ResizeView mResizeView;
@@ -27,11 +32,6 @@ public abstract class Window implements IStoppable, IWindowCallback {
     private int mDY;
     private Point mDisplaySize;
     private long mParamUpdateTimer = System.currentTimeMillis();
-
-    protected MainService context;
-    protected WindowManager windowManager;
-    protected View window;
-    protected WindowManager.LayoutParams params;
 
     public Window(MainService context, int contentView){
         this.context = context;
@@ -43,8 +43,8 @@ public abstract class Window implements IStoppable, IWindowCallback {
 
         mWindowView = (WindowView) window.findViewById(R.id.window_view);
         mResizeView = (ResizeView) window.findViewById(R.id.resize_view);
-        mWindowView.registerCallback(this);
-        mResizeView.registerCallback(this);
+        mWindowView.setWindowListener(this);
+        mResizeView.setWindowListener(this);
 
         RelativeLayout relativeLayout = (RelativeLayout) window.findViewById(R.id.content_view);
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));

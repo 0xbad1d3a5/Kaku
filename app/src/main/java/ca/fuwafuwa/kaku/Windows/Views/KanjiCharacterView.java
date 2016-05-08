@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Interfaces.IKanjiViewCallback;
+import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 
 /**
  * Created by 0x1bad1d3a on 5/5/2016.
@@ -26,7 +26,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     private int mCharPos;
     private Point mOffset;
     private Context mContext;
-    private IKanjiViewCallback mCallback;
+    private KanjiViewListener mCallback;
     private GestureDetector mGestureDetector;
 
     public KanjiCharacterView(Context context) {
@@ -55,7 +55,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         mGestureDetector = new GestureDetector(mContext, this);
     }
 
-    public void setKanjiViewCallback(IKanjiViewCallback callback){
+    public void setKanjiViewCallback(KanjiViewListener callback){
         this.mCallback = callback;
     }
 

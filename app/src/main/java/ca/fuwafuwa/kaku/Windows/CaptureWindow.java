@@ -10,13 +10,13 @@ import ca.fuwafuwa.kaku.BoxParams;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.TesseractThread;
-import ca.fuwafuwa.kaku.Windows.Interfaces.IWindowCallback;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
  */
-public class CaptureWindow extends Window implements IWindowCallback {
+public class CaptureWindow extends Window implements WindowListener {
 
     private static final String TAG = CaptureWindow.class.getName();
 

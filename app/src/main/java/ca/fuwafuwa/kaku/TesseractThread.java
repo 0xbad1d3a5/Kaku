@@ -13,13 +13,13 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeoutException;
 
-import ca.fuwafuwa.kaku.Interfaces.IStoppable;
+import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
 /**
  * Created by 0x1bad1d3a on 4/16/2016.
  */
-public class TesseractThread implements Runnable, IStoppable {
+public class TesseractThread implements Runnable, Stoppable {
 
     private static final String TAG = TesseractThread.class.getName();
 

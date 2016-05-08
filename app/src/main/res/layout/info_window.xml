@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ca.fuwafuwa.kaku.Windows.LinearLayoutEatTouch xmlns:android="http://schemas.android.com/apk/res/android"
+<ca.fuwafuwa.kaku.Windows.Views.LinearLayoutView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/info_window"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -52,4 +52,4 @@
 
     </LinearLayout>
 
-</ca.fuwafuwa.kaku.Windows.LinearLayoutEatTouch>
+</ca.fuwafuwa.kaku.Windows.Views.LinearLayoutView>
