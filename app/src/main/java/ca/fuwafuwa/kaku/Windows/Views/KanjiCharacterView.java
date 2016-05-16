@@ -106,8 +106,8 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     @Override
     public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-        setX(motionEvent1.getRawX() - motionEvent.getRawX() + mOffset.x);
-        setY(motionEvent1.getRawY() - motionEvent.getRawY() + mOffset.y);
+        //setX(motionEvent1.getRawX() - motionEvent.getRawX() + mOffset.x);
+        //setY(motionEvent1.getRawY() - motionEvent.getRawY() + mOffset.y);
         return true;
     }
 

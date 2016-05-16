@@ -2,18 +2,19 @@ package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.Windows.InformationWindow;
-import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 
 /**
  * Created by Xyresic on 5/5/2016.
  */
-public class KanjiGridView extends ViewGroup implements KanjiViewListener {
+public class KanjiGridView extends ViewGroup {
 
     private static final String TAG = KanjiGridView.class.getName();
 
@@ -22,6 +23,7 @@ public class KanjiGridView extends ViewGroup implements KanjiViewListener {
     private int mColumns = 0;
     private int mKanjiCount = 0;
     private int mCellSize = 0;
+    private List<KanjiCharacterView> mKanjiViewList = new ArrayList<>();
 
     public KanjiGridView(Context context) {
         super(context);
@@ -59,15 +61,15 @@ public class KanjiGridView extends ViewGroup implements KanjiViewListener {
             kanji_view.setKanjiViewCallback(infoWin);
             kanji_view.setText(kanji);
             addView(kanji_view);
+            mKanjiViewList.add(kanji_view);
             mKanjiCount++;
             offset += Character.charCount(curr);
         }
         postInvalidate();
     }
 
-    @Override
-    public void onKanjiViewTouch(KanjiCharacterView kanjiView, MotionEvent e) {
-
+    public List<KanjiCharacterView> getKanjiViewList(){
+        return mKanjiViewList;
     }
 
     @Override

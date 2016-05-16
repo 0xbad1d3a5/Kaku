@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 
+import java.util.List;
+
 import ca.fuwafuwa.kaku.Database.DbOpenHelper;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
@@ -46,19 +48,15 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         kanjiGrid.setText(this, text);
     }
 
+    public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e){
+        KanjiGridView kanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
+        List<KanjiCharacterView> kanjiViewList = kanjiGrid.getKanjiViewList();
+        for (KanjiCharacterView k : kanjiViewList){
+        }
+    }
 
     @Override
     public void onKanjiViewTouch(KanjiCharacterView kanjiView, MotionEvent e) {
-        /*
-        TextView tv = (TextView) window.findViewById(R.id.info_text);
-        long startTime = System.currentTimeMillis();
-        tv.setText(searchDict(kanjiView.getText().toString()));
-        String timeTaken = String.format("Search Time: %d", System.currentTimeMillis() - startTime);
-        */
-
-        //KanjiGridView kanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
-        //kanjiGrid.removeView(kanjiView);
-        //tv.postInvalidate();
 
         long startTime = System.currentTimeMillis();
 
