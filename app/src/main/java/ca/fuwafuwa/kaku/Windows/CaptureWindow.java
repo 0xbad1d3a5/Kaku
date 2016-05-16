@@ -25,8 +25,7 @@ public class CaptureWindow extends Window implements WindowListener {
     private Animation mFadeRepeat;
     private Drawable mBorderTranslucent;
     private Drawable mBorder9PatchTransparent;
-
-    private CommonParser jmDict;
+    private CommonParser mJmDict;
 
     public CaptureWindow(MainService context) {
         super(context, R.layout.capture_window);
@@ -37,7 +36,7 @@ public class CaptureWindow extends Window implements WindowListener {
         mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.border_translucent, null);
         mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border9patch_transparent, null);
 
-        this.jmDict = new CommonParser(this.context);
+        this.mJmDict = new CommonParser(this.context);
 
         mTessThread = new TesseractThread(this.context, this);
         Thread tessThread = new Thread(mTessThread);
