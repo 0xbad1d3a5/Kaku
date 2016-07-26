@@ -13,11 +13,10 @@ import ca.fuwafuwa.kaku.XmlParsers.JmConsts;
 public class JmEntry {
 
     private static final String JMTAG = JmConsts.ENTRY;
-    
+
     private String ent_seq = null;
     private List<JmKEle> k_ele = new ArrayList<>();
     private List<JmREle> r_ele = new ArrayList<>();
-    private JmInfo info = null;
     private List<JmSense> sense = new ArrayList<>();
 
     public JmEntry(XmlPullParser parser) throws IOException, XmlPullParserException {
@@ -35,9 +34,6 @@ public class JmEntry {
                     break;
                 case JmConsts.R_ELE:
                     r_ele.add(new JmREle(parser));
-                    break;
-                case JmConsts.INFO:
-                    info = new JmInfo(parser);
                     break;
                 case JmConsts.SENSE:
                     sense.add(new JmSense(parser));
@@ -62,10 +58,6 @@ public class JmEntry {
 
     public List<JmREle> getREle(){
         return this.r_ele;
-    }
-
-    public JmInfo getInfo(){
-        return this.info;
     }
 
     public List<JmSense> getSense(){
