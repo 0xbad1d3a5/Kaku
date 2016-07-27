@@ -17,4 +17,12 @@ public class MeaningAntonym {
 
     @DatabaseField
     private String antonym;
+
+    public String getAntonym() {
+        return antonym;
+    }
+
+    public void setAntonym(String antonym) {
+        this.antonym = antonym;
+    }
 }

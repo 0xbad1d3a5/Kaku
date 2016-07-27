@@ -17,4 +17,12 @@ public class MeaningReadingRestriction {
 
     @DatabaseField
     private String readingRestriction;
+
+    public String getReadingRestriction() {
+        return readingRestriction;
+    }
+
+    public void setReadingRestriction(String readingRestriction) {
+        this.readingRestriction = readingRestriction;
+    }
 }

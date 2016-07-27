@@ -25,4 +25,12 @@ public class Kanji {
 
     @ForeignCollectionField()
     private ForeignCollection<KanjiPriority> kanjiPriorities;
+
+    public String getKanji() {
+        return kanji;
+    }
+
+    public void setKanji(String kanji) {
+        this.kanji = kanji;
+    }
 }

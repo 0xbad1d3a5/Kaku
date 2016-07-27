@@ -17,4 +17,12 @@ public class ReadingPriority {
 
     @DatabaseField
     private String readingPri;
+
+    public String getReadingPri() {
+        return readingPri;
+    }
+
+    public void setReadingPri(String readingPri) {
+        this.readingPri = readingPri;
+    }
 }

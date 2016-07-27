@@ -16,5 +16,13 @@ public class KanjiIrregularity {
     private Kanji fkKanji;
 
     @DatabaseField
-    private String kanjiInf;
+    private String kanjiIrregularity;
+
+    public String getKanjiIrregularity() {
+        return kanjiIrregularity;
+    }
+
+    public void setKanjiIrregularity(String kanjiIrregularity) {
+        this.kanjiIrregularity = kanjiIrregularity;
+    }
 }

@@ -17,4 +17,12 @@ public class MeaningDialect {
 
     @DatabaseField
     private String dialect;
+
+    public String getDialect() {
+        return dialect;
+    }
+
+    public void setDialect(String dialect) {
+        this.dialect = dialect;
+    }
 }

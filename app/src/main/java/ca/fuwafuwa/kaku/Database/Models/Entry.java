@@ -22,6 +22,14 @@ public class Entry {
 
     @ForeignCollectionField()
     private ForeignCollection<Meaning> meanings;
+    
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     private String mKanji;
     private String mReading;

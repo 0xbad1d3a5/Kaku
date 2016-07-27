@@ -31,4 +31,20 @@ public class Reading {
 
     @ForeignCollectionField()
     private ForeignCollection<ReadingPriority> readingPriorities;
+
+    public String getReading() {
+        return reading;
+    }
+
+    public void setReading(String reading) {
+        this.reading = reading;
+    }
+
+    public String getFalseReading() {
+        return falseReading;
+    }
+
+    public void setFalseReading(String falseReading) {
+        this.falseReading = falseReading;
+    }
 }
