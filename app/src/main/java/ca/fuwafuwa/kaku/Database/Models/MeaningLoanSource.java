@@ -26,4 +26,36 @@ public class MeaningLoanSource {
 
     @DatabaseField
     private String waseieigo;
+
+    public String getLoanSource() {
+        return loanSource;
+    }
+
+    public void setLoanSource(String loanSource) {
+        this.loanSource = loanSource;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getWaseieigo() {
+        return waseieigo;
+    }
+
+    public void setWaseieigo(String waseieigo) {
+        this.waseieigo = waseieigo;
+    }
 }

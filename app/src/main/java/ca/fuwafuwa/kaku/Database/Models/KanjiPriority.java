@@ -16,5 +16,13 @@ public class KanjiPriority {
     private Kanji fkKanji;
 
     @DatabaseField
-    private String kanjiPri;
+    private String kanjiPriority;
+
+    public String getKanjiPriority() {
+        return kanjiPriority;
+    }
+
+    public void setKanjiPriority(String kanjiPriority) {
+        this.kanjiPriority = kanjiPriority;
+    }
 }

@@ -17,4 +17,12 @@ public class MeaningKanjiRestriction {
 
     @DatabaseField
     private String kanjiRestriction;
+
+    public String getKanjiRestriction() {
+        return kanjiRestriction;
+    }
+
+    public void setKanjiRestriction(String kanjiRestriction) {
+        this.kanjiRestriction = kanjiRestriction;
+    }
 }

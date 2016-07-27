@@ -17,4 +17,12 @@ public class ReadingIrregularity {
 
     @DatabaseField
     private String readingInf;
+
+    public String getReadingInf() {
+        return readingInf;
+    }
+
+    public void setReadingInf(String readingInf) {
+        this.readingInf = readingInf;
+    }
 }

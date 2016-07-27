@@ -17,4 +17,12 @@ public class MeaningPartOfSpeech {
 
     @DatabaseField
     private String partOfSpeech;
+
+    public String getPartOfSpeech() {
+        return partOfSpeech;
+    }
+
+    public void setPartOfSpeech(String partOfSpeech) {
+        this.partOfSpeech = partOfSpeech;
+    }
 }

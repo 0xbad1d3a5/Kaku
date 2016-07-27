@@ -17,4 +17,12 @@ public class MeaningAdditionalInfo {
 
     @DatabaseField
     private String additionalInfo;
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
 }

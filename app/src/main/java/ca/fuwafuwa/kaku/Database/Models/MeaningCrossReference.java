@@ -17,4 +17,12 @@ public class MeaningCrossReference {
 
     @DatabaseField
     private String crossReference;
+
+    public String getCrossReference() {
+        return crossReference;
+    }
+
+    public void setCrossReference(String crossReference) {
+        this.crossReference = crossReference;
+    }
 }

@@ -23,4 +23,28 @@ public class MeaningGloss {
 
     @DatabaseField
     private String gender;
+
+    public String getGloss() {
+        return gloss;
+    }
+
+    public void setGloss(String gloss) {
+        this.gloss = gloss;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 }

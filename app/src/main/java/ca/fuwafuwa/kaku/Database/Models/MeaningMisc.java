@@ -17,4 +17,12 @@ public class MeaningMisc {
 
     @DatabaseField
     private String misc;
+
+    public String getMisc() {
+        return misc;
+    }
+
+    public void setMisc(String misc) {
+        this.misc = misc;
+    }
 }
