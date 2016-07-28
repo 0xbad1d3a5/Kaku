@@ -46,6 +46,13 @@ public class CaptureWindow extends Window implements WindowListener {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+
+        try {
+            mJmDict.parseDict();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
         setOpacity(e);
         boolean handled = super.onTouchEvent(e);
         switch (e.getAction()) {

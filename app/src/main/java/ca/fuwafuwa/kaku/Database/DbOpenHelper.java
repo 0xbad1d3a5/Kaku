@@ -43,9 +43,9 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(DictContract.JmEntry.COLUMN_KANJI, entry.getKanji());
-        values.put(DictContract.JmEntry.COLUMN_READING, entry.getReading());
-        values.put(DictContract.JmEntry.COLUMN_SENSE, entry.getSense());
+        //values.put(DictContract.JmEntry.COLUMN_KANJI, entry.getKanji());
+        //values.put(DictContract.JmEntry.COLUMN_READING, entry.getReading());
+        //values.put(DictContract.JmEntry.COLUMN_SENSE, entry.getSense());
 
         db.insert(DictContract.JmEntry.TABLE_NAME, null, values);
     }
@@ -63,9 +63,9 @@ public class DbOpenHelper extends SQLiteOpenHelper {
             for (int i = 0; i < c.getCount(); i++){
                 c.moveToPosition(i);
                 Entry entry = new Entry();
-                entry.setKanji(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_KANJI)));
-                entry.setReading(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_READING)));
-                entry.setSense(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_SENSE)));
+                //entry.setKanji(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_KANJI)));
+                //entry.setReading(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_READING)));
+                //entry.setSense(c.getString(c.getColumnIndex(DictContract.JmEntry.COLUMN_SENSE)));
                 entries.add(entry);
             }
 
