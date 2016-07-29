@@ -1,5 +1,7 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDTO;
 
+import android.content.Context;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -15,7 +17,7 @@ public class JmDict {
 
     private List<JmEntry> entries = new ArrayList<>();
 
-    public JmDict(XmlPullParser parser) throws IOException, XmlPullParserException {
+    public JmDict(XmlPullParser parser, Context mContext) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, JMTAG);
         parser.nextToken();
 
@@ -23,7 +25,7 @@ public class JmDict {
             String name = parser.getName() == null ? "" : parser.getName();
             switch(name){
                 case JmConsts.ENTRY:
-                    entries.add(new JmEntry(parser));
+                    new JmEntry(parser, mContext);
                     break;
             }
             parser.nextToken();

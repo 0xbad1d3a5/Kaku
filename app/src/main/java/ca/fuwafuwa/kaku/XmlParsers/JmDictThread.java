@@ -4,20 +4,14 @@ import android.content.Context;
 import android.util.Log;
 import android.util.Xml;
 
-import com.j256.ormlite.dao.Dao;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 
-import ca.fuwafuwa.kaku.Database.DatabaseHelper;
-import ca.fuwafuwa.kaku.Database.Models.Entry;
 import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmDict;
-import ca.fuwafuwa.kaku.XmlParsers.JmDTO.JmEntry;
 
 /**
  * Created by 0x1bad1d3a on 4/30/2016.
@@ -51,7 +45,7 @@ public class JmDictThread implements Runnable {
             while (!JmConsts.JMDICT.equals(mParser.getName())){
                 mParser.nextToken();
             }
-            mDict = new JmDict(mParser);
+            mDict = new JmDict(mParser, mContext);
 
         } catch (XmlPullParserException e) {
             e.printStackTrace();
@@ -60,19 +54,6 @@ public class JmDictThread implements Runnable {
         }
 
         Log.d(TAG, String.format("FINISHED DICT, TOOK %d", System.currentTimeMillis() - startTime));
-
-        DatabaseHelper dbHelper = DatabaseHelper.getHelper(mContext);
-        Dao<Entry, String> entryDao = null;
-        try {
-             entryDao = dbHelper.getEntryDao();
-             for (JmEntry jmEntry : mDict.getEntries()){
-                 Entry newEntry = new Entry();
-                 newEntry.setId(jmEntry.getEntSeq());
-                 entryDao.create(newEntry);
-             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         /*
         DbOpenHelper db = new DbOpenHelper(mContext);

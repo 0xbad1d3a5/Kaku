@@ -43,8 +43,6 @@ public class CommonParser {
             return null;
         }
 
-        Log.d(TAG, String.format("LINE NUMBER: %s", parser.getLineNumber()));
-
         StringBuilder sb = new StringBuilder();
         String JMTAG = parser.getName();
         parser.require(XmlPullParser.START_TAG, null, JMTAG);
