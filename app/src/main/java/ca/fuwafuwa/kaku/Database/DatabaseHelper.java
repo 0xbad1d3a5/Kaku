@@ -40,10 +40,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private static DatabaseHelper instance;
 
+    private Context mContext;
     private Dao<Entry, String> entryDao;
 
     private DatabaseHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = context;
     }
 
     public static synchronized DatabaseHelper getHelper(Context context){
@@ -83,6 +85,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         throw new UnsupportedOperationException();
+    }
+
+    public void deleteDatabase(){
+        mContext.deleteDatabase("/data/data/ca.fuwafuwa.kaku/databases/" + DATABASE_NAME);
     }
 
     public Dao<Entry, String> getEntryDao() throws SQLException {
