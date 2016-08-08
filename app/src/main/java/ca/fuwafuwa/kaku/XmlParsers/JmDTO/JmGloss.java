@@ -24,7 +24,7 @@ public class JmGloss {
         parser.require(XmlPullParser.START_TAG, null, JMTAG);
 
         HashMap<String, String> attrMap = CommonParser.parseAttributes(parser);
-        lang = attrMap.get(JmConsts.XML_LANG);
+        lang = attrMap.get(JmConsts.XML_LANG) == null ? "eng" : attrMap.get(JmConsts.XML_LANG);
         g_gend = attrMap.get(JmConsts.G_GEND);
         text = CommonParser.parseString(parser);
     }

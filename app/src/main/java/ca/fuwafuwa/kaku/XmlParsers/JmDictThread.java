@@ -54,6 +54,7 @@ public class JmDictThread implements Runnable {
     private FileInputStream mJmDictXml;
     private XmlPullParser mParser;
     private DatabaseHelper dbHelper;
+    private int parseCount = 0;
 
     public JmDictThread(Context context) {
         mContext = context;
@@ -125,7 +126,9 @@ public class JmDictThread implements Runnable {
         parseJmMeaning(jmEntry, newEntry);
         parseJmReading(jmEntry, newEntry);
 
-        //Log.d(TAG, String.format("Parsed Entry %d", newEntry.getEntry()));
+        if (++parseCount % 100 == 0){
+            Log.d(TAG, String.format("Parsed %d entries", parseCount));
+        }
     }
 
     private void parseJmKanji(JmEntry jmEntry, Entry entry) throws SQLException {

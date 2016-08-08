@@ -34,7 +34,7 @@ public class JmConsts {
     public static final String EXAMPLE = "example";
 
     // Attributes
-    public static final String XML_LANG = "xml:lang";
+    public static final String XML_LANG = "lang";
     public static final String G_GEND = "g_gend";
     public static final String LS_TYPE = "ls_type";
     public static final String LS_WASEI = "ls_wasei";
