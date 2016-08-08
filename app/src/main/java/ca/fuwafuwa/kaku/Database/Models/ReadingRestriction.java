@@ -10,7 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class ReadingRestriction {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Reading fkReading;
@@ -24,5 +24,13 @@ public class ReadingRestriction {
 
     public void setReadingRestriction(String readingRestriction) {
         this.readingRestriction = readingRestriction;
+    }
+
+    public Reading getFkReading() {
+        return fkReading;
+    }
+
+    public void setFkReading(Reading fkReading) {
+        this.fkReading = fkReading;
     }
 }

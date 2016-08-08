@@ -10,7 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class MeaningCrossReference {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Meaning fkMeaning;
@@ -24,5 +24,13 @@ public class MeaningCrossReference {
 
     public void setCrossReference(String crossReference) {
         this.crossReference = crossReference;
+    }
+
+    public Meaning getFkMeaning() {
+        return fkMeaning;
+    }
+
+    public void setFkMeaning(Meaning fkMeaning) {
+        this.fkMeaning = fkMeaning;
     }
 }

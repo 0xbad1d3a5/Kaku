@@ -10,7 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class MeaningField {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Meaning fkMeaning;
@@ -24,5 +24,13 @@ public class MeaningField {
 
     public void setField(String field) {
         this.field = field;
+    }
+
+    public Meaning getFkMeaning() {
+        return fkMeaning;
+    }
+
+    public void setFkMeaning(Meaning fkMeaning) {
+        this.fkMeaning = fkMeaning;
     }
 }

@@ -10,19 +10,27 @@ import com.j256.ormlite.table.DatabaseTable;
 public class ReadingPriority {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Reading fkReading;
 
     @DatabaseField
-    private String readingPri;
+    private String readingPriority;
 
-    public String getReadingPri() {
-        return readingPri;
+    public String getReadingPriority() {
+        return readingPriority;
     }
 
-    public void setReadingPri(String readingPri) {
-        this.readingPri = readingPri;
+    public void setReadingPriority(String readingPriority) {
+        this.readingPriority = readingPriority;
+    }
+
+    public Reading getFkReading() {
+        return fkReading;
+    }
+
+    public void setFkReading(Reading fkReading) {
+        this.fkReading = fkReading;
     }
 }
