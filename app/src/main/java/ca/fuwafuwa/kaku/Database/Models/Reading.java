@@ -12,7 +12,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Reading {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Entry fkEntry;
@@ -46,5 +46,13 @@ public class Reading {
 
     public void setFalseReading(String falseReading) {
         this.falseReading = falseReading;
+    }
+
+    public Entry getFkEntry() {
+        return fkEntry;
+    }
+
+    public void setFkEntry(Entry fkEntry) {
+        this.fkEntry = fkEntry;
     }
 }

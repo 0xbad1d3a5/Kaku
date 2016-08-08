@@ -12,7 +12,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Entry {
 
     @DatabaseField(id = true)
-    private String entry;
+    private Integer entry;
 
     @ForeignCollectionField()
     private ForeignCollection<Kanji> kanjis;
@@ -26,11 +26,35 @@ public class Entry {
     public Entry(){
     }
 
-    public String getEntry() {
+    public Integer getEntry() {
         return entry;
     }
 
-    public void setEntry(String entry) {
+    public void setEntry(Integer entry) {
         this.entry = entry;
+    }
+
+    public ForeignCollection<Kanji> getKanjis() {
+        return kanjis;
+    }
+
+    public void setKanjis(ForeignCollection<Kanji> kanjis) {
+        this.kanjis = kanjis;
+    }
+
+    public ForeignCollection<Reading> getReadings() {
+        return readings;
+    }
+
+    public void setReadings(ForeignCollection<Reading> readings) {
+        this.readings = readings;
+    }
+
+    public ForeignCollection<Meaning> getMeanings() {
+        return meanings;
+    }
+
+    public void setMeanings(ForeignCollection<Meaning> meanings) {
+        this.meanings = meanings;
     }
 }

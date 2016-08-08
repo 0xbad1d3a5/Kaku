@@ -10,7 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class MeaningLoanSource {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Meaning fkMeaning;
@@ -57,5 +57,13 @@ public class MeaningLoanSource {
 
     public void setWaseieigo(String waseieigo) {
         this.waseieigo = waseieigo;
+    }
+
+    public Meaning getFkMeaning() {
+        return fkMeaning;
+    }
+
+    public void setFkMeaning(Meaning fkMeaning) {
+        this.fkMeaning = fkMeaning;
     }
 }

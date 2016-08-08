@@ -10,19 +10,27 @@ import com.j256.ormlite.table.DatabaseTable;
 public class ReadingIrregularity {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Reading fkReading;
 
     @DatabaseField
-    private String readingInf;
+    private String readingIrregularity;
 
-    public String getReadingInf() {
-        return readingInf;
+    public String getReadingIrregularity() {
+        return readingIrregularity;
     }
 
-    public void setReadingInf(String readingInf) {
-        this.readingInf = readingInf;
+    public void setReadingIrregularity(String readingIrregularity) {
+        this.readingIrregularity = readingIrregularity;
+    }
+
+    public Reading getFkReading() {
+        return fkReading;
+    }
+
+    public void setFkReading(Reading fkReading) {
+        this.fkReading = fkReading;
     }
 }

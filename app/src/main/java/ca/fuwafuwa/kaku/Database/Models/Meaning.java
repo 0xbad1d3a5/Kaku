@@ -12,7 +12,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Meaning {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Entry fkEntry;
@@ -49,4 +49,12 @@ public class Meaning {
 
     @ForeignCollectionField()
     private ForeignCollection<MeaningGloss> glosses;
+
+    public Entry getFkEntry() {
+        return fkEntry;
+    }
+
+    public void setFkEntry(Entry fkEntry) {
+        this.fkEntry = fkEntry;
+    }
 }

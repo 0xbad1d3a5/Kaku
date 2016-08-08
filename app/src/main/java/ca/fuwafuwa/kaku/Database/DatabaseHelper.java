@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import ca.fuwafuwa.kaku.Database.Models.Entry;
 import ca.fuwafuwa.kaku.Database.Models.Kanji;
 import ca.fuwafuwa.kaku.Database.Models.KanjiIrregularity;
+import ca.fuwafuwa.kaku.Database.Models.KanjiPriority;
 import ca.fuwafuwa.kaku.Database.Models.Meaning;
 import ca.fuwafuwa.kaku.Database.Models.MeaningAdditionalInfo;
 import ca.fuwafuwa.kaku.Database.Models.MeaningAntonym;
@@ -41,7 +42,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static DatabaseHelper instance;
 
     private Context mContext;
-    private Dao<Entry, String> entryDao;
 
     private DatabaseHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -61,6 +61,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Entry.class);
             TableUtils.createTable(connectionSource, Kanji.class);
             TableUtils.createTable(connectionSource, KanjiIrregularity.class);
+            TableUtils.createTable(connectionSource, KanjiPriority.class);
             TableUtils.createTable(connectionSource, Meaning.class);
             TableUtils.createTable(connectionSource, MeaningAdditionalInfo.class);
             TableUtils.createTable(connectionSource, MeaningAntonym.class);
@@ -91,10 +92,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         mContext.deleteDatabase("/data/data/ca.fuwafuwa.kaku/databases/" + DATABASE_NAME);
     }
 
-    public Dao<Entry, String> getEntryDao() throws SQLException {
-        if (entryDao == null){
-            entryDao = getDao(Entry.class);
-        }
-        return entryDao;
+    public <T> Dao<T, Integer> getJmDao(Class clazz) throws SQLException {
+        return getDao(clazz);
     }
 }

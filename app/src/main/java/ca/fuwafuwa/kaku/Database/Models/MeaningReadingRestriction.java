@@ -10,7 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class MeaningReadingRestriction {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Meaning fkMeaning;
@@ -24,5 +24,13 @@ public class MeaningReadingRestriction {
 
     public void setReadingRestriction(String readingRestriction) {
         this.readingRestriction = readingRestriction;
+    }
+
+    public Meaning getFkMeaning() {
+        return fkMeaning;
+    }
+
+    public void setFkMeaning(Meaning fkMeaning) {
+        this.fkMeaning = fkMeaning;
     }
 }

@@ -10,7 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class KanjiIrregularity {
 
     @DatabaseField(generatedId = true)
-    private int id;
+    private Integer id;
 
     @DatabaseField(foreign = true)
     private Kanji fkKanji;
@@ -24,5 +24,13 @@ public class KanjiIrregularity {
 
     public void setKanjiIrregularity(String kanjiIrregularity) {
         this.kanjiIrregularity = kanjiIrregularity;
+    }
+
+    public Kanji getFkKanji() {
+        return fkKanji;
+    }
+
+    public void setFkKanji(Kanji fkKanji) {
+        this.fkKanji = fkKanji;
     }
 }
