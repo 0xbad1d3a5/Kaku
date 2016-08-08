@@ -19,6 +19,7 @@ public class Kanji {
 
     @DatabaseField
     private String kanji;
+    public static final String KANJI_FIELD = "kanji";
 
     @ForeignCollectionField()
     private ForeignCollection<KanjiIrregularity> kanjiIrregularities;

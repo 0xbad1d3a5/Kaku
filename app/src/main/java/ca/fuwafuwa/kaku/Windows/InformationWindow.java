@@ -15,11 +15,15 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Joiner;
+import com.j256.ormlite.dao.Dao;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
-import ca.fuwafuwa.kaku.Database.DbOpenHelper;
+import ca.fuwafuwa.kaku.Database.DatabaseHelper;
+import ca.fuwafuwa.kaku.Database.Models.Entry;
+import ca.fuwafuwa.kaku.Database.Models.Kanji;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
@@ -36,11 +40,13 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     private GestureDetector mGestureDetector;
     private float mMaxFlingVelocity;
+    private DatabaseHelper mDbHelper;
 
     public InformationWindow(MainService context) {
         super(context, R.layout.info_window);
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
         mGestureDetector = new GestureDetector(this.context, this);
+        mDbHelper = DatabaseHelper.getHelper(context);
     }
 
     public void setText(String text){
@@ -63,7 +69,13 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         ScrollView sv = (ScrollView) window.findViewById(R.id.info_text);
         sv.removeAllViews();
         TextView tv = new TextView(context);
-        tv.setText(searchDict(kanjiView.getText().toString()));
+        try {
+            tv.setText(searchDict(kanjiView.getText().toString()));
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
+
         tv.setTextColor(Color.WHITE);
         sv.addView(tv);
 
@@ -162,8 +174,9 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         return false;
     }
 
-    private String searchDict(String text){
+    private String searchDict(String text) throws SQLException {
 
+        /*
         DbOpenHelper db = new DbOpenHelper(context);
         StringBuilder sb = new StringBuilder();
 
@@ -179,5 +192,16 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         }
 
         return sb.toString();
+        */
+
+        Dao<Kanji, Integer> kanjiDao = mDbHelper.getJmDao(Kanji.class);
+        Dao<Entry, Integer> entryDao = mDbHelper.getJmDao(Entry.class);
+        List<Entry> entries = new ArrayList<>();
+        List<Kanji> kanjis = kanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, text + "%").query();
+        for (Kanji kanji : kanjis){
+            entryDao.refresh(kanji.getFkEntry());
+            entries.add(kanji.getFkEntry());
+        }
+        return null;
     }
 }

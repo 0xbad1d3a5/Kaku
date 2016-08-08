@@ -25,7 +25,7 @@ public class JmLsource {
         parser.require(XmlPullParser.START_TAG, null, JMTAG);
 
         HashMap<String, String> attrMap = CommonParser.parseAttributes(parser);
-        lang = attrMap.get(JmConsts.XML_LANG);
+        lang = attrMap.get(JmConsts.XML_LANG) == null ? "eng" : attrMap.get(JmConsts.XML_LANG);
         ls_type = attrMap.get(JmConsts.LS_TYPE);
         ls_wasei = attrMap.get(JmConsts.LS_WASEI);
         text = CommonParser.parseString(parser);
