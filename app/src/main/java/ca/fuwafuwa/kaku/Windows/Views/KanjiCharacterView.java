@@ -59,12 +59,19 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         this.mCallback = callback;
     }
 
+    public int getCharPos() {
+        return mCharPos;
+    }
+
+    public void setCharPos(int charPos) {
+        mCharPos = charPos;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
         int size = KakuTools.dpToPx(mContext, 35);
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
-        setBackground(mContext.getDrawable(R.color.black));
-        setTextColor(Color.WHITE);
+        setTextColor(Color.BLACK);
         setGravity(Gravity.CENTER);
         setMeasuredDimension(size, size);
     }
