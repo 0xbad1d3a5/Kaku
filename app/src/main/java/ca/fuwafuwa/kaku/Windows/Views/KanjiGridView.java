@@ -60,6 +60,8 @@ public class KanjiGridView extends ViewGroup {
             KanjiCharacterView kanji_view = new KanjiCharacterView(mContext);
             kanji_view.setKanjiViewCallback(infoWin);
             kanji_view.setText(kanji);
+            kanji_view.setCharPos(offset);
+
             addView(kanji_view);
             mKanjiViewList.add(kanji_view);
             mKanjiCount++;

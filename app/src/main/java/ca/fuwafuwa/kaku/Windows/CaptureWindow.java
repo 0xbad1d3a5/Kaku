@@ -51,6 +51,7 @@ public class CaptureWindow extends Window implements WindowListener {
         switch (e.getAction()) {
             case MotionEvent.ACTION_UP:
                 mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
+
                 /*
                 try {
                     mJmDict.parseDict();
@@ -58,6 +59,7 @@ public class CaptureWindow extends Window implements WindowListener {
                     e1.printStackTrace();
                 }
                 */
+
                 break;
         }
         return handled;

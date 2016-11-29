@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -15,17 +16,15 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.j256.ormlite.dao.Dao;
+import com.google.common.base.Joiner;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
-import ca.fuwafuwa.kaku.Database.DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.Models.Entry;
-import ca.fuwafuwa.kaku.Database.Models.Kanji;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
@@ -40,18 +39,22 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     private GestureDetector mGestureDetector;
     private float mMaxFlingVelocity;
-    private DatabaseHelper mDbHelper;
+    private KanjiGridView mKanjiGrid;
+    private Searcher mSearcher;
+    private String mText;
 
     public InformationWindow(MainService context) {
         super(context, R.layout.info_window);
+
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
         mGestureDetector = new GestureDetector(this.context, this);
-        mDbHelper = DatabaseHelper.getHelper(context);
+        mKanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
+        mSearcher = Searcher.instance(context);
     }
 
     public void setText(String text){
-        KanjiGridView kanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
-        kanjiGrid.setText(this, text);
+        this.mText = text;
+        mKanjiGrid.setText(this, text);
     }
 
     public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e){
@@ -69,14 +72,15 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         ScrollView sv = (ScrollView) window.findViewById(R.id.info_text);
         sv.removeAllViews();
         TextView tv = new TextView(context);
+
         try {
-            tv.setText(searchDict(kanjiView.getText().toString()));
+            tv.setText(searchDict(mText, kanjiView.getCharPos()));
         }
         catch (Exception ex){
             ex.printStackTrace();
         }
 
-        tv.setTextColor(Color.WHITE);
+        tv.setTextColor(Color.BLACK);
         sv.addView(tv);
 
         String timeTaken = String.format("Search Time: %d", System.currentTimeMillis() - startTime);
@@ -174,34 +178,11 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         return false;
     }
 
-    private String searchDict(String text) throws SQLException {
+    @NonNull
+    private String searchDict(String text, int offset) throws SQLException {
 
-        /*
-        DbOpenHelper db = new DbOpenHelper(context);
-        StringBuilder sb = new StringBuilder();
+        List<Entry> entries = mSearcher.search(text, offset);
 
-        int length = text.length();
-        for (int offset = 0; offset < length; ){
-            int curr = text.codePointAt(offset);
-
-            String kanji = new String(new int[] { curr }, 0, 1);
-            sb.append(Joiner.on("\n").join(db.getEntries(kanji)));
-            sb.append("\n");
-
-            offset += Character.charCount(curr);
-        }
-
-        return sb.toString();
-        */
-
-        Dao<Kanji, Integer> kanjiDao = mDbHelper.getJmDao(Kanji.class);
-        Dao<Entry, Integer> entryDao = mDbHelper.getJmDao(Entry.class);
-        List<Entry> entries = new ArrayList<>();
-        List<Kanji> kanjis = kanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, text + "%").query();
-        for (Kanji kanji : kanjis){
-            entryDao.refresh(kanji.getFkEntry());
-            entries.add(kanji.getFkEntry());
-        }
-        return null;
+        return Joiner.on("\n\n\n\n").join(entries);
     }
 }

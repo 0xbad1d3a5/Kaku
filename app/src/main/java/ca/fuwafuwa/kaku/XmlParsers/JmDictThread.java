@@ -58,7 +58,7 @@ public class JmDictThread implements Runnable {
 
     public JmDictThread(Context context) {
         mContext = context;
-        dbHelper = DatabaseHelper.getHelper(mContext);
+        dbHelper = DatabaseHelper.instance(mContext);
     }
 
     @Override
@@ -70,11 +70,12 @@ public class JmDictThread implements Runnable {
             mParser = Xml.newPullParser();
             //mParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
 
+            dbHelper.deleteDatabase();
             File file = new File(mContext.getExternalFilesDir(null), "JMDictOriginal.xml");
             mJmDictXml = new FileInputStream(file);
             mParser.setInput(mJmDictXml, null);
 
-            TransactionManager.callInTransaction(DatabaseHelper.getHelper(mContext).getConnectionSource(), new Callable<Void>() {
+            TransactionManager.callInTransaction(DatabaseHelper.instance(mContext).getConnectionSource(), new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
                     parseJmDict(mParser);
@@ -119,7 +120,7 @@ public class JmDictThread implements Runnable {
         JmEntry jmEntry = new JmEntry(parser);
 
         Entry newEntry = new Entry();
-        newEntry.setEntry(jmEntry.getEntSeq());
+        newEntry.setId(jmEntry.getEntSeq());
         dbHelper.getJmDao(Entry.class).create(newEntry);
 
         parseJmKanji(jmEntry, newEntry);
@@ -228,12 +229,14 @@ public class JmDictThread implements Runnable {
 
     private void parseJmMeaningGloss(JmSense jmSense, Meaning meaning) throws SQLException {
         for (JmGloss jmGloss : jmSense.getGloss()){
-            MeaningGloss newMeaningGloss = new MeaningGloss();
-            newMeaningGloss.setFkMeaning(meaning);
-            newMeaningGloss.setGender(jmGloss.getGender());
-            newMeaningGloss.setGloss(jmGloss.getText());
-            newMeaningGloss.setLang(jmGloss.getLang());
-            dbHelper.getJmDao(MeaningGloss.class).create(newMeaningGloss);
+            if (jmGloss.getLang().equals("eng")){
+                MeaningGloss newMeaningGloss = new MeaningGloss();
+                newMeaningGloss.setFkMeaning(meaning);
+                newMeaningGloss.setGender(jmGloss.getGender());
+                newMeaningGloss.setGloss(jmGloss.getText());
+                newMeaningGloss.setLang(jmGloss.getLang());
+                dbHelper.getJmDao(MeaningGloss.class).create(newMeaningGloss);
+            }
         }
     }
 
