@@ -44,7 +44,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Context mContext;
 
     private DatabaseHelper(Context context){
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, String.format("%s/%s", context.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME), null, DATABASE_VERSION);
         mContext = context;
     }
 
@@ -89,7 +89,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     }
 
     public void deleteDatabase(){
-        mContext.deleteDatabase("/data/data/ca.fuwafuwa.kaku/databases/" + DATABASE_NAME);
+        mContext.deleteDatabase(String.format("%s/%s", mContext.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME));
     }
 
     public <T> Dao<T, Integer> getJmDao(Class clazz) throws SQLException {

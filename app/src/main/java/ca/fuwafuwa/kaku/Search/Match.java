@@ -1,0 +1,111 @@
+package ca.fuwafuwa.kaku.Search;
+
+import com.google.common.base.Joiner;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ca.fuwafuwa.kaku.Database.Models.Entry;
+import ca.fuwafuwa.kaku.Database.Models.Meaning;
+import ca.fuwafuwa.kaku.Database.Models.MeaningGloss;
+import ca.fuwafuwa.kaku.Database.Models.Reading;
+
+/**
+ * Created by Xyresic on 11/29/2016.
+ */
+
+public class Match implements Comparable<Match> {
+
+    private static final String TAG = Match.class.getName();
+
+    private String mKanji;
+    private List<String> mReadings = new ArrayList<>();
+    private List<String> mMeanings = new ArrayList<>();
+
+    private Entry mEntry;
+    private int mCharsMatched;
+
+    public Match(String kanji, Entry entry, int charsMatched) {
+        this.mKanji = kanji;
+        this.mEntry = entry;
+        this.mCharsMatched = charsMatched;
+
+        populateData();
+    }
+
+    public String getKanji() {
+        return mKanji;
+    }
+
+    public Entry getEntry() {
+        return mEntry;
+    }
+
+    public int getCharsMatched() {
+        return mCharsMatched;
+    }
+
+    private void populateData(){
+        //Log.d(TAG, mEntry.toString());
+        populateReadingData();
+        populateMeaningData();
+    }
+
+    private void populateReadingData(){
+        for (Reading r : mEntry.getReadings()){
+            if (!r.getReadingRestrictions().isEmpty() && r.getReadingRestrictions().contains(mKanji)){
+                mReadings.add(r.getReading());
+            }
+            else {
+                mReadings.add(r.getReading());
+            }
+        }
+    }
+
+    private void populateMeaningData(){
+        for (Meaning m : mEntry.getMeanings()){
+            if (!m.getKanjiRestrictions().isEmpty() && m.getKanjiRestrictions().contains(mKanji)){
+                addGloss(m);
+            }
+            else {
+                addGloss(m);
+            }
+        }
+    }
+
+    private void addGloss(Meaning m){
+        for (MeaningGloss gloss : m.getGlosses()){
+            mMeanings.add(gloss.getGloss());
+        }
+    }
+
+    @Override
+    public String toString(){
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(mKanji);
+
+        sb.append(" (");
+        sb.append(Joiner.on(", ").join(mReadings));
+        sb.append(")");
+
+        sb.append("\n");
+        sb.append(Joiner.on(", ").join(mMeanings));
+
+        return sb.toString();
+    }
+
+    @Override
+    public int compareTo(Match another) {
+        if (this.getCharsMatched() > another.getCharsMatched()){
+            return -1;
+        }
+        else if (this.getCharsMatched() == another.getCharsMatched()){
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }
+}

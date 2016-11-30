@@ -1,4 +1,4 @@
-package ca.fuwafuwa.kaku;
+package ca.fuwafuwa.kaku.Ocr;
 
 /**
  * Created by Xyresic on 4/16/2016.

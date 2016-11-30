@@ -1,4 +1,4 @@
-package ca.fuwafuwa.kaku;
+package ca.fuwafuwa.kaku.Ocr;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +14,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.TimeoutException;
 
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
+import ca.fuwafuwa.kaku.MainService;
+import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
 /**
