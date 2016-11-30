@@ -120,7 +120,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     @Override
     public void stop() {
-        window.animate().translationY(-getDisplaySize().y).setListener(new AnimatorListenerAdapter() {
+        window.animate().translationY(-getRealDisplaySize().y).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);

@@ -1,15 +1,16 @@
 package ca.fuwafuwa.kaku.Windows;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
-import ca.fuwafuwa.kaku.Ocr.BoxParams;
 import ca.fuwafuwa.kaku.MainService;
-import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Ocr.BoxParams;
 import ca.fuwafuwa.kaku.Ocr.TesseractThread;
+import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 
@@ -36,7 +37,7 @@ public class CaptureWindow extends Window implements WindowListener {
         mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.border_translucent, null);
         mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border9patch_transparent, null);
 
-        this.mJmDict = new CommonParser();
+        this.mJmDict = new CommonParser(context);
 
         mTessThread = new TesseractThread(this.context, this);
         Thread tessThread = new Thread(mTessThread);
@@ -50,6 +51,7 @@ public class CaptureWindow extends Window implements WindowListener {
         boolean handled = super.onTouchEvent(e);
         switch (e.getAction()) {
             case MotionEvent.ACTION_UP:
+
                 mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
 
                 /*
@@ -59,7 +61,6 @@ public class CaptureWindow extends Window implements WindowListener {
                     e1.printStackTrace();
                 }
                 */
-
                 break;
         }
         return handled;
