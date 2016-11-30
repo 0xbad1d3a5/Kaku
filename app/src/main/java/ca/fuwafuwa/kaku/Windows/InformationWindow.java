@@ -16,14 +16,12 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Joiner;
-
 import java.sql.SQLException;
 import java.util.List;
 
-import ca.fuwafuwa.kaku.Database.Models.Entry;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Search.Match;
 import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
@@ -179,10 +177,15 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
     }
 
     @NonNull
-    private String searchDict(String text, int offset) throws SQLException {
+    private String searchDict(String text, int textOffset) throws SQLException {
 
-        List<Entry> entries = mSearcher.search(text, offset);
+        List<Match> matches = mSearcher.search(text, textOffset);
 
-        return Joiner.on("\n\n\n\n").join(entries);
+        StringBuilder sb = new StringBuilder();
+        for (Match match : matches){
+            sb.append(match.toString());
+            sb.append("\n\n");
+        }
+        return sb.toString();
     }
 }

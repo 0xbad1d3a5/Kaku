@@ -6,6 +6,7 @@ import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
@@ -18,56 +19,64 @@ import ca.fuwafuwa.kaku.Database.Models.Kanji;
 public class Searcher {
 
     private static Searcher instance;
-    private DatabaseHelper dbHelper;
 
-    private Searcher(Context context){
-        dbHelper = DatabaseHelper.instance(context);
+    private DatabaseHelper mDbHelper;
+    Dao<Kanji, Integer> mKanjiDao;
+    Dao<Entry, Integer> mEntryDao;
+
+    private Searcher(Context context) throws SQLException {
+        mDbHelper = DatabaseHelper.instance(context);
+        mKanjiDao = mDbHelper.getJmDao(Kanji.class);
+        mEntryDao = mDbHelper.getJmDao(Entry.class);
     }
 
     public static synchronized Searcher instance(Context context){
         if (instance == null){
-            instance = new Searcher(context);
+            try {
+                instance = new Searcher(context);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return instance;
     }
 
-    public List<Entry> search(String text, int offset) throws SQLException {
+    public List<Match> search(String text, int textOffset) throws SQLException {
         
-        String character = new String(new int[] { text.codePointAt(offset)}, 0, 1);
-
-        Dao<Kanji, Integer> kanjiDao = dbHelper.getJmDao(Kanji.class);
-        Dao<Entry, Integer> entryDao = dbHelper.getJmDao(Entry.class);
-        List<Kanji> kanjis = kanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, character + "%").query();
-        List<Entry> entries = new ArrayList<>();
+        String character = new String(new int[] { text.codePointAt(textOffset)}, 0, 1);
+        List<Kanji> kanjis = mKanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, character + "%").query();
+        List<Match> matches = new ArrayList<>();
 
         for (Kanji kanji : kanjis){
-            if(isMatch(text, kanji.getKanji(), offset)){
-                Entry entry = kanji.getFkEntry();
-                entryDao.refresh(entry);
-                entries.add(entry);
+            Match match = findExactMatches(text, textOffset, kanji);
+            if (match != null){
+                matches.add(match);
             }
         }
 
-        return entries;
+        Collections.sort(matches);
+        return matches;
     }
 
-    private boolean isMatch(String text, String kanji, int textOffset){
+    private Match findExactMatches(String text, int textOffset, Kanji kanji) throws SQLException {
 
-        int length = kanji.length();
+        String kanjiText = kanji.getKanji();
+
+        int length = kanjiText.length();
         for (int offset = 0; offset < length;){
 
-            int kanjiCodePoint = kanji.codePointAt(offset);
+            int kanjiCodePoint = kanjiText.codePointAt(offset);
             int textCodePoint;
 
             try {
                 textCodePoint = text.codePointAt(textOffset);
             }
             catch (IndexOutOfBoundsException e){
-                return false;
+                return null;
             }
 
             if (kanjiCodePoint != textCodePoint){
-                return false;
+                return findPotentialMatches(text, textOffset, kanji);
             }
 
             int characterOffset = Character.charCount(kanjiCodePoint);
@@ -75,6 +84,11 @@ public class Searcher {
             textOffset += characterOffset;
         }
 
-        return true;
+        mEntryDao.refresh(kanji.getFkEntry());
+        return new Match(kanjiText, kanji.getFkEntry(), length);
+    }
+
+    private Match findPotentialMatches(String text, int textOffset, Kanji kanji){
+        return null;
     }
 }

@@ -5,6 +5,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.Windows.InformationWindow;
 
 /**

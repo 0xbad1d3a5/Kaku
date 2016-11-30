@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
  * Created by 0x1bad1d3a on 5/6/2016.
  */
 public class LinearLayoutView extends LinearLayout {
+
     public LinearLayoutView(Context context) {
         super(context);
     }

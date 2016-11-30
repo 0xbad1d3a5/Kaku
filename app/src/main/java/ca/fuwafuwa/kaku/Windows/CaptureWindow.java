@@ -6,10 +6,10 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
-import ca.fuwafuwa.kaku.BoxParams;
+import ca.fuwafuwa.kaku.Ocr.BoxParams;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.TesseractThread;
+import ca.fuwafuwa.kaku.Ocr.TesseractThread;
 import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 
@@ -36,7 +36,7 @@ public class CaptureWindow extends Window implements WindowListener {
         mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.border_translucent, null);
         mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border9patch_transparent, null);
 
-        this.mJmDict = new CommonParser(this.context);
+        this.mJmDict = new CommonParser();
 
         mTessThread = new TesseractThread(this.context, this);
         Thread tessThread = new Thread(mTessThread);

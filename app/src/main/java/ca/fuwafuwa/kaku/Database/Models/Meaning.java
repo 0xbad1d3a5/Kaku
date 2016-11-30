@@ -73,6 +73,49 @@ public class Meaning {
     public void setFkEntry(Entry fkEntry) {
         this.fkEntry = fkEntry;
     }
+    public ForeignCollection<MeaningKanjiRestriction> getKanjiRestrictions() {
+        return kanjiRestrictions;
+    }
+
+    public ForeignCollection<MeaningReadingRestriction> getReadingRestrictions() {
+        return readingRestrictions;
+    }
+
+    public ForeignCollection<MeaningPartOfSpeech> getPartsOfSpeech() {
+        return partsOfSpeech;
+    }
+
+    public ForeignCollection<MeaningCrossReference> getCrossReferences() {
+        return crossReferences;
+    }
+
+    public ForeignCollection<MeaningAntonym> getAntonyms() {
+        return antonyms;
+    }
+
+    public ForeignCollection<MeaningField> getFields() {
+        return fields;
+    }
+
+    public ForeignCollection<MeaningMisc> getMiscs() {
+        return miscs;
+    }
+
+    public ForeignCollection<MeaningAdditionalInfo> getAdditionalInfos() {
+        return additionalInfos;
+    }
+
+    public ForeignCollection<MeaningLoanSource> getLoanSources() {
+        return loanSources;
+    }
+
+    public ForeignCollection<MeaningDialect> getDialects() {
+        return dialects;
+    }
+
+    public ForeignCollection<MeaningGloss> getGlosses() {
+        return glosses;
+    }
 
     @Override
     public String toString() {

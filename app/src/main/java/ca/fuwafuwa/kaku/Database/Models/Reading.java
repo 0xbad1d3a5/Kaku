@@ -66,6 +66,18 @@ public class Reading {
         this.fkEntry = fkEntry;
     }
 
+    public ForeignCollection<ReadingRestriction> getReadingRestrictions() {
+        return readingRestrictions;
+    }
+
+    public ForeignCollection<ReadingIrregularity> getReadingIrregularities() {
+        return readingIrregularities;
+    }
+
+    public ForeignCollection<ReadingPriority> getReadingPriorities() {
+        return readingPriorities;
+    }
+
     @Override
     public String toString() {
         return KakuTools.toJson(this);

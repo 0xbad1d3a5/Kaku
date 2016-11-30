@@ -1,4 +1,4 @@
-package ca.fuwafuwa.kaku;
+package ca.fuwafuwa.kaku.Ocr;
 
 /**
  * Created by 0x1bad1d3a on 5/2/2016.
