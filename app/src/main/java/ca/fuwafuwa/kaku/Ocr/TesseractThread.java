@@ -84,11 +84,7 @@ public class TesseractThread implements Runnable, Stoppable {
                 }
 
                 mCaptureWindow.stopLoadingAnimation();
-
-                String fs = String.format("%s/screenshots/screen %d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), System.nanoTime());
-                Log.d(TAG, fs);
-                FileOutputStream fos = new FileOutputStream(fs);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                saveBitmap(bitmap);
                 bitmap.recycle();
             }
             catch (FileNotFoundException e){
@@ -118,6 +114,11 @@ public class TesseractThread implements Runnable, Stoppable {
         }
     }
 
+    public void cancel(){
+        mTessBaseAPI.stop();
+        Log.d(TAG, "CANCELED");
+    }
+
     @Override
     public void stop(){
         synchronized (mBoxLock){
@@ -128,15 +129,15 @@ public class TesseractThread implements Runnable, Stoppable {
         }
     }
 
-    private Bitmap getReadyScreenshotBox(BoxParams box, int attempts) throws OutOfMemoryError, StackOverflowError, TimeoutException {
+    private Bitmap getReadyScreenshotBox(BoxParams box, int attempts) throws OutOfMemoryError, StackOverflowError, TimeoutException, FileNotFoundException {
 
         if (attempts > 10){
             return null;
         }
 
-        Bitmap bitmapOriginal = convertImageToBitmap(mContext.getScreenshot());
-
         Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
+        Bitmap bitmapOriginal = convertImageToBitmap(mContext.getScreenshot());
+        //saveBitmap(bitmapOriginal);
 
         Bitmap borderPattern = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.border_pattern);
         Bitmap croppedPattern = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, 8, 1);
@@ -168,6 +169,13 @@ public class TesseractThread implements Runnable, Stoppable {
         image.close();
 
         return bitmap;
+    }
+
+    private void saveBitmap(Bitmap bitmap) throws FileNotFoundException {
+        String fs = String.format("%s/screenshots/screen %d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), System.nanoTime());
+        Log.d(TAG, fs);
+        FileOutputStream fos = new FileOutputStream(fs);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
     }
 
     private void sendMessageToMainThread(OcrResult result){

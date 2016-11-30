@@ -10,9 +10,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
+import ca.fuwafuwa.kaku.Interfaces.Stoppable;
+import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.Windows.Views.ResizeView;
 import ca.fuwafuwa.kaku.Windows.Views.WindowView;
@@ -26,16 +27,18 @@ public abstract class Window implements Stoppable, WindowListener {
     protected View window;
     protected WindowManager.LayoutParams params;
 
+    private View mHeightView;
+    protected Point mRealDisplaySize;
     private WindowView mWindowView;
     private ResizeView mResizeView;
     private int mDX;
     private int mDY;
-    private Point mDisplaySize;
+
     private long mParamUpdateTimer = System.currentTimeMillis();
 
     public Window(MainService context, int contentView){
-        this.context = context;
 
+        this.context = context;
         windowManager = (WindowManager) this.context.getSystemService(context.WINDOW_SERVICE);
         LayoutInflater inflater = (LayoutInflater) this.context.getApplicationContext().getSystemService(this.context.LAYOUT_INFLATER_SERVICE);
         window = inflater.inflate(R.layout.window, null);
@@ -49,14 +52,26 @@ public abstract class Window implements Stoppable, WindowListener {
         RelativeLayout relativeLayout = (RelativeLayout) window.findViewById(R.id.content_view);
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
 
-        mDisplaySize = this.context.getDisplaySize();
+        mRealDisplaySize = this.context.getRealDisplaySize();
         params = getDefaultParams();
 
         windowManager.addView(window, params);
+
+        // Hacky way to check if we are fullscreen
+        WindowManager.LayoutParams p = new WindowManager.LayoutParams();
+        p.width = 1;
+        p.height = WindowManager.LayoutParams.MATCH_PARENT;
+        p.type = WindowManager.LayoutParams.TYPE_PHONE;
+        p.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        p.format = PixelFormat.TRANSPARENT;
+        p.gravity = Gravity.RIGHT | Gravity.TOP;
+
+        mHeightView = new View(context);
+        windowManager.addView(mHeightView, p);
     }
 
     public void reInit(){
-        mDisplaySize = context.getDisplaySize();
+        mRealDisplaySize = context.getRealDisplaySize();
         fixBoxBounds();
         windowManager.updateViewLayout(window, params);
     }
@@ -104,7 +119,6 @@ public abstract class Window implements Stoppable, WindowListener {
      * @param e MotionEvent for resizing the Window
      * @return Returns whether the MotionEvent was handled
      */
-    @Override
     public boolean onResizeEvent(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -129,35 +143,37 @@ public abstract class Window implements Stoppable, WindowListener {
     }
 
     /**
-     * @return Display size of the current screen
+     * @return Default LayoutParams for Window
      */
-    protected Point getDisplaySize(){
-        return mDisplaySize;
-    }
-
     protected WindowManager.LayoutParams getDefaultParams(){
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                400,
-                400,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+        params.width = KakuTools.dpToPx(context, 150);
+        params.height = KakuTools.dpToPx(context, 150);
+        params.type = WindowManager.LayoutParams.TYPE_PHONE;
+        params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        params.format = PixelFormat.TRANSLUCENT;
         params.x = 0;
         params.y = 0;
         params.gravity = Gravity.TOP | Gravity.LEFT;
         return params;
     }
 
-    protected int getNavigationBarHeight(){
-        int result = 0;
-        int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0){
-            result = context.getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
+    /**
+     * @return Real screen display size
+     */
+    protected Point getRealDisplaySize(){
+        return mRealDisplaySize;
     }
 
+    /**
+     * @return System status bar height in pixels
+     */
     protected int getStatusBarHeight() {
+
+        if (mRealDisplaySize.y == mHeightView.getHeight()){
+            return 0;
+        }
+
         int result = 0;
         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
@@ -170,20 +186,20 @@ public abstract class Window implements Stoppable, WindowListener {
         if (params.x < 0){
             params.x = 0;
         }
-        else if (params.x + params.width > mDisplaySize.x) {
-            params.x = mDisplaySize.x - params.width;
+        else if (params.x + params.width > mRealDisplaySize.x) {
+            params.x = mRealDisplaySize.x - params.width;
         }
         if (params.y < 0){
             params.y = 0;
         }
-        else if (params.y + params.height > mDisplaySize.y) {
-            params.y = mDisplaySize.y - params.height - getStatusBarHeight();
+        else if (params.y + params.height > mRealDisplaySize.y) {
+            params.y = mRealDisplaySize.y - params.height - getStatusBarHeight();
         }
-        if (params.width > mDisplaySize.x){
-            params.width = mDisplaySize.x;
+        if (params.width > mRealDisplaySize.x){
+            params.width = mRealDisplaySize.x;
         }
-        if (params.height > mDisplaySize.y){
-            params.height = mDisplaySize.y;
+        if (params.height > mRealDisplaySize.y){
+            params.height = mRealDisplaySize.y;
         }
         if (params.width < 100){
             params.width = 100;

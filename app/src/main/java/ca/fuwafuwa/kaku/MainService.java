@@ -34,8 +34,8 @@ import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 public class MainService extends Service implements Stoppable {
 
     private  static final String TAG = MainService.class.getName();
-    private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
+    private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
 
@@ -48,12 +48,12 @@ public class MainService extends Service implements Stoppable {
     private MainServiceHandler mHandler;
 
     private int mRotation;
-    private int mDisplayWidth;
-    private int mDisplayHeight;
+    private Point realDisplaySize = new Point();
 
     private MediaProjectionStopCallback mMediaProjectionStopCallback;
     private OrientationChangeCallback mOrientationChangeCallback;
     private CaptureWindow mCaptureWindow;
+
 
     public static class CloseMainService extends BroadcastReceiver {
 
@@ -192,8 +192,8 @@ public class MainService extends Service implements Stoppable {
         return image;
     }
 
-    public Point getDisplaySize(){
-        return new Point(mDisplayWidth, mDisplayHeight);
+    public Point getRealDisplaySize(){
+        return realDisplaySize;
     }
 
     private void createVirtualDisplay(){
@@ -205,17 +205,14 @@ public class MainService extends Service implements Stoppable {
         mDisplay = mWindowManager.getDefaultDisplay();
 
         // get width and height
-        Point size = new Point();
-        mDisplay.getRealSize(size);
-        mDisplayWidth = size.x;
-        mDisplayHeight = size.y;
+        mDisplay.getRealSize(realDisplaySize);
 
         // start capture reader
         Log.e(TAG, "Starting Projection");
         if (mVirtualDisplay != null){
             mVirtualDisplay.release();
         }
-        mImageReader = ImageReader.newInstance(mDisplayWidth, mDisplayHeight, PixelFormat.RGBA_8888, 2);
-        mVirtualDisplay = mMediaProjection.createVirtualDisplay(getClass().getName(), mDisplayWidth, mDisplayHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
+        mImageReader = ImageReader.newInstance(realDisplaySize.x, realDisplaySize.y, PixelFormat.RGBA_8888, 2);
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay(getClass().getName(), realDisplaySize.x, realDisplaySize.y, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
     }
 }

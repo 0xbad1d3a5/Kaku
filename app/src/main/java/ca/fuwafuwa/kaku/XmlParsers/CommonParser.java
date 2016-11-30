@@ -1,5 +1,8 @@
 package ca.fuwafuwa.kaku.XmlParsers;
 
+import android.content.Context;
+import android.util.Log;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -11,7 +14,27 @@ import java.util.HashMap;
  */
 public class CommonParser {
 
+    private interface IParse<T> {
+        T parse(XmlPullParser parser) throws IOException, XmlPullParserException;
+    }
+
     private static final String TAG = CommonParser.class.getName();
+
+    private Context mContext;
+
+    public CommonParser(Context mContext) {
+        this.mContext = mContext;
+    }
+
+    public void parseDict() throws Exception{
+
+        Log.d(TAG, "INITIALIZING DICTIONARY");
+
+        JmDictThread mJmDictThread = new JmDictThread(mContext);
+        Thread dictThread = new Thread(mJmDictThread);
+        dictThread.setDaemon(true);
+        dictThread.start();
+    }
 
     public static String parseString(XmlPullParser parser) throws IOException, XmlPullParserException {
 
