@@ -84,7 +84,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
         String timeTaken = String.format("Search Time: %d", System.currentTimeMillis() - startTime);
 
         Log.d(TAG, timeTaken);
-        Toast.makeText(context, timeTaken, Toast.LENGTH_LONG).show();
+        Toast.makeText(context, timeTaken, Toast.LENGTH_SHORT).show();
     }
 
     @Override
