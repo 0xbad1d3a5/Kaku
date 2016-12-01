@@ -25,7 +25,7 @@ public class MainServiceHandler extends Handler {
     public void handleMessage(Message message){
         OcrResult result = (OcrResult) message.obj;
         Log.e(TAG, result.toString());
-        Toast.makeText(mContext, result.toString(), Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, result.toString(), Toast.LENGTH_SHORT).show();
 
         (new InformationWindow(mContext)).setText(result.getText());
     }

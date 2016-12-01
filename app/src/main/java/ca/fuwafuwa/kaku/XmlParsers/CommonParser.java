@@ -9,14 +9,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.HashMap;
 
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper;
+import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmParser;
+
 /**
  * Created by 0x1bad1d3a on 4/25/2016.
  */
 public class CommonParser {
-
-    private interface IParse<T> {
-        T parse(XmlPullParser parser) throws IOException, XmlPullParserException;
-    }
 
     private static final String TAG = CommonParser.class.getName();
 
@@ -26,12 +25,10 @@ public class CommonParser {
         this.mContext = mContext;
     }
 
-    public void parseDict() throws Exception{
-
+    public void parseDict() throws Exception {
         Log.d(TAG, "INITIALIZING DICTIONARY");
-
-        JmDictThread mJmDictThread = new JmDictThread(mContext);
-        Thread dictThread = new Thread(mJmDictThread);
+        ParserThread dictParseThread = new ParserThread(mContext, JmDatabaseHelper.class, JmParser.class, "JmDictOriginal.xml");
+        Thread dictThread = new Thread(dictParseThread);
         dictThread.setDaemon(true);
         dictThread.start();
     }

@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ca.fuwafuwa.kaku.Database.DatabaseHelper;
-import ca.fuwafuwa.kaku.Database.Models.Entry;
-import ca.fuwafuwa.kaku.Database.Models.Kanji;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Entry;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Kanji;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Meaning;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Reading;
 
 /**
  * Created by 0x1bad1d3a on 8/28/2016.
@@ -20,14 +22,18 @@ public class Searcher {
 
     private static Searcher instance;
 
-    private DatabaseHelper mDbHelper;
+    private JmDatabaseHelper mJmDbHelper;
     Dao<Kanji, Integer> mKanjiDao;
     Dao<Entry, Integer> mEntryDao;
+    Dao<Meaning, Integer> mMeaningDao;
+    Dao<Reading, Integer> mReadingDao;
 
     private Searcher(Context context) throws SQLException {
-        mDbHelper = DatabaseHelper.instance(context);
-        mKanjiDao = mDbHelper.getJmDao(Kanji.class);
-        mEntryDao = mDbHelper.getJmDao(Entry.class);
+        mJmDbHelper = JmDatabaseHelper.instance(context);
+        mKanjiDao = mJmDbHelper.getDbDao(Kanji.class);
+        mEntryDao = mJmDbHelper.getDbDao(Entry.class);
+        mMeaningDao = mJmDbHelper.getDbDao(Meaning.class);
+        mReadingDao = mJmDbHelper.getDbDao(Reading.class);
     }
 
     public static synchronized Searcher instance(Context context){
@@ -44,7 +50,7 @@ public class Searcher {
     public List<Match> search(String text, int textOffset) throws SQLException {
         
         String character = new String(new int[] { text.codePointAt(textOffset)}, 0, 1);
-        List<Kanji> kanjis = mKanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, character + "%").query();
+        List<Kanji> kanjis = mKanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, character + "_%").query();
         List<Match> matches = new ArrayList<>();
 
         for (Kanji kanji : kanjis){
@@ -85,6 +91,8 @@ public class Searcher {
         }
 
         mEntryDao.refresh(kanji.getFkEntry());
+        //List<Reading> r = mReadingDao.queryBuilder().where().eq("fkEntry_id", kanji.getFkEntry().getId()).query();
+        //List<Meaning> m = mMeaningDao.queryBuilder().where().eq("fkEntry_id", kanji.getFkEntry().getId()).query();
         return new Match(kanjiText, kanji.getFkEntry(), length);
     }
 

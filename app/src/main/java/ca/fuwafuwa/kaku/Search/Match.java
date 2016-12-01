@@ -5,10 +5,10 @@ import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
 
-import ca.fuwafuwa.kaku.Database.Models.Entry;
-import ca.fuwafuwa.kaku.Database.Models.Meaning;
-import ca.fuwafuwa.kaku.Database.Models.MeaningGloss;
-import ca.fuwafuwa.kaku.Database.Models.Reading;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Entry;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Meaning;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.MeaningGloss;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Reading;
 
 /**
  * Created by 0x1bad1d3a on 11/29/2016.
@@ -19,26 +19,24 @@ public class Match implements Comparable<Match> {
     private static final String TAG = Match.class.getName();
 
     private String mKanji;
-    private List<String> mReadings = new ArrayList<>();
-    private List<String> mMeanings = new ArrayList<>();
+    private List<String> mResultReadings = new ArrayList<>();
+    private List<String> mResultMeanings = new ArrayList<>();
 
     private Entry mEntry;
+    private List<Reading> mReadings;
+    private List<Meaning> mMeanings;
     private int mCharsMatched;
 
     public Match(String kanji, Entry entry, int charsMatched) {
         this.mKanji = kanji;
-        this.mEntry = entry;
         this.mCharsMatched = charsMatched;
+        this.mEntry = entry;
 
         populateData();
     }
 
     public String getKanji() {
         return mKanji;
-    }
-
-    public Entry getEntry() {
-        return mEntry;
     }
 
     public int getCharsMatched() {
@@ -54,10 +52,10 @@ public class Match implements Comparable<Match> {
     private void populateReadingData(){
         for (Reading r : mEntry.getReadings()){
             if (!r.getReadingRestrictions().isEmpty() && r.getReadingRestrictions().contains(mKanji)){
-                mReadings.add(r.getReading());
+                mResultReadings.add(r.getReading());
             }
             else {
-                mReadings.add(r.getReading());
+                mResultReadings.add(r.getReading());
             }
         }
     }
@@ -75,7 +73,7 @@ public class Match implements Comparable<Match> {
 
     private void addGloss(Meaning m){
         for (MeaningGloss gloss : m.getGlosses()){
-            mMeanings.add(gloss.getGloss());
+            mResultMeanings.add(gloss.getGloss());
         }
     }
 
@@ -87,11 +85,11 @@ public class Match implements Comparable<Match> {
         sb.append(mKanji);
 
         sb.append(" (");
-        sb.append(Joiner.on(", ").join(mReadings));
+        sb.append(Joiner.on(", ").join(mResultReadings));
         sb.append(")");
 
         sb.append("\n");
-        sb.append(Joiner.on(", ").join(mMeanings));
+        sb.append(Joiner.on(", ").join(mResultMeanings));
 
         return sb.toString();
     }
