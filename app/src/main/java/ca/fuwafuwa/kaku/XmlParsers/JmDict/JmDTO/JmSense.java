@@ -20,7 +20,7 @@ import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmConsts;
  */
 public class JmSense {
 
-    private static final String JMTAG = JmConsts.SENSE;
+    private static final String XMLTAG = JmConsts.SENSE;
 
     private List<String> stagk = new ArrayList<>();
     private List<String> stagr = new ArrayList<>();
@@ -36,10 +36,10 @@ public class JmSense {
     private List<String> example = new ArrayList<>();
 
     public JmSense(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.require(XmlPullParser.START_TAG, null, XMLTAG);
         parser.nextToken();
 
-        while (!JMTAG.equals(parser.getName())){
+        while (!XMLTAG.equals(parser.getName())){
             String name = parser.getName() == null ? "" : parser.getName();
             switch(name){
                 case JmConsts.STAGK:
@@ -82,7 +82,7 @@ public class JmSense {
             parser.nextToken();
         }
 
-        parser.require(XmlPullParser.END_TAG, null, JMTAG);
+        parser.require(XmlPullParser.END_TAG, null, XMLTAG);
     }
 
     public String toString(){

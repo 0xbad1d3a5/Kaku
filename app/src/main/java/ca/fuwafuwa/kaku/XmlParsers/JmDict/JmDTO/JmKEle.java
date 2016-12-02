@@ -28,17 +28,17 @@ import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmConsts;
  */
 public class JmKEle {
 
-    private static final String JMTAG = JmConsts.K_ELE;
+    private static final String XMLTAG = JmConsts.K_ELE;
 
     private String keb = null;
     private List<String> ke_inf = new ArrayList<>();
     private List<String> ke_pri = new ArrayList<>();
 
     public JmKEle(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.require(XmlPullParser.START_TAG, null, XMLTAG);
         parser.nextToken();
 
-        while (!JMTAG.equals(parser.getName())){
+        while (!XMLTAG.equals(parser.getName())){
             String name = parser.getName() == null ? "" : parser.getName();
             switch(name){
                 case JmConsts.KEB:
@@ -54,7 +54,7 @@ public class JmKEle {
             parser.nextToken();
         }
 
-        parser.require(XmlPullParser.END_TAG, null, JMTAG);
+        parser.require(XmlPullParser.END_TAG, null, XMLTAG);
     }
 
     /**

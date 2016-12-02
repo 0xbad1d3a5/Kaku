@@ -1,6 +1,7 @@
 package ca.fuwafuwa.kaku.Search;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Entry;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Kanji;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Meaning;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Reading;
@@ -20,11 +22,14 @@ import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Reading;
  */
 public class Searcher {
 
+    private static final String TAG = Searcher.class.getName();
+
     private static Searcher instance;
 
     private JmDatabaseHelper mJmDbHelper;
     Dao<Kanji, Integer> mKanjiDao;
     Dao<Entry, Integer> mEntryDao;
+    Dao<EntryOptimized, Integer> mEntryOptimizedDao;
     Dao<Meaning, Integer> mMeaningDao;
     Dao<Reading, Integer> mReadingDao;
 
@@ -32,6 +37,7 @@ public class Searcher {
         mJmDbHelper = JmDatabaseHelper.instance(context);
         mKanjiDao = mJmDbHelper.getDbDao(Kanji.class);
         mEntryDao = mJmDbHelper.getDbDao(Entry.class);
+        mEntryOptimizedDao = mJmDbHelper.getDbDao(EntryOptimized.class);
         mMeaningDao = mJmDbHelper.getDbDao(Meaning.class);
         mReadingDao = mJmDbHelper.getDbDao(Reading.class);
     }
@@ -50,7 +56,7 @@ public class Searcher {
     public List<Match> search(String text, int textOffset) throws SQLException {
         
         String character = new String(new int[] { text.codePointAt(textOffset)}, 0, 1);
-        List<Kanji> kanjis = mKanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, character + "_%").query();
+        List<Kanji> kanjis = mKanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, character + "%").query();
         List<Match> matches = new ArrayList<>();
 
         for (Kanji kanji : kanjis){
@@ -62,6 +68,64 @@ public class Searcher {
 
         Collections.sort(matches);
         return matches;
+    }
+
+    public String searchOpti(String text, int textOffset) throws SQLException {
+
+        String character = new String(new int[] { text.codePointAt(textOffset)}, 0, 1);
+        List<EntryOptimized> entries = mEntryOptimizedDao.queryBuilder().where().like("kanji", character + "%").query();
+        List<EntryOptimized> matchedEntries = new ArrayList<>();
+
+        for (EntryOptimized e : entries){
+            if (isMatch(text, textOffset, e.getKanji())){
+                matchedEntries.add(e);
+            }
+        }
+
+        Collections.sort(matchedEntries);
+
+        StringBuilder sb = new StringBuilder();
+
+        for (EntryOptimized e : matchedEntries){
+            sb.append(e.getKanji());
+            if (!e.getReadings().isEmpty()){
+                sb.append(" (");
+                sb.append(e.getReadings());
+                sb.append(")");
+            }
+            sb.append("\n");
+            sb.append(e.getMeanings());
+            sb.append("\n\n");
+        }
+
+        return sb.toString();
+    }
+
+    private boolean isMatch(String text, int textOffset, String kanjiText) throws SQLException {
+
+        int length = kanjiText.length();
+        for (int offset = 0; offset < length;){
+
+            int kanjiCodePoint = kanjiText.codePointAt(offset);
+            int textCodePoint;
+
+            try {
+                textCodePoint = text.codePointAt(textOffset);
+            }
+            catch (IndexOutOfBoundsException e){
+                return false;
+            }
+
+            if (kanjiCodePoint != textCodePoint){
+                return false;
+            }
+
+            int characterOffset = Character.charCount(kanjiCodePoint);
+            offset += characterOffset;
+            textOffset += characterOffset;
+        }
+
+        return true;
     }
 
     private Match findExactMatches(String text, int textOffset, Kanji kanji) throws SQLException {
@@ -91,8 +155,7 @@ public class Searcher {
         }
 
         mEntryDao.refresh(kanji.getFkEntry());
-        //List<Reading> r = mReadingDao.queryBuilder().where().eq("fkEntry_id", kanji.getFkEntry().getId()).query();
-        //List<Meaning> m = mMeaningDao.queryBuilder().where().eq("fkEntry_id", kanji.getFkEntry().getId()).query();
+        Log.d(TAG, kanji.getFkEntry().toString());
         return new Match(kanjiText, kanji.getFkEntry(), length);
     }
 

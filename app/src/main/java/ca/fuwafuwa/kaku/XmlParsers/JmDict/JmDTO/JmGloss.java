@@ -14,19 +14,29 @@ import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmConsts;
  */
 public class JmGloss {
 
-    private static final String JMTAG = JmConsts.GLOSS;
+    private static final String XMLTAG = JmConsts.GLOSS;
 
     private String text = null;
     private String lang = null;
     private String g_gend = null;
 
+    private boolean isEnglish;
+
     public JmGloss(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.require(XmlPullParser.START_TAG, null, XMLTAG);
 
         HashMap<String, String> attrMap = CommonParser.parseAttributes(parser);
-        lang = attrMap.get(JmConsts.XML_LANG) == null ? "eng" : attrMap.get(JmConsts.XML_LANG);
         g_gend = attrMap.get(JmConsts.G_GEND);
         text = CommonParser.parseString(parser);
+
+        if (attrMap.get(JmConsts.XML_LANG) == null){
+            lang = "eng";
+            isEnglish = true;
+        }
+        else {
+            lang = attrMap.get(JmConsts.XML_LANG);
+            isEnglish = "eng".equals(lang);
+        }
     }
 
     public String toString(){
@@ -46,5 +56,9 @@ public class JmGloss {
 
     public String getGender(){
         return g_gend;
+    }
+
+    public boolean isEnglish() {
+        return isEnglish;
     }
 }

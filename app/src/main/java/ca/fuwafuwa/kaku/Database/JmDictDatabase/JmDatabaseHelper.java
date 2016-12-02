@@ -11,6 +11,7 @@ import java.sql.SQLException;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Entry;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Kanji;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.KanjiIrregularity;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.KanjiPriority;
@@ -59,6 +60,7 @@ public class JmDatabaseHelper extends DatabaseHelper {
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
+            TableUtils.createTable(connectionSource, EntryOptimized.class);
             TableUtils.createTable(connectionSource, Entry.class);
             TableUtils.createTable(connectionSource, Kanji.class);
             TableUtils.createTable(connectionSource, KanjiIrregularity.class);

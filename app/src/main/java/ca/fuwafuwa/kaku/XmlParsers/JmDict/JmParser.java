@@ -2,14 +2,19 @@ package ca.fuwafuwa.kaku.XmlParsers.JmDict;
 
 import android.util.Log;
 
+import com.google.common.base.Joiner;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Entry;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Kanji;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.KanjiIrregularity;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.KanjiPriority;
@@ -74,6 +79,68 @@ public class JmParser implements DictParser {
         parser.require(XmlPullParser.END_TAG, null, JmConsts.JMDICT);
     }
 
+    public void parseJmEntryOptimized(JmEntry jmEntry) throws SQLException {
+
+        List<EntryOptimized> optimizedEntries = new ArrayList<>();
+
+        for (JmKEle kEle : jmEntry.getKEle()){
+            EntryOptimized eo = new EntryOptimized();
+            eo.setKanji(kEle.getKeb());
+            optimizedEntries.add(eo);
+        }
+
+        if (optimizedEntries.isEmpty()){
+            for (JmREle rEle : jmEntry.getREle()){
+                EntryOptimized eo = new EntryOptimized();
+                eo.setKanji(rEle.getReb());
+                eo.setOnlyKana(true);
+                optimizedEntries.add(eo);
+            }
+        }
+
+        for (EntryOptimized entryOptimized : optimizedEntries){
+
+            String kanji = entryOptimized.getKanji();
+            List<String> readings = new ArrayList<>();
+            List<String> meanings = new ArrayList<>();
+
+            if (!entryOptimized.isOnlyKana()){
+                for (JmREle rEle : jmEntry.getREle()){
+                    List<String> rRestrict = rEle.getReRestr();
+                    if (!rRestrict.isEmpty() && rRestrict.contains(kanji)){
+                        readings.add(rEle.getReb());
+                    }
+                    else if (rRestrict.isEmpty()){
+                        readings.add(rEle.getReb());
+                    }
+                }
+            }
+
+            for (JmSense sense : jmEntry.getSense()){
+                List<String> kRestrict = sense.getStagk();
+                if (!kRestrict.isEmpty() && kRestrict.contains(kanji)){
+                    for (JmGloss gloss : sense.getGloss()){
+                        if (gloss.isEnglish()) {
+                            meanings.add(gloss.getText());
+                        }
+                    }
+                }
+                else if (kRestrict.isEmpty()){
+                    for (JmGloss gloss : sense.getGloss()){
+                        if (gloss.isEnglish()) {
+                            meanings.add(gloss.getText());
+                        }
+                    }
+                }
+            }
+
+            entryOptimized.setReadings(Joiner.on(", ").join(readings));
+            entryOptimized.setMeanings(Joiner.on(", ").join(meanings));
+
+            mDbHelper.getDbDao(EntryOptimized.class).create(entryOptimized);
+        }
+    }
+
     private void parseJmEntry(XmlPullParser parser) throws IOException, XmlPullParserException, SQLException {
 
         JmEntry jmEntry = new JmEntry(parser);
@@ -85,6 +152,8 @@ public class JmParser implements DictParser {
         parseJmKanji(jmEntry, newEntry);
         parseJmMeaning(jmEntry, newEntry);
         parseJmReading(jmEntry, newEntry);
+
+        parseJmEntryOptimized(jmEntry);
 
         if (++parseCount % 100 == 0){
             Log.d(TAG, String.format("Parsed %d entries", parseCount));

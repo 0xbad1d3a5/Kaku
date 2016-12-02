@@ -22,7 +22,7 @@ import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmConsts;
  */
 public class JmREle {
 
-    private static final String JMTAG = JmConsts.R_ELE;
+    private static final String XMLTAG = JmConsts.R_ELE;
 
     private String reb = null;
     private String re_nokanji = null;
@@ -31,10 +31,10 @@ public class JmREle {
     private List<String> re_pri = new ArrayList<>();
 
     public JmREle(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.require(XmlPullParser.START_TAG, null, XMLTAG);
         parser.nextToken();
 
-        while (!JMTAG.equals(parser.getName())){
+        while (!XMLTAG.equals(parser.getName())){
             String name = parser.getName() == null ? "" : parser.getName();
             switch(name){
                 case JmConsts.REB:
@@ -56,7 +56,7 @@ public class JmREle {
             parser.nextToken();
         }
 
-        parser.require(XmlPullParser.END_TAG, null, JMTAG);
+        parser.require(XmlPullParser.END_TAG, null, XMLTAG);
     }
 
     /**

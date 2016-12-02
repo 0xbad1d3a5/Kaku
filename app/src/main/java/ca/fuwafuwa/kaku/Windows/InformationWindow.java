@@ -21,7 +21,6 @@ import java.util.List;
 
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Search.Match;
 import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
@@ -179,6 +178,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
     @NonNull
     private String searchDict(String text, int textOffset) throws SQLException {
 
+        /*
         List<Match> matches = mSearcher.search(text, textOffset);
 
         StringBuilder sb = new StringBuilder();
@@ -187,5 +187,8 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
             sb.append("\n\n");
         }
         return sb.toString();
+        */
+
+        return mSearcher.searchOpti(text, textOffset);
     }
 }
