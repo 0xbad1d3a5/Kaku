@@ -13,7 +13,7 @@ import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmConsts;
 public class JmEntry {
 
     private static final String TAG = JmEntry.class.getName();
-    private static final String JMTAG = JmConsts.ENTRY;
+    private static final String XMLTAG = JmConsts.ENTRY;
 
     private Integer ent_seq = null;
     private List<JmKEle> k_ele = new ArrayList<>();
@@ -21,10 +21,10 @@ public class JmEntry {
     private List<JmSense> sense = new ArrayList<>();
 
     public JmEntry(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.require(XmlPullParser.START_TAG, null, XMLTAG);
         parser.nextToken();
 
-        while (!JMTAG.equals(parser.getName())){
+        while (!XMLTAG.equals(parser.getName())){
             String name = parser.getName() == null ? "" : parser.getName();
             switch (name) {
                 case JmConsts.ENT_SEQ:
@@ -43,7 +43,7 @@ public class JmEntry {
             parser.nextToken();
         }
 
-        parser.require(XmlPullParser.END_TAG, null, JMTAG);
+        parser.require(XmlPullParser.END_TAG, null, XMLTAG);
     }
 
     /**

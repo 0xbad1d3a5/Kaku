@@ -54,7 +54,7 @@ public class Match implements Comparable<Match> {
             if (!r.getReadingRestrictions().isEmpty() && r.getReadingRestrictions().contains(mKanji)){
                 mResultReadings.add(r.getReading());
             }
-            else {
+            else if (r.getReadingRestrictions().isEmpty()) {
                 mResultReadings.add(r.getReading());
             }
         }
@@ -65,7 +65,7 @@ public class Match implements Comparable<Match> {
             if (!m.getKanjiRestrictions().isEmpty() && m.getKanjiRestrictions().contains(mKanji)){
                 addGloss(m);
             }
-            else {
+            else if (m.getKanjiRestrictions().isEmpty()){
                 addGloss(m);
             }
         }

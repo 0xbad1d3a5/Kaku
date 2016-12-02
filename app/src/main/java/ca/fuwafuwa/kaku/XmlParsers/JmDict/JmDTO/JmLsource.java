@@ -14,7 +14,7 @@ import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmConsts;
  */
 public class JmLsource {
 
-    private static final String JMTAG = JmConsts.LSOURCE;
+    private static final String XMLTAG = JmConsts.LSOURCE;
 
     private String text = null;
     private String lang = null;
@@ -22,7 +22,7 @@ public class JmLsource {
     private String ls_wasei = null;
 
     public JmLsource(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        parser.require(XmlPullParser.START_TAG, null, XMLTAG);
 
         HashMap<String, String> attrMap = CommonParser.parseAttributes(parser);
         lang = attrMap.get(JmConsts.XML_LANG) == null ? "eng" : attrMap.get(JmConsts.XML_LANG);

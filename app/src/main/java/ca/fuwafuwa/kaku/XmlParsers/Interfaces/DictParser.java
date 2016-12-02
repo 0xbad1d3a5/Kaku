@@ -11,5 +11,6 @@ import java.sql.SQLException;
  */
 
 public interface DictParser {
+
     void parseDict(XmlPullParser parser) throws IOException, XmlPullParserException, SQLException;
 }
