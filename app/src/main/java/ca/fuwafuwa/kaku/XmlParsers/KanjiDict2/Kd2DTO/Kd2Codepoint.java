@@ -25,6 +25,9 @@ public class Kd2Codepoint {
         while (!XMLTAG.equals(parser.getName())){
             String name = parser.getName() == null ? "" : parser.getName();
             switch(name){
+                case Kd2Consts.CP_VALUE:
+                    cp_value.add(new Kd2CpValue(parser));
+                    break;
             }
             parser.nextToken();
         }

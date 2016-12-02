@@ -12,18 +12,22 @@ import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2Consts;
 /**
  * Created by Xyresic on 12/1/2016.
  */
-public class Kd2CpValue {
+public class Kd2DicRef {
 
-    private static final String XMLTAG = Kd2Consts.CP_VALUE;
+    private static final String XMLTAG = Kd2Consts.DIC_REF;
 
-    private String cp_type = null;
+    private String dr_type = null;
+    private String m_vol = null;
+    private String m_page = null;
     private String text = null;
 
-    public Kd2CpValue(XmlPullParser parser) throws IOException, XmlPullParserException {
+    public Kd2DicRef(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, XMLTAG);
 
         HashMap<String, String> attrMap = CommonParser.parseAttributes(parser);
-        cp_type = attrMap.get(Kd2Consts.CP_TYPE);
+        dr_type = attrMap.get(Kd2Consts.DR_TYPE);
+        m_vol = attrMap.get(Kd2Consts.M_VOL);
+        m_page = attrMap.get(Kd2Consts.M_PAGE);
         text = CommonParser.parseString(parser);
     }
 }

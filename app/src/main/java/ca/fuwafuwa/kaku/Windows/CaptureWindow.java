@@ -58,8 +58,7 @@ public class CaptureWindow extends Window implements WindowListener {
                     mJmDict.parseDict();
                 } catch (Exception e1) {
                     e1.printStackTrace();
-                }
-                */
+                }*/
 
                 break;
         }

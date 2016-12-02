@@ -10,20 +10,22 @@ import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2Consts;
 
 /**
- * Created by Xyresic on 12/1/2016.
+ * Created by Xyresic on 12/2/2016.
  */
-public class Kd2CpValue {
+public class Kd2QCode {
 
-    private static final String XMLTAG = Kd2Consts.CP_VALUE;
+    private static final String XMLTAG = Kd2Consts.Q_CODE;
 
-    private String cp_type = null;
+    private String qc_type = null;
+    private String skip_misclass = null;
     private String text = null;
 
-    public Kd2CpValue(XmlPullParser parser) throws IOException, XmlPullParserException {
+    public Kd2QCode(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, XMLTAG);
 
         HashMap<String, String> attrMap = CommonParser.parseAttributes(parser);
-        cp_type = attrMap.get(Kd2Consts.CP_TYPE);
+        qc_type = attrMap.get(Kd2Consts.QC_TYPE);
+        skip_misclass = attrMap.get(Kd2Consts.SKIP_MISCLASS);
         text = CommonParser.parseString(parser);
     }
 }

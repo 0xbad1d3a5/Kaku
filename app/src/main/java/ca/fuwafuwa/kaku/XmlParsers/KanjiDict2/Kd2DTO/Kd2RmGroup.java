@@ -7,31 +7,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2Consts;
 
 /**
- * Created by Xyresic on 12/1/2016.
+ * Created by Xyresic on 12/2/2016.
  */
-public class Kd2ReadingMeaning {
+public class Kd2RmGroup {
 
-    private static final String XMLTAG = Kd2Consts.READING_MEANING;
+    private static final String XMLTAG = Kd2Consts.RMGROUP;
 
-    private List<Kd2RmGroup> rmgroup = new ArrayList<>();
-    private List<String> nanori = new ArrayList<>();
+    private List<Kd2Reading> reading = new ArrayList<>();
+    private List<Kd2Meaning> meaning = new ArrayList<>();
 
-    public Kd2ReadingMeaning(XmlPullParser parser) throws IOException, XmlPullParserException {
+    public Kd2RmGroup(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, XMLTAG);
         parser.nextToken();
 
         while (!XMLTAG.equals(parser.getName())){
             String name = parser.getName() == null ? "" : parser.getName();
             switch(name){
-                case Kd2Consts.RMGROUP:
-                    rmgroup.add(new Kd2RmGroup(parser));
+                case Kd2Consts.READING:
+                    reading.add(new Kd2Reading(parser));
                     break;
-                case Kd2Consts.NANORI:
-                    nanori.add(CommonParser.parseString(parser));
+                case Kd2Consts.MEANING:
+                    meaning.add(new Kd2Meaning(parser));
                     break;
             }
             parser.nextToken();
