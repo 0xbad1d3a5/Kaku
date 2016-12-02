@@ -19,7 +19,7 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
     private String kanji;
 
     @Expose
-    @DatabaseField
+    @DatabaseField(dataType = DataType.LONG_STRING)
     private String readings;
 
     @Expose
@@ -63,6 +63,7 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
         this.onlyKana = onlyKana;
     }
 
+    // Sort by kanji length for results
     @Override
     public int compareTo(EntryOptimized another) {
         if (this.kanji.length() > another.getKanji().length()){

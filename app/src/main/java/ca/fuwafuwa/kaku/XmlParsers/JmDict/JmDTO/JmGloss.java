@@ -27,8 +27,6 @@ public class JmGloss {
 
         HashMap<String, String> attrMap = CommonParser.parseAttributes(parser);
         g_gend = attrMap.get(JmConsts.G_GEND);
-        text = CommonParser.parseString(parser);
-
         if (attrMap.get(JmConsts.XML_LANG) == null){
             lang = "eng";
             isEnglish = true;
@@ -37,6 +35,8 @@ public class JmGloss {
             lang = attrMap.get(JmConsts.XML_LANG);
             isEnglish = "eng".equals(lang);
         }
+
+        text = CommonParser.parseString(parser);
     }
 
     public String toString(){
