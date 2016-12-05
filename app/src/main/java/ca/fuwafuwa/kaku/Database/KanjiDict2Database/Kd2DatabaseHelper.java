@@ -9,7 +9,6 @@ import com.j256.ormlite.support.ConnectionSource;
 import java.sql.SQLException;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
-import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
 
 /**
  * Created by Xyresic on 12/1/2016.
@@ -38,21 +37,22 @@ public class Kd2DatabaseHelper extends DatabaseHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     @Override
     public void deleteDatabase() {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     @Override
     public <T> Dao<T, Integer> getDbDao(Class clazz) throws SQLException {
-        throw new NotImplementedException();
+        return null;
+        //throw new NotImplementedException();
     }
 }

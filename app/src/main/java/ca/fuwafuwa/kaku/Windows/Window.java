@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,11 +15,11 @@ import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
 import ca.fuwafuwa.kaku.Windows.Views.ResizeView;
 import ca.fuwafuwa.kaku.Windows.Views.WindowView;
 
-public abstract class Window implements Stoppable, WindowListener {
+public abstract class Window implements Stoppable, WindowTouchListener {
 
     private static final String TAG = Window.class.getName();
 
@@ -48,6 +49,10 @@ public abstract class Window implements Stoppable, WindowListener {
         mResizeView = (ResizeView) window.findViewById(R.id.resize_view);
         mWindowView.setWindowListener(this);
         mResizeView.setWindowListener(this);
+
+        GestureDetectorCompat detectorCompat = new GestureDetectorCompat(context, this);
+        detectorCompat.setOnDoubleTapListener(this);
+        mWindowView.setDetector(detectorCompat);
 
         RelativeLayout relativeLayout = (RelativeLayout) window.findViewById(R.id.content_view);
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
@@ -94,7 +99,7 @@ public abstract class Window implements Stoppable, WindowListener {
      * @param e MotionEvent for moving the Window
      * @return Returns whether the MotionEvent was handled
      */
-    public boolean onTouchEvent(MotionEvent e){
+    public boolean onTouch(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDX = params.x - (int) e.getRawX();
@@ -103,13 +108,61 @@ public abstract class Window implements Stoppable, WindowListener {
             case MotionEvent.ACTION_UP:
                 fixBoxBounds();
                 return true;
-            case MotionEvent.ACTION_MOVE:
-                params.x = mDX + (int) e.getRawX();
-                params.y = mDY + (int) e.getRawY();
-                fixBoxBounds();
-                windowManager.updateViewLayout(window, params);
-                return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+        if (e1 == null || e2 == null){
+            return false;
+        }
+
+        params.x = mDX + (int) e2.getRawX();
+        params.y = mDY + (int) e2.getRawY();
+        fixBoxBounds();
+        windowManager.updateViewLayout(window, params);
+        return true;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         return false;
     }
 
@@ -119,7 +172,7 @@ public abstract class Window implements Stoppable, WindowListener {
      * @param e MotionEvent for resizing the Window
      * @return Returns whether the MotionEvent was handled
      */
-    public boolean onResizeEvent(MotionEvent e){
+    public boolean onResize(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDX = params.width - (int) e.getRawX();

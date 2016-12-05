@@ -10,21 +10,24 @@ import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.BoxParams;
 import ca.fuwafuwa.kaku.Ocr.TesseractThread;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 
 /**
  * Created by Xyresic on 4/13/2016.
  */
-public class CaptureWindow extends Window implements WindowListener {
+public class CaptureWindow extends Window implements WindowTouchListener {
 
     private static final String TAG = CaptureWindow.class.getName();
 
     private TesseractThread mTessThread;
+    Thread tessThread;
     private View mWindowBox;
     private Animation mFadeRepeat;
     private Drawable mBorderTranslucent;
     private Drawable mBorder9PatchTransparent;
+    private boolean tessStarted = false;
+
     private CommonParser mJmDict;
 
     public CaptureWindow(MainService context) {
@@ -39,42 +42,28 @@ public class CaptureWindow extends Window implements WindowListener {
         this.mJmDict = new CommonParser(context);
 
         mTessThread = new TesseractThread(this.context, this);
-        Thread tessThread = new Thread(mTessThread);
+        tessThread = new Thread(mTessThread);
         tessThread.setDaemon(true);
         tessThread.start();
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent e) {
+    public boolean onTouch(MotionEvent e) {
         setOpacity(e);
-        boolean handled = super.onTouchEvent(e);
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_UP:
-
-                mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
-
-                /*
-                try {
-                    mJmDict.parseDict();
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }*/
-
-                break;
-        }
-        return handled;
+        return super.onTouch(e);
     }
 
     @Override
-    public boolean onResizeEvent(MotionEvent e) {
+    public boolean onDoubleTap(MotionEvent e) {
+        tessStarted = true;
+        mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
+        return true;
+    }
+
+    @Override
+    public boolean onResize(MotionEvent e) {
         setOpacity(e);
-        boolean handled = super.onResizeEvent(e);
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_UP:
-                mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
-                break;
-        }
-        return handled;
+        return super.onResize(e);
     }
 
     public void showLoadingAnimation(){
@@ -110,7 +99,11 @@ public class CaptureWindow extends Window implements WindowListener {
                 mWindowBox.setBackground(mBorderTranslucent);
                 break;
             case MotionEvent.ACTION_UP:
-                mWindowBox.setBackground(mBorder9PatchTransparent);
+                if (!tessStarted) {
+                    mTessThread.cancel();
+                    mWindowBox.setBackground(mBorder9PatchTransparent);
+                }
+                tessStarted = false;
                 break;
         }
     }
