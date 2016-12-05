@@ -29,7 +29,7 @@ import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 /**
  * Created by 0x1bad1d3a on 4/23/2016.
  */
-public class InformationWindow extends Window implements GestureDetector.OnGestureListener, KanjiViewListener {
+public class InformationWindow extends Window implements KanjiViewListener {
 
     private static final String TAG = InformationWindow.class.getName();
     private static final float FLICK_THRESHOLD = -0.05f;
@@ -102,7 +102,7 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent e){
+    public boolean onTouch(MotionEvent e){
 
         if (mGestureDetector.onTouchEvent(e)){
             return true;
@@ -114,6 +114,11 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
             return true;
         }
 
+        return false;
+    }
+
+    @Override
+    public boolean onResize(MotionEvent e){
         return false;
     }
 
@@ -146,6 +151,11 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     @Override
     public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+
+        if (motionEvent == null || motionEvent1 == null){
+            return false;
+        }
+
         params.y = (int) (motionEvent1.getRawY() - motionEvent.getRawY());
         if (params.y > 0){
             params.y = 0;
@@ -162,6 +172,10 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
     @Override
     public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
 
+        if (motionEvent == null || motionEvent1 == null){
+            return false;
+        }
+
         float distanceMoved = motionEvent.getRawY() - motionEvent1.getRawY();
 
         Log.d(TAG, String.format("Fling strength: %f", v1 / mMaxFlingVelocity));
@@ -177,18 +191,6 @@ public class InformationWindow extends Window implements GestureDetector.OnGestu
 
     @NonNull
     private String searchDict(String text, int textOffset) throws SQLException {
-
-        /*
-        List<Match> matches = mSearcher.search(text, textOffset);
-
-        StringBuilder sb = new StringBuilder();
-        for (Match match : matches){
-            sb.append(match.toString());
-            sb.append("\n\n");
-        }
-        return sb.toString();
-        */
-
         return mSearcher.searchOpti(text, textOffset);
     }
 }

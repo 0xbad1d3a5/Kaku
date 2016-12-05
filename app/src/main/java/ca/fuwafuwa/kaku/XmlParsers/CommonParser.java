@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper;
+import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Kd2DatabaseHelper;
 import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmParser;
+import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2Parser;
 
 /**
  * Created by 0x1bad1d3a on 4/25/2016.
@@ -25,9 +27,17 @@ public class CommonParser {
         this.mContext = mContext;
     }
 
-    public void parseDict() throws Exception {
+    public void parseJmDict() throws Exception {
         Log.d(TAG, "INITIALIZING DICTIONARY");
         ParserThread dictParseThread = new ParserThread(mContext, JmDatabaseHelper.class, JmParser.class, "JmDictOriginal.xml");
+        Thread dictThread = new Thread(dictParseThread);
+        dictThread.setDaemon(true);
+        dictThread.start();
+    }
+
+    public void parseKanjiDict2() throws Exception {
+        Log.d(TAG, "INITIALIZING DICTIONARY");
+        ParserThread dictParseThread = new ParserThread(mContext, Kd2DatabaseHelper.class, Kd2Parser.class, "kanjidic2.xml");
         Thread dictThread = new Thread(dictParseThread);
         dictThread.setDaemon(true);
         dictThread.start();
@@ -41,11 +51,11 @@ public class CommonParser {
         }
 
         StringBuilder sb = new StringBuilder();
-        String JMTAG = parser.getName();
-        parser.require(XmlPullParser.START_TAG, null, JMTAG);
+        String XMLTAG = parser.getName();
+        parser.require(XmlPullParser.START_TAG, null, XMLTAG);
         parser.nextToken();
 
-        while (!JMTAG.equals(parser.getName())) {
+        while (!XMLTAG.equals(parser.getName())) {
             switch (parser.getEventType()) {
                 case XmlPullParser.TEXT:
                     sb.append(parser.getText());
@@ -57,7 +67,7 @@ public class CommonParser {
             parser.nextToken();
         }
 
-        parser.require(XmlPullParser.END_TAG, null, JMTAG);
+        parser.require(XmlPullParser.END_TAG, null, XMLTAG);
         return sb.toString();
     }
 

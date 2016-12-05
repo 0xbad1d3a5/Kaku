@@ -1,18 +1,20 @@
 package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
 
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
  */
 public class WindowView extends RelativeLayout {
 
-    private WindowListener mWindowListener;
+    private WindowTouchListener mWindowTouchListener;
+    private GestureDetectorCompat mDetector;
 
     public WindowView(Context context) {
         super(context);
@@ -26,12 +28,19 @@ public class WindowView extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void setWindowListener(WindowListener windowListener){
-        this.mWindowListener = windowListener;
+    public void setWindowListener(WindowTouchListener windowTouchListener){
+        this.mWindowTouchListener = windowTouchListener;
+    }
+
+    public void setDetector(GestureDetectorCompat detector){
+        this.mDetector = detector;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
-        return mWindowListener.onTouchEvent(e);
+        if (mDetector.onTouchEvent(e)){
+            return true;
+        }
+        return mWindowTouchListener.onTouch(e);
     }
 }

@@ -145,6 +145,8 @@ public class JmParser implements DictParser {
 
         JmEntry jmEntry = new JmEntry(parser);
 
+        // Unneeded for now due to optimized entry
+        /*
         Entry newEntry = new Entry();
         newEntry.setId(jmEntry.getEntSeq());
         mDbHelper.getDbDao(Entry.class).create(newEntry);
@@ -152,6 +154,7 @@ public class JmParser implements DictParser {
         parseJmKanji(jmEntry, newEntry);
         parseJmMeaning(jmEntry, newEntry);
         parseJmReading(jmEntry, newEntry);
+        */
 
         parseJmEntryOptimized(jmEntry);
 

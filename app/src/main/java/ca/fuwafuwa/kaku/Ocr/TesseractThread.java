@@ -75,14 +75,15 @@ public class TesseractThread implements Runnable, Stoppable {
                 mCaptureWindow.showLoadingAnimation();
 
                 mTessBaseAPI.setImage(bitmap);
+                mTessBaseAPI.getHOCRText(0);
                 String text = mTessBaseAPI.getUTF8Text();
                 mTessBaseAPI.clear();
 
                 if (text != null){
                     sendMessageToMainThread(new OcrResult(text, screenTime - startTime, System.currentTimeMillis() - screenTime));
-                    mBox = null;
                 }
 
+                mBox = null;
                 mCaptureWindow.stopLoadingAnimation();
                 saveBitmap(bitmap);
                 bitmap.recycle();
@@ -123,8 +124,7 @@ public class TesseractThread implements Runnable, Stoppable {
     public void stop(){
         synchronized (mBoxLock){
             mRunning = false;
-            mTessBaseAPI.stop();
-            mBoxLock.notify();
+            cancel();
             Log.d(TAG, "THREAD STOPPED");
         }
     }
