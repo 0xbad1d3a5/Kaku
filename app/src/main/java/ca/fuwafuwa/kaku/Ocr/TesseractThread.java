@@ -77,6 +77,7 @@ public class TesseractThread implements Runnable, Stoppable {
                 mTessBaseAPI.setImage(bitmap);
                 mTessBaseAPI.getHOCRText(0);
                 String text = mTessBaseAPI.getUTF8Text();
+                text = text.replaceAll("\\s+", "");
                 mTessBaseAPI.clear();
 
                 if (text != null){
