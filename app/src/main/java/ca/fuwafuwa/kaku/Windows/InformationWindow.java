@@ -19,6 +19,7 @@ import android.widget.Toast;
 import java.sql.SQLException;
 import java.util.List;
 
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Search.Searcher;
@@ -64,17 +65,48 @@ public class InformationWindow extends Window implements KanjiViewListener {
     @Override
     public void onKanjiViewTouch(KanjiCharacterView kanjiView, MotionEvent e) {
 
+        KanjiGridView kanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
+        List<KanjiCharacterView> kanjiViewList = kanjiGrid.getKanjiViewList();
+        for (KanjiCharacterView k : kanjiViewList){
+            k.removeHighlight();
+        }
+
         long startTime = System.currentTimeMillis();
 
         ScrollView sv = (ScrollView) window.findViewById(R.id.info_text);
         sv.removeAllViews();
         TextView tv = new TextView(context);
 
+        List<EntryOptimized> entryOptimized = null;
         try {
-            tv.setText(searchDict(mText, kanjiView.getCharPos()));
+            entryOptimized = searchDict(mText, kanjiView.getCharPos());
+
+            StringBuilder sb = new StringBuilder();
+
+            for (EntryOptimized eo : entryOptimized){
+                sb.append(eo.getKanji());
+                if (!eo.getReadings().isEmpty()){
+                    sb.append(" (");
+                    sb.append(eo.getReadings());
+                    sb.append(")");
+                }
+                sb.append("\n");
+                sb.append(eo.getMeanings());
+                sb.append("\n\n");
+            }
+
+            tv.setText(sb.toString());
         }
         catch (Exception ex){
             ex.printStackTrace();
+        }
+
+        if (entryOptimized.size() > 0){
+            String kanji = entryOptimized.get(0).getKanji();
+            int start = kanjiGrid.getKanjiViewList().indexOf(kanjiView);
+            for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){
+                kanjiGrid.getKanjiViewList().get(i).setHighlight();
+            }
         }
 
         tv.setTextColor(Color.BLACK);
@@ -118,11 +150,6 @@ public class InformationWindow extends Window implements KanjiViewListener {
     }
 
     @Override
-    public boolean onResize(MotionEvent e){
-        return false;
-    }
-
-    @Override
     public void stop() {
         window.animate().translationY(-getRealDisplaySize().y).setListener(new AnimatorListenerAdapter() {
             @Override
@@ -135,12 +162,13 @@ public class InformationWindow extends Window implements KanjiViewListener {
     }
 
     @Override
-    public boolean onDown(MotionEvent motionEvent) {
-        return true;
+    public boolean onResize(MotionEvent e){
+        return false;
     }
 
     @Override
-    public void onShowPress(MotionEvent motionEvent) {
+    public boolean onDown(MotionEvent motionEvent) {
+        return true;
     }
 
     @Override
@@ -166,10 +194,6 @@ public class InformationWindow extends Window implements KanjiViewListener {
     }
 
     @Override
-    public void onLongPress(MotionEvent motionEvent) {
-    }
-
-    @Override
     public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
 
         if (motionEvent == null || motionEvent1 == null){
@@ -190,7 +214,7 @@ public class InformationWindow extends Window implements KanjiViewListener {
     }
 
     @NonNull
-    private String searchDict(String text, int textOffset) throws SQLException {
+    private List<EntryOptimized> searchDict(String text, int textOffset) throws SQLException {
         return mSearcher.searchOpti(text, textOffset);
     }
 }

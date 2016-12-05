@@ -54,7 +54,7 @@ public class Searcher {
     }
 
     public List<Match> search(String text, int textOffset) throws SQLException {
-        
+
         String character = new String(new int[] { text.codePointAt(textOffset)}, 0, 1);
         List<Kanji> kanjis = mKanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, character + "%").query();
         List<Match> matches = new ArrayList<>();
@@ -70,7 +70,7 @@ public class Searcher {
         return matches;
     }
 
-    public String searchOpti(String text, int textOffset) throws SQLException {
+    public List<EntryOptimized> searchOpti(String text, int textOffset) throws SQLException {
 
         String character = new String(new int[] { text.codePointAt(textOffset)}, 0, 1);
         List<EntryOptimized> entries = mEntryOptimizedDao.queryBuilder().where().like("kanji", character + "%").query();
@@ -83,22 +83,7 @@ public class Searcher {
         }
 
         Collections.sort(matchedEntries);
-
-        StringBuilder sb = new StringBuilder();
-
-        for (EntryOptimized e : matchedEntries){
-            sb.append(e.getKanji());
-            if (!e.getReadings().isEmpty()){
-                sb.append(" (");
-                sb.append(e.getReadings());
-                sb.append(")");
-            }
-            sb.append("\n");
-            sb.append(e.getMeanings());
-            sb.append("\n\n");
-        }
-
-        return sb.toString();
+        return matchedEntries;
     }
 
     private boolean isMatch(String text, int textOffset, String kanjiText) throws SQLException {

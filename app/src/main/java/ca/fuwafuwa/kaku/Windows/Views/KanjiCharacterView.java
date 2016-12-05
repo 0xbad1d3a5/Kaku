@@ -105,9 +105,9 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         Log.d(TAG, "onSingleTapUp");
+        mCallback.onKanjiViewTouch(this, e);
         Drawable bg = mContext.getDrawable(R.drawable.border_translucent);
         setBackground(bg);
-        mCallback.onKanjiViewTouch(this, e);
         return true;
     }
 
@@ -127,5 +127,14 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
         Log.d(TAG, "onFling");
         return false;
+    }
+
+    public void removeHighlight(){
+        setBackground(null);
+    }
+
+    public void setHighlight(){
+        Drawable bg = mContext.getDrawable(R.drawable.border_translucent);
+        setBackground(bg);
     }
 }
