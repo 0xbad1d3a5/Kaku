@@ -26,4 +26,12 @@ public class Kd2Meaning {
         m_lang = attrMap.get(Kd2Consts.M_LANG);
         text = CommonParser.parseString(parser);
     }
+
+    public String getM_lang() {
+        return m_lang;
+    }
+
+    public String getText() {
+        return text;
+    }
 }

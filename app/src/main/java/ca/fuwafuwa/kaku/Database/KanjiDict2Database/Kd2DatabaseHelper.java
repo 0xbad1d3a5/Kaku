@@ -5,10 +5,13 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
+import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
+import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
 
 /**
  * Created by 0x1bad1d3a on 12/1/2016.
@@ -37,22 +40,26 @@ public class Kd2DatabaseHelper extends DatabaseHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
-        //throw new NotImplementedException();
+        try {
+            TableUtils.createTable(connectionSource, CharacterOptimized.class);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-        //throw new NotImplementedException();
+        throw new NotImplementedException();
     }
 
     @Override
     public void deleteDatabase() {
-        //throw new NotImplementedException();
+        mContext.deleteDatabase(String.format("%s/%s", mContext.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME));
     }
 
     @Override
     public <T> Dao<T, Integer> getDbDao(Class clazz) throws SQLException {
-        return null;
-        //throw new NotImplementedException();
+        return getDao(clazz);
     }
 }

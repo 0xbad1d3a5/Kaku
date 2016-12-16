@@ -21,7 +21,7 @@ android {
 
 dependencies {
     compile 'com.rmtheis:tess-two:6.1.1'
-    compile 'com.google.guava:guava:19.0'
+    compile 'com.google.guava:guava:20.0'
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.google.code.gson:gson:2.7'
     testCompile 'junit:junit:4.12'

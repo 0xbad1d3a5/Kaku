@@ -16,8 +16,8 @@ public class Kd2RmGroup {
 
     private static final String XMLTAG = Kd2Consts.RMGROUP;
 
-    private List<Kd2Reading> reading = new ArrayList<>();
-    private List<Kd2Meaning> meaning = new ArrayList<>();
+    private List<Kd2Reading> readings = new ArrayList<>();
+    private List<Kd2Meaning> meanings = new ArrayList<>();
 
     public Kd2RmGroup(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, XMLTAG);
@@ -27,15 +27,23 @@ public class Kd2RmGroup {
             String name = parser.getName() == null ? "" : parser.getName();
             switch(name){
                 case Kd2Consts.READING:
-                    reading.add(new Kd2Reading(parser));
+                    readings.add(new Kd2Reading(parser));
                     break;
                 case Kd2Consts.MEANING:
-                    meaning.add(new Kd2Meaning(parser));
+                    meanings.add(new Kd2Meaning(parser));
                     break;
             }
             parser.nextToken();
         }
 
         parser.require(XmlPullParser.END_TAG, null, XMLTAG);
+    }
+
+    public List<Kd2Reading> getReadings() {
+        return readings;
+    }
+
+    public List<Kd2Meaning> getMeanings() {
+        return meanings;
     }
 }

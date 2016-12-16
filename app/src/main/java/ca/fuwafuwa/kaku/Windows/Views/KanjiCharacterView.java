@@ -106,8 +106,6 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     public boolean onSingleTapUp(MotionEvent e) {
         Log.d(TAG, "onSingleTapUp");
         mCallback.onKanjiViewTouch(this, e);
-        Drawable bg = mContext.getDrawable(R.drawable.border_translucent);
-        setBackground(bg);
         return true;
     }
 

@@ -48,4 +48,12 @@ public class Kd2Consts {
     public static final String ON_TYPE = "on_type";
     public static final String R_STATUS = "r_status";
     public static final String M_LANG = "m_lang";
+
+    // Attribute values
+    public static final String R_TYPE_PINYIN = "pinyin";
+    public static final String R_TYPE_KOREAN_R = "korean_r";
+    public static final String R_TYPE_KOREAN_H = "korean_h";
+    public static final String R_TYPE_VIETNAM = "vietnam";
+    public static final String R_TYPE_JA_ON = "ja_on";
+    public static final String R_TYPE_JA_KUN = "ja_kun";
 }

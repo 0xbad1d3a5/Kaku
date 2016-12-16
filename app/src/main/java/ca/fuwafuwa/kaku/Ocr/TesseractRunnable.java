@@ -21,9 +21,9 @@ import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 /**
  * Created by 0x1bad1d3a on 4/16/2016.
  */
-public class TesseractThread implements Runnable, Stoppable {
+public class TesseractRunnable implements Runnable, Stoppable {
 
-    private static final String TAG = TesseractThread.class.getName();
+    private static final String TAG = TesseractRunnable.class.getName();
 
     private MainService mContext;
     private CaptureWindow mCaptureWindow;
@@ -32,7 +32,7 @@ public class TesseractThread implements Runnable, Stoppable {
     private BoxParams mBox;
     private Object mBoxLock = new Object();
 
-    public TesseractThread(MainService context, CaptureWindow captureWindow){
+    public TesseractRunnable(MainService context, CaptureWindow captureWindow){
         mContext = context;
         mCaptureWindow = captureWindow;
         mBox = null;
@@ -41,6 +41,7 @@ public class TesseractThread implements Runnable, Stoppable {
         String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
         Log.e(TAG, storagePath);
         mTessBaseAPI.init(storagePath, "jpn");
+        //mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK_VERT_TEXT);
     }
 
     @Override
