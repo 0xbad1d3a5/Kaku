@@ -8,7 +8,7 @@ import android.view.animation.AnimationUtils;
 
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.BoxParams;
-import ca.fuwafuwa.kaku.Ocr.TesseractThread;
+import ca.fuwafuwa.kaku.Ocr.TesseractRunnable;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
@@ -20,15 +20,15 @@ public class CaptureWindow extends Window implements WindowTouchListener {
 
     private static final String TAG = CaptureWindow.class.getName();
 
-    private TesseractThread mTessThread;
-    Thread tessThread;
+    private TesseractRunnable mTessRunnable;
+    private Thread mTessThread;
     private View mWindowBox;
     private Animation mFadeRepeat;
     private Drawable mBorderTranslucent;
     private Drawable mBorder9PatchTransparent;
     private boolean tessStarted = false;
 
-    private CommonParser mJmDict;
+    private CommonParser commonParser;
 
     public CaptureWindow(MainService context) {
         super(context, R.layout.capture_window);
@@ -39,12 +39,12 @@ public class CaptureWindow extends Window implements WindowTouchListener {
         mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.border_translucent, null);
         mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border9patch_transparent, null);
 
-        this.mJmDict = new CommonParser(context);
+        this.commonParser = new CommonParser(context);
 
-        mTessThread = new TesseractThread(this.context, this);
-        tessThread = new Thread(mTessThread);
-        tessThread.setDaemon(true);
-        tessThread.start();
+        mTessRunnable = new TesseractRunnable(this.context, this);
+        mTessThread = new Thread(mTessRunnable);
+        mTessThread.setDaemon(true);
+        mTessThread.start();
     }
 
     @Override
@@ -56,7 +56,14 @@ public class CaptureWindow extends Window implements WindowTouchListener {
     @Override
     public boolean onDoubleTap(MotionEvent e) {
         tessStarted = true;
-        mTessThread.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
+        mTessRunnable.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
+
+//        try {
+//            commonParser.parseKanjiDict2();
+//        } catch (Exception e1) {
+//            e1.printStackTrace();
+//        }
+
         return true;
     }
 
@@ -89,7 +96,7 @@ public class CaptureWindow extends Window implements WindowTouchListener {
 
     @Override
     public void stop() {
-        mTessThread.stop();
+        mTessRunnable.stop();
         super.stop();
     }
 
@@ -100,7 +107,7 @@ public class CaptureWindow extends Window implements WindowTouchListener {
                 break;
             case MotionEvent.ACTION_UP:
                 if (!tessStarted) {
-                    mTessThread.cancel();
+                    mTessRunnable.cancel();
                     mWindowBox.setBackground(mBorder9PatchTransparent);
                 }
                 tessStarted = false;

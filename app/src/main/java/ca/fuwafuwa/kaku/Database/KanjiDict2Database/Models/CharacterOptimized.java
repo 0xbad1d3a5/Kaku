@@ -29,4 +29,36 @@ public class CharacterOptimized {
     @Expose
     @DatabaseField(dataType = DataType.LONG_STRING)
     private String meaning;
+
+    public String getKanji() {
+        return kanji;
+    }
+
+    public void setKanji(String kanji) {
+        this.kanji = kanji;
+    }
+
+    public String getOnyomi() {
+        return onyomi;
+    }
+
+    public void setOnyomi(String onyomi) {
+        this.onyomi = onyomi;
+    }
+
+    public String getKunyomi() {
+        return kunyomi;
+    }
+
+    public void setKunyomi(String kunyomi) {
+        this.kunyomi = kunyomi;
+    }
+
+    public String getMeaning() {
+        return meaning;
+    }
+
+    public void setMeaning(String meaning) {
+        this.meaning = meaning;
+    }
 }

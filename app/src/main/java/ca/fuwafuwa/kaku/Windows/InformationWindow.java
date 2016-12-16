@@ -2,9 +2,7 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -12,16 +10,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
-import android.widget.ScrollView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
+import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
@@ -30,7 +29,7 @@ import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 /**
  * Created by Xyresic on 4/23/2016.
  */
-public class InformationWindow extends Window implements KanjiViewListener {
+public class InformationWindow extends Window implements KanjiViewListener, Searcher.SearchDictDone {
 
     private static final String TAG = InformationWindow.class.getName();
     private static final float FLICK_THRESHOLD = -0.05f;
@@ -38,6 +37,7 @@ public class InformationWindow extends Window implements KanjiViewListener {
     private GestureDetector mGestureDetector;
     private float mMaxFlingVelocity;
     private KanjiGridView mKanjiGrid;
+    private LinearLayout mLinearLayout;
     private Searcher mSearcher;
     private String mText;
 
@@ -47,7 +47,14 @@ public class InformationWindow extends Window implements KanjiViewListener {
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
         mGestureDetector = new GestureDetector(this.context, this);
         mKanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
-        mSearcher = Searcher.instance(context);
+        mLinearLayout = (LinearLayout) window.findViewById(R.id.info_text);
+
+        try {
+            mSearcher = new Searcher(context);
+            mSearcher.registerCallback(this);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setText(String text){
@@ -56,8 +63,8 @@ public class InformationWindow extends Window implements KanjiViewListener {
     }
 
     public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e){
-        KanjiGridView kanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
-        List<KanjiCharacterView> kanjiViewList = kanjiGrid.getKanjiViewList();
+
+        List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
         for (KanjiCharacterView k : kanjiViewList){
         }
     }
@@ -65,57 +72,12 @@ public class InformationWindow extends Window implements KanjiViewListener {
     @Override
     public void onKanjiViewTouch(KanjiCharacterView kanjiView, MotionEvent e) {
 
-        KanjiGridView kanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
-        List<KanjiCharacterView> kanjiViewList = kanjiGrid.getKanjiViewList();
+        List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
         for (KanjiCharacterView k : kanjiViewList){
             k.removeHighlight();
         }
 
-        long startTime = System.currentTimeMillis();
-
-        ScrollView sv = (ScrollView) window.findViewById(R.id.info_text);
-        sv.removeAllViews();
-        TextView tv = new TextView(context);
-
-        List<EntryOptimized> entryOptimized = null;
-        try {
-            entryOptimized = searchDict(mText, kanjiView.getCharPos());
-
-            StringBuilder sb = new StringBuilder();
-
-            for (EntryOptimized eo : entryOptimized){
-                sb.append(eo.getKanji());
-                if (!eo.getReadings().isEmpty()){
-                    sb.append(" (");
-                    sb.append(eo.getReadings());
-                    sb.append(")");
-                }
-                sb.append("\n");
-                sb.append(eo.getMeanings());
-                sb.append("\n\n");
-            }
-
-            tv.setText(sb.toString());
-        }
-        catch (Exception ex){
-            ex.printStackTrace();
-        }
-
-        if (entryOptimized.size() > 0){
-            String kanji = entryOptimized.get(0).getKanji();
-            int start = kanjiGrid.getKanjiViewList().indexOf(kanjiView);
-            for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){
-                kanjiGrid.getKanjiViewList().get(i).setHighlight();
-            }
-        }
-
-        tv.setTextColor(Color.BLACK);
-        sv.addView(tv);
-
-        String timeTaken = String.format("Search Time: %d", System.currentTimeMillis() - startTime);
-
-        Log.d(TAG, timeTaken);
-        Toast.makeText(context, timeTaken, Toast.LENGTH_SHORT).show();
+        mSearcher.search(new SearchInfo(mText, kanjiView.getCharPos(), kanjiView));
     }
 
     @Override
@@ -213,8 +175,61 @@ public class InformationWindow extends Window implements KanjiViewListener {
         return false;
     }
 
-    @NonNull
-    private List<EntryOptimized> searchDict(String text, int textOffset) throws SQLException {
-        return mSearcher.searchOpti(text, textOffset);
+    @Override
+    public void jmResultsCallback(List<EntryOptimized> results, SearchInfo search) {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (EntryOptimized eo : results){
+            sb.append(eo.getKanji());
+            if (!eo.getReadings().isEmpty()){
+                sb.append(" (");
+                sb.append(eo.getReadings());
+                sb.append(")");
+            }
+            sb.append("\n");
+            sb.append(eo.getMeanings());
+            sb.append("\n\n");
+        }
+
+        TextView tv = (TextView) mLinearLayout.findViewById(R.id.jm_results);
+        tv.setText(sb.toString());
+
+        int start = mKanjiGrid.getKanjiViewList().indexOf(search.getKanjiCharacterView());
+        if (results.size() > 0){
+            String kanji = results.get(0).getKanji();
+            for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){
+                mKanjiGrid.getKanjiViewList().get(i).setHighlight();
+            }
+        }
+        else {
+            mKanjiGrid.getKanjiViewList().get(start).setHighlight();
+        }
+    }
+
+    @Override
+    public void kd2ResultsCallback(List<CharacterOptimized> results, SearchInfo search) {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (CharacterOptimized co : results){
+            sb.append(co.getKanji());
+            if (!co.getOnyomi().isEmpty()){
+                sb.append(" (");
+                sb.append(co.getOnyomi());
+                sb.append(") ");
+            }
+            if (!co.getKunyomi().isEmpty()){
+                sb.append(" [");
+                sb.append(co.getKunyomi());
+                sb.append("] ");
+            }
+            sb.append("\n");
+            sb.append(co.getMeaning());
+            sb.append("\n\n");
+        }
+
+        TextView tv = (TextView) mLinearLayout.findViewById(R.id.kd2_results);
+        tv.setText(sb.toString());
     }
 }

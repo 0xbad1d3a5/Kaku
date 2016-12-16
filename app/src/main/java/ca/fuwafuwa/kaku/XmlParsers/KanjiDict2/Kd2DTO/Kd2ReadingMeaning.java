@@ -17,7 +17,7 @@ public class Kd2ReadingMeaning {
 
     private static final String XMLTAG = Kd2Consts.READING_MEANING;
 
-    private List<Kd2RmGroup> rmgroup = new ArrayList<>();
+    private List<Kd2RmGroup> rmgroups = new ArrayList<>();
     private List<String> nanori = new ArrayList<>();
 
     public Kd2ReadingMeaning(XmlPullParser parser) throws IOException, XmlPullParserException {
@@ -28,7 +28,7 @@ public class Kd2ReadingMeaning {
             String name = parser.getName() == null ? "" : parser.getName();
             switch(name){
                 case Kd2Consts.RMGROUP:
-                    rmgroup.add(new Kd2RmGroup(parser));
+                    rmgroups.add(new Kd2RmGroup(parser));
                     break;
                 case Kd2Consts.NANORI:
                     nanori.add(CommonParser.parseString(parser));
@@ -38,5 +38,9 @@ public class Kd2ReadingMeaning {
         }
 
         parser.require(XmlPullParser.END_TAG, null, XMLTAG);
+    }
+
+    public List<Kd2RmGroup> getRmGroups(){
+        return rmgroups;
     }
 }

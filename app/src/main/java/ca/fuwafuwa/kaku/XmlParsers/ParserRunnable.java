@@ -24,16 +24,16 @@ import ca.fuwafuwa.kaku.XmlParsers.Interfaces.DictParser;
  * Created by Xyresic on 12/1/2016.
  */
 
-public class ParserThread implements Runnable {
+public class ParserRunnable implements Runnable {
 
-    private static final String TAG = ParserThread.class.getName();
+    private static final String TAG = ParserRunnable.class.getName();
 
     private Context mContext;
     private FileInputStream mDictXml;
     private DatabaseHelper mDbHelper;
     private DictParser mDictParser;
 
-    public ParserThread(Context context, Class dbHelperClass, Class dictParserClass, String fileName) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, FileNotFoundException {
+    public ParserRunnable(Context context, Class dbHelperClass, Class dictParserClass, String fileName) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, FileNotFoundException {
         mContext = context;
         DbHelperFactory mDbHelperFactory = new DbHelperFactory(context);
         mDbHelper = mDbHelperFactory.instance(dbHelperClass);

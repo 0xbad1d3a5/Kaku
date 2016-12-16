@@ -1,150 +1,53 @@
 package ca.fuwafuwa.kaku.Search;
 
 import android.content.Context;
-import android.util.Log;
-
-import com.j256.ormlite.dao.Dao;
+import android.os.AsyncTask;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper;
-import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Entry;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
-import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Kanji;
-import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Meaning;
-import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Reading;
+import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 
 /**
  * Created by Xyresic on 8/28/2016.
  */
-public class Searcher {
+public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskDone {
+
+    public interface SearchDictDone {
+        void jmResultsCallback(List<EntryOptimized> results, SearchInfo search);
+        void kd2ResultsCallback(List<CharacterOptimized> results, SearchInfo search);
+    }
 
     private static final String TAG = Searcher.class.getName();
 
-    private static Searcher instance;
+    private SearchDictDone mSearchDictDone;
+    private Context mContext;
 
-    private JmDatabaseHelper mJmDbHelper;
-    Dao<Kanji, Integer> mKanjiDao;
-    Dao<Entry, Integer> mEntryDao;
-    Dao<EntryOptimized, Integer> mEntryOptimizedDao;
-    Dao<Meaning, Integer> mMeaningDao;
-    Dao<Reading, Integer> mReadingDao;
-
-    private Searcher(Context context) throws SQLException {
-        mJmDbHelper = JmDatabaseHelper.instance(context);
-        mKanjiDao = mJmDbHelper.getDbDao(Kanji.class);
-        mEntryDao = mJmDbHelper.getDbDao(Entry.class);
-        mEntryOptimizedDao = mJmDbHelper.getDbDao(EntryOptimized.class);
-        mMeaningDao = mJmDbHelper.getDbDao(Meaning.class);
-        mReadingDao = mJmDbHelper.getDbDao(Reading.class);
+    public Searcher(Context context) throws SQLException {
+        mContext = context;
     }
 
-    public static synchronized Searcher instance(Context context){
-        if (instance == null){
-            try {
-                instance = new Searcher(context);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+    public void registerCallback(SearchDictDone dictDone){
+        this.mSearchDictDone = dictDone;
+    }
+
+    public void search(SearchInfo searchInfo){
+        try {
+            new JmTask(searchInfo, this, mContext).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            new Kd2Task(searchInfo, this, mContext).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return instance;
     }
 
-    public List<Match> search(String text, int textOffset) throws SQLException {
-
-        String character = new String(new int[] { text.codePointAt(textOffset)}, 0, 1);
-        List<Kanji> kanjis = mKanjiDao.queryBuilder().where().like(Kanji.KANJI_FIELD, character + "%").query();
-        List<Match> matches = new ArrayList<>();
-
-        for (Kanji kanji : kanjis){
-            Match match = findExactMatches(text, textOffset, kanji);
-            if (match != null){
-                matches.add(match);
-            }
-        }
-
-        Collections.sort(matches);
-        return matches;
+    @Override
+    public void jmTaskCallback(List<EntryOptimized> results, SearchInfo searchInfo) {
+        mSearchDictDone.jmResultsCallback(results, searchInfo);
     }
 
-    public List<EntryOptimized> searchOpti(String text, int textOffset) throws SQLException {
-
-        String character = new String(new int[] { text.codePointAt(textOffset)}, 0, 1);
-        List<EntryOptimized> entries = mEntryOptimizedDao.queryBuilder().where().like("kanji", character + "%").query();
-        List<EntryOptimized> matchedEntries = new ArrayList<>();
-
-        for (EntryOptimized e : entries){
-            if (isMatch(text, textOffset, e.getKanji())){
-                matchedEntries.add(e);
-            }
-        }
-
-        Collections.sort(matchedEntries);
-        return matchedEntries;
-    }
-
-    private boolean isMatch(String text, int textOffset, String kanjiText) throws SQLException {
-
-        int length = kanjiText.length();
-        for (int offset = 0; offset < length;){
-
-            int kanjiCodePoint = kanjiText.codePointAt(offset);
-            int textCodePoint;
-
-            try {
-                textCodePoint = text.codePointAt(textOffset);
-            }
-            catch (IndexOutOfBoundsException e){
-                return false;
-            }
-
-            if (kanjiCodePoint != textCodePoint){
-                return false;
-            }
-
-            int characterOffset = Character.charCount(kanjiCodePoint);
-            offset += characterOffset;
-            textOffset += characterOffset;
-        }
-
-        return true;
-    }
-
-    private Match findExactMatches(String text, int textOffset, Kanji kanji) throws SQLException {
-
-        String kanjiText = kanji.getKanji();
-
-        int length = kanjiText.length();
-        for (int offset = 0; offset < length;){
-
-            int kanjiCodePoint = kanjiText.codePointAt(offset);
-            int textCodePoint;
-
-            try {
-                textCodePoint = text.codePointAt(textOffset);
-            }
-            catch (IndexOutOfBoundsException e){
-                return null;
-            }
-
-            if (kanjiCodePoint != textCodePoint){
-                return findPotentialMatches(text, textOffset, kanji);
-            }
-
-            int characterOffset = Character.charCount(kanjiCodePoint);
-            offset += characterOffset;
-            textOffset += characterOffset;
-        }
-
-        mEntryDao.refresh(kanji.getFkEntry());
-        Log.d(TAG, kanji.getFkEntry().toString());
-        return new Match(kanjiText, kanji.getFkEntry(), length);
-    }
-
-    private Match findPotentialMatches(String text, int textOffset, Kanji kanji){
-        return null;
+    @Override
+    public void kd2TaskCallback(List<CharacterOptimized> results, SearchInfo searchInfo) {
+        mSearchDictDone.kd2ResultsCallback(results, searchInfo);
     }
 }
