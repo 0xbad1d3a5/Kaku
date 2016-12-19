@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.TextSwitcher;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -192,7 +192,11 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
             sb.append("\n\n");
         }
 
-        TextView tv = (TextView) mLinearLayout.findViewById(R.id.jm_results);
+        if (sb.length() > 2){
+            sb.setLength(sb.length() - 1);
+        }
+
+        TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.jm_results);
         tv.setText(sb.toString());
 
         int start = mKanjiGrid.getKanjiViewList().indexOf(search.getKanjiCharacterView());
@@ -229,7 +233,11 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
             sb.append("\n\n");
         }
 
-        TextView tv = (TextView) mLinearLayout.findViewById(R.id.kd2_results);
+        if (sb.length() > 2){
+            sb.setLength(sb.length() - 2);
+        }
+
+        TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.kd2_results);
         tv.setText(sb.toString());
     }
 }
