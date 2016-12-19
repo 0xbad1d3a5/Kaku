@@ -59,6 +59,7 @@ public class CaptureWindow extends Window implements WindowTouchListener {
         mTessRunnable.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
 
 //        try {
+//            commonParser.parseJmDict();
 //            commonParser.parseKanjiDict2();
 //        } catch (Exception e1) {
 //            e1.printStackTrace();
