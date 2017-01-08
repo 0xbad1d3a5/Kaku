@@ -73,6 +73,8 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
         for (Pair<String, Double> choice : kanjiView.getChoices()){
             sb.append(String.format("%s: %f\n", choice.first, choice.second));
         }
+        tv.setX(e.getRawX());
+        tv.setY(e.getRawY());
         tv.setText(sb.toString());
 
         TextView tv1 = (TextView) window.findViewById(R.id.info_window_text_cord);
@@ -82,6 +84,8 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     @Override
     public void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
         TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
+        tv.setX(0);
+        tv.setY(0);
         tv.setText("Test Test");
     }
 
