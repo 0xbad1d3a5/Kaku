@@ -12,6 +12,7 @@ import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
@@ -125,6 +126,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         if (e.getAction() == MotionEvent.ACTION_UP){
             setX(mOrigPos.x);
             setY(mOrigPos.y);
+            setVisibility(View.VISIBLE);
             mCallback.onKanjiViewScrollEnd(this, e);
         }
 
@@ -153,6 +155,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
         setX(motionEvent1.getRawX() - motionEvent.getRawX() + mOrigPos.x);
         setY(motionEvent1.getRawY() - motionEvent.getRawY() + mOrigPos.y);
+        setVisibility(View.INVISIBLE);
         mCallback.onKanjiViewScroll(this, motionEvent1);
         return true;
     }
