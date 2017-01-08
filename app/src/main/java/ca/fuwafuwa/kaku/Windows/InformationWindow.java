@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.PixelFormat;
 import android.util.Log;
+import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -12,6 +13,7 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextSwitcher;
+import android.widget.TextView;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.MainService;
+import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
@@ -42,6 +45,7 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     private String mText;
 
     public InformationWindow(MainService context) {
+
         super(context, R.layout.info_window);
 
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
@@ -57,20 +61,32 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
         }
     }
 
-    public void setText(String text){
-        this.mText = text;
-        mKanjiGrid.setText(this, text);
+    public void setOcrResults(OcrResult ocrResult){
+        this.mText = ocrResult.getText();
+        mKanjiGrid.setText(this, ocrResult);
     }
 
     public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e){
 
-        List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
-        for (KanjiCharacterView k : kanjiViewList){
+        TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
+        StringBuilder sb = new StringBuilder();
+        for (Pair<String, Double> choice : kanjiView.getChoices()){
+            sb.append(String.format("%s: %f\n", choice.first, choice.second));
         }
+        tv.setText(sb.toString());
+
+        TextView tv1 = (TextView) window.findViewById(R.id.info_window_text_cord);
+        tv1.setText(String.format("X: %f Y: %f", e.getRawX(), e.getRawY()));
     }
 
     @Override
-    public void onKanjiViewTouch(KanjiCharacterView kanjiView, MotionEvent e) {
+    public void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
+        TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
+        tv.setText("Test Test");
+    }
+
+    @Override
+    public void onKanjiViewTouch(KanjiCharacterView kanjiView) {
 
         List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
         for (KanjiCharacterView k : kanjiViewList){

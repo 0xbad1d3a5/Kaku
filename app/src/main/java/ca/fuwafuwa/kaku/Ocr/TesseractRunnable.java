@@ -13,6 +13,7 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -49,11 +50,13 @@ public class TesseractRunnable implements Runnable, Stoppable {
 
     @Override
     public void run() {
+
         while(mRunning){
 
             Log.d(TAG, "THREAD STARTING NEW LOOP");
 
             try {
+
                 if (mBox == null){
                     synchronized (mBoxLock){
                         Log.d(TAG, "WAITING");
@@ -71,7 +74,7 @@ public class TesseractRunnable implements Runnable, Stoppable {
                 long screenTime = System.currentTimeMillis();
 
                 if (bitmap == null){
-                    sendMessageToMainThread(new OcrResult("Error getting image", screenTime - startTime, 0));
+                    sendToastToContext("Error getting image");
                     mBox = null;
                     continue;
                 }
@@ -80,29 +83,16 @@ public class TesseractRunnable implements Runnable, Stoppable {
 
                 mTessBaseAPI.setImage(bitmap);
                 mTessBaseAPI.getHOCRText(0);
-
-                ResultIterator results = mTessBaseAPI.getResultIterator();
-                results.begin();
-
-                int i = 0;
-                do {
-                    List<Pair<String, Double>> choicesAndConfidence = results.getChoicesAndConfidence(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
-                    i++;
-                    for (Pair<String, Double> cc : choicesAndConfidence){
-                        Log.d(TAG, String.format("%d: %s - %f", i, cc.first, cc.second));
-                    }
-                } while (results.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL));
-
-                String text = mTessBaseAPI.getUTF8Text();
-                text = text.replaceAll("\\s+", "");
+                List<List<Pair<String, Double>>> ocrChoices = processOcrIterator(mTessBaseAPI.getResultIterator());
                 mTessBaseAPI.clear();
 
-                if (text != null){
-                    sendMessageToMainThread(new OcrResult(text, screenTime - startTime, System.currentTimeMillis() - screenTime));
+                if (ocrChoices.size() > 0){
+                    sendOcrResultToContext(new OcrResult(ocrChoices, screenTime - startTime, System.currentTimeMillis() - screenTime));
                 }
 
-                mBox = null;
                 mCaptureWindow.stopLoadingAnimation();
+
+                mBox = null;
                 saveBitmap(bitmap);
                 bitmap.recycle();
             }
@@ -142,7 +132,7 @@ public class TesseractRunnable implements Runnable, Stoppable {
     public void stop(){
         synchronized (mBoxLock){
             mRunning = false;
-            cancel();
+            mTessBaseAPI.stop();
             Log.d(TAG, "THREAD STOPPED");
         }
     }
@@ -196,8 +186,31 @@ public class TesseractRunnable implements Runnable, Stoppable {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
     }
 
-    private void sendMessageToMainThread(OcrResult result){
-        Message m = Message.obtain(mContext.getHandler(), 0, result);
-        m.sendToTarget();
+    private List<List<Pair<String, Double>>> processOcrIterator(ResultIterator iterator){
+
+        iterator.begin();
+
+        int i = 0;
+        List<List<Pair<String, Double>>> ocrChoices = new ArrayList<>();
+        do {
+            List<Pair<String, Double>> choicesAndConfidence = iterator.getChoicesAndConfidence(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
+            ocrChoices.add(choicesAndConfidence);
+            i++;
+            for (Pair<String, Double> cc : choicesAndConfidence){
+                Log.d(TAG, String.format("%d: %s - %f", i, cc.first, cc.second));
+            }
+        } while (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL));
+
+        iterator.delete();
+
+        return ocrChoices;
+    }
+
+    private void sendOcrResultToContext(OcrResult result){
+        Message.obtain(mContext.getHandler(), 0, result).sendToTarget();
+    }
+
+    private void sendToastToContext(String message){
+        Message.obtain(mContext.getHandler(), 0, message).sendToTarget();
     }
 }

@@ -9,5 +9,6 @@ import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
  */
 public interface KanjiViewListener {
     void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e);
-    void onKanjiViewTouch(KanjiCharacterView kanjiView, MotionEvent e);
+    void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e);
+    void onKanjiViewTouch(KanjiCharacterView kanjiView);
 }

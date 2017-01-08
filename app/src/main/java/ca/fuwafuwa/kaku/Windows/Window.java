@@ -235,6 +235,10 @@ public abstract class Window implements Stoppable, WindowTouchListener {
         return result;
     }
 
+    /**
+     * Fixes window so that it stays inside the screen even if the user is trying to drag it off screen
+     * Also makes sure that the window size is not smaller than a specified value (currently hard coded)
+     */
     private void fixBoxBounds(){
         if (params.x < 0){
             params.x = 0;
