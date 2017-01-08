@@ -1,88 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ca.fuwafuwa.kaku.Windows.Views.LinearLayoutView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/info_window"
-    android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-    android:layout_marginBottom="100dp"
-    android:background="@drawable/shape_white">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <ca.fuwafuwa.kaku.Windows.Views.LinearLayout
+        android:id="@+id/info_window"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginBottom="5dp">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="100dp"
+        android:background="@drawable/shape_white">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp">
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp">
 
-            <ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
-                android:id="@+id/kanji_grid"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:layout_margin="5dp">
-            </ca.fuwafuwa.kaku.Windows.Views.KanjiGridView>
+                android:layout_height="match_parent"
+                android:layout_margin="10dp">
 
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_margin="5dp"
-                android:animateLayoutChanges="true"
-                android:scrollbars="vertical">
-
-                <LinearLayout
-                    android:id="@+id/info_text"
-                    android:animateLayoutChanges="true"
-                    android:orientation="vertical"
+                <ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
+                    android:id="@+id/kanji_grid"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextSwitcher
-                        android:id="@+id/jm_results"
-                        android:measureAllChildren="false"
-                        android:animateLayoutChanges="true"
-                        android:inAnimation="@anim/slide_in"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <TextView
-                            android:textColor="@android:color/black"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                        <TextView
-                            android:textColor="@android:color/black"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </TextSwitcher>
-                    <TextSwitcher
-                        android:id="@+id/kd2_results"
-                        android:measureAllChildren="false"
-                        android:animateLayoutChanges="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <TextView
-                            android:textColor="@android:color/darker_gray"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                        <TextView
-                            android:textColor="@android:color/darker_gray"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </TextSwitcher>
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:layout_margin="5dp">
+                </ca.fuwafuwa.kaku.Windows.Views.KanjiGridView>
 
-            </ScrollView>
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="5dp"
+                    android:animateLayoutChanges="true"
+                    android:scrollbars="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/info_text"
+                        android:animateLayoutChanges="true"
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextSwitcher
+                            android:id="@+id/jm_results"
+                            android:measureAllChildren="false"
+                            android:animateLayoutChanges="true"
+                            android:inAnimation="@anim/slide_in"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:textColor="@android:color/black"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                            <TextView
+                                android:textColor="@android:color/black"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </TextSwitcher>
+                        <TextSwitcher
+                            android:id="@+id/kd2_results"
+                            android:measureAllChildren="false"
+                            android:animateLayoutChanges="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:textColor="@android:color/darker_gray"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                            <TextView
+                                android:textColor="@android:color/darker_gray"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </TextSwitcher>
+
+                    </LinearLayout>
+
+                </ScrollView>
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </ca.fuwafuwa.kaku.Windows.Views.LinearLayout>
 
-</ca.fuwafuwa.kaku.Windows.Views.LinearLayoutView>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/info_window_text_test"
+            android:textColor="@android:color/darker_gray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test Test"/>
+        <TextView
+            android:id="@+id/info_window_text_cord"
+            android:textColor="@android:color/darker_gray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="Cord"/>
+    </RelativeLayout>
+
+</FrameLayout>

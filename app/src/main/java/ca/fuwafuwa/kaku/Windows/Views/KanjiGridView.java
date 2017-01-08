@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ca.fuwafuwa.kaku.KakuTools;
+import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.Windows.InformationWindow;
 
 /**
@@ -50,7 +52,25 @@ public class KanjiGridView extends ViewGroup {
         mCellSize = KakuTools.dpToPx(mContext, 37);
     }
 
-    public void setText(InformationWindow infoWin, String text){
+    public void setText(InformationWindow infoWin, OcrResult ocrResult){
+
+        mKanjiCount = 0;
+        for (List<Pair<String, Double>> choices : ocrResult.getOcrChoices()){
+            KanjiCharacterView kanji_view = new KanjiCharacterView(mContext);
+            kanji_view.setKanjiViewCallback(infoWin);
+            kanji_view.setText(choices.get(0).first);
+            kanji_view.setChoices(choices);
+            kanji_view.setCharPos(mKanjiCount);
+
+            addView(kanji_view);
+            mKanjiViewList.add(kanji_view);
+            mKanjiCount++;
+        }
+
+        postInvalidate();
+    }
+
+    public void updateTextEdits(InformationWindow infoWin, String text){
         mKanjiCount = 0;
         int length = text.length();
         for (int offset = 0; offset < length; ){

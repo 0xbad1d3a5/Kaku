@@ -23,10 +23,19 @@ public class MainServiceHandler extends Handler {
 
     @Override
     public void handleMessage(Message message){
-        OcrResult result = (OcrResult) message.obj;
-        Log.e(TAG, result.toString());
-        Toast.makeText(mContext, result.toString(), Toast.LENGTH_SHORT).show();
 
-        (new InformationWindow(mContext)).setText(result.getText());
+        if (message.obj instanceof String){
+            Toast.makeText(mContext, message.obj.toString(), Toast.LENGTH_SHORT).show();
+        }
+        else if (message.obj instanceof OcrResult){
+            OcrResult result = (OcrResult) message.obj;
+            Log.e(TAG, result.toString());
+            Toast.makeText(mContext, result.toString(), Toast.LENGTH_SHORT).show();
+            (new InformationWindow(mContext)).setOcrResults(result);
+        }
+        else {
+            Toast.makeText(mContext, String.format("Unable to handle type: %s", message.obj.getClass().getName()), Toast.LENGTH_SHORT).show();
+        }
+
     }
 }

@@ -1,16 +1,20 @@
 package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.widget.TextView;
+
+import java.util.List;
 
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.R;
@@ -24,10 +28,12 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     private static final String TAG = KanjiCharacterView.class.getName();
 
     private int mCharPos;
-    private Point mOffset;
+    private boolean mResetOrigPos;
+    private Point mOrigPos;
     private Context mContext;
     private KanjiViewListener mCallback;
     private GestureDetector mGestureDetector;
+    private List<Pair<String, Double>> mChoices;
 
     public KanjiCharacterView(Context context) {
         super(context);
@@ -51,12 +57,21 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     private void Init(Context context){
         mContext = context;
-        mOffset = new Point(0, 0);
         mGestureDetector = new GestureDetector(mContext, this);
+        mOrigPos = new Point();
+        mResetOrigPos = true;
     }
 
     public void setKanjiViewCallback(KanjiViewListener callback){
         this.mCallback = callback;
+    }
+
+    public void setChoices(List<Pair<String, Double>> choices){
+        this.mChoices = choices;
+    }
+
+    public List<Pair<String, Double>> getChoices(){
+        return mChoices;
     }
 
     public int getCharPos() {
@@ -65,6 +80,15 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     public void setCharPos(int charPos) {
         mCharPos = charPos;
+    }
+
+    public void removeHighlight(){
+        setBackground(null);
+    }
+
+    public void setHighlight(){
+        Drawable bg = mContext.getDrawable(R.drawable.border_translucent);
+        setBackground(bg);
     }
 
     @Override
@@ -77,13 +101,31 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     }
 
     @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        if (mResetOrigPos){
+            mOrigPos.x = (int) getX();
+            mOrigPos.y = (int) getY();
+            mResetOrigPos = false;
+        }
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mResetOrigPos = true;
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent e){
 
         mGestureDetector.onTouchEvent(e);
 
         if (e.getAction() == MotionEvent.ACTION_UP){
-            mOffset.x = (int) getX();
-            mOffset.y = (int) getY();
+            setX(mOrigPos.x);
+            setY(mOrigPos.y);
+            mCallback.onKanjiViewScrollEnd(this, e);
         }
 
         return true;
@@ -92,8 +134,6 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     @Override
     public boolean onDown(MotionEvent motionEvent) {
         Log.d(TAG, String.format("onDown: %f x %f", getX(), getY()));
-        mOffset.x = (int) getX();
-        mOffset.y = (int) getY();
         return false;
     }
 
@@ -105,14 +145,15 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         Log.d(TAG, "onSingleTapUp");
-        mCallback.onKanjiViewTouch(this, e);
+        mCallback.onKanjiViewTouch(this);
         return true;
     }
 
     @Override
     public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-        //setX(motionEvent1.getRawX() - motionEvent.getRawX() + mOffset.x);
-        //setY(motionEvent1.getRawY() - motionEvent.getRawY() + mOffset.y);
+        setX(motionEvent1.getRawX() - motionEvent.getRawX() + mOrigPos.x);
+        setY(motionEvent1.getRawY() - motionEvent.getRawY() + mOrigPos.y);
+        mCallback.onKanjiViewScroll(this, motionEvent1);
         return true;
     }
 
@@ -125,14 +166,5 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
         Log.d(TAG, "onFling");
         return false;
-    }
-
-    public void removeHighlight(){
-        setBackground(null);
-    }
-
-    public void setHighlight(){
-        Drawable bg = mContext.getDrawable(R.drawable.border_translucent);
-        setBackground(bg);
     }
 }
