@@ -5,12 +5,15 @@ import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.Message;
 import android.util.Log;
+import android.util.Pair;
 
+import com.googlecode.tesseract.android.ResultIterator;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
@@ -77,6 +80,19 @@ public class TesseractRunnable implements Runnable, Stoppable {
 
                 mTessBaseAPI.setImage(bitmap);
                 mTessBaseAPI.getHOCRText(0);
+
+                ResultIterator results = mTessBaseAPI.getResultIterator();
+                results.begin();
+
+                int i = 0;
+                do {
+                    List<Pair<String, Double>> choicesAndConfidence = results.getChoicesAndConfidence(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
+                    i++;
+                    for (Pair<String, Double> cc : choicesAndConfidence){
+                        Log.d(TAG, String.format("%d: %s - %f", i, cc.first, cc.second));
+                    }
+                } while (results.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL));
+
                 String text = mTessBaseAPI.getUTF8Text();
                 text = text.replaceAll("\\s+", "");
                 mTessBaseAPI.clear();
