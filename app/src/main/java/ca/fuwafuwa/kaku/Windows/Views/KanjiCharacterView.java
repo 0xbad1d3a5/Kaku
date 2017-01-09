@@ -99,6 +99,11 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         setBackground(null);
     }
 
+    public void setBackground(int id){
+        Drawable bg = mContext.getDrawable(id);
+        setBackground(bg);
+    }
+
     public void setBackground(){
         Drawable bg = mContext.getDrawable(R.drawable.border_translucent);
         setBackground(bg);

@@ -26,6 +26,7 @@ import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
+import ca.fuwafuwa.kaku.Windows.Views.ChoiceGridView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 
@@ -66,42 +67,38 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
         mKanjiGrid.setText(this, ocrResult);
     }
 
-    public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent oe, MotionEvent e){
+    @Override
+    public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
 
-        KanjiGridView kgv = (KanjiGridView) window.findViewById(R.id.kanji_choice_grid);
-        kgv.removeAllViews();
-        kgv.setCellSize(100);
-        StringBuilder sb1 = new StringBuilder();
-        for (Pair<String, Double> choice : kanjiView.getChoices()){
-            sb1.append(choice.first);
-        }
-        kgv.updateTextEdits(this, sb1.toString());
-        kgv.setY(oe.getRawY());
-        kgv.invalidate();
+        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
+        cgv.onKanjiViewScroll(kanjiView, e1, e2);
+        cgv.setY(e1.getRawY());
 
         TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
         StringBuilder sb2 = new StringBuilder();
         for (Pair<String, Double> choice : kanjiView.getChoices()){
             sb2.append(String.format("%s: %f\n", choice.first, choice.second));
         }
-        tv.setX(e.getRawX());
-        tv.setY(e.getRawY());
+        tv.setX(e2.getRawX());
+        tv.setY(e2.getRawY());
         tv.setText(sb2.toString());
 
         TextView tv1 = (TextView) window.findViewById(R.id.info_window_text_cord);
-        tv1.setText(String.format("X: %f Y: %f", e.getRawX(), e.getRawY()));
+        tv1.setText(String.format("X: %f Y: %f", e2.getRawX(), e2.getRawY()));
     }
 
     @Override
     public void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
 
-        KanjiGridView kgv = (KanjiGridView) window.findViewById(R.id.kanji_choice_grid);
-        kgv.removeAllViews();
+        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
+        cgv.onKanjiViewScrollEnd(kanjiView, e);
 
         TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
         tv.setX(0);
         tv.setY(0);
-        tv.setText("Test Test");
+        tv.setText("");
+
+        updateInternalText();
     }
 
     @Override
@@ -274,5 +271,13 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
 
         TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.kd2_results);
         tv.setText(sb.toString());
+    }
+
+    private void updateInternalText(){
+        StringBuilder sb = new StringBuilder();
+        for (KanjiCharacterView k : mKanjiGrid.getKanjiViewList()){
+            sb.append(k.getText());
+        }
+        mText = sb.toString();
     }
 }
