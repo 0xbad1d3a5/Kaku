@@ -1,5 +1,6 @@
 package ca.fuwafuwa.kaku.Windows;
 
+import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.support.v4.view.GestureDetectorCompat;
@@ -28,37 +29,35 @@ public abstract class Window implements Stoppable, WindowTouchListener {
     protected View window;
     protected WindowManager.LayoutParams params;
 
-    private View mHeightView;
-    protected Point mRealDisplaySize;
-    private WindowView mWindowView;
-    private ResizeView mResizeView;
+    private Point mRealDisplaySize;
     private int mDX;
     private int mDY;
+    private View mHeightView;
 
+    private boolean mWindowClosed = false;
     private long mParamUpdateTimer = System.currentTimeMillis();
 
     public Window(MainService context, int contentView){
 
         this.context = context;
-        windowManager = (WindowManager) this.context.getSystemService(context.WINDOW_SERVICE);
-        LayoutInflater inflater = (LayoutInflater) this.context.getApplicationContext().getSystemService(this.context.LAYOUT_INFLATER_SERVICE);
-        window = inflater.inflate(R.layout.window, null);
-        window.setTag(this);
 
-        mWindowView = (WindowView) window.findViewById(R.id.window_view);
-        mResizeView = (ResizeView) window.findViewById(R.id.resize_view);
+        LayoutInflater inflater = (LayoutInflater) this.context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        windowManager = (WindowManager) this.context.getSystemService(Context.WINDOW_SERVICE);
+        window = inflater.inflate(R.layout.window, null);
+        mRealDisplaySize = this.context.getRealDisplaySize();
+        params = getDefaultParams();
+
+        WindowView mWindowView = (WindowView) window.findViewById(R.id.window_view);
+        ResizeView mResizeView = (ResizeView) window.findViewById(R.id.resize_view);
         mWindowView.setWindowListener(this);
         mResizeView.setWindowListener(this);
-
         GestureDetectorCompat detectorCompat = new GestureDetectorCompat(context, this);
         detectorCompat.setOnDoubleTapListener(this);
         mWindowView.setDetector(detectorCompat);
 
         RelativeLayout relativeLayout = (RelativeLayout) window.findViewById(R.id.content_view);
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
-
-        mRealDisplaySize = this.context.getRealDisplaySize();
-        params = getDefaultParams();
 
         windowManager.addView(window, params);
 
@@ -69,8 +68,7 @@ public abstract class Window implements Stoppable, WindowTouchListener {
         p.type = WindowManager.LayoutParams.TYPE_PHONE;
         p.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         p.format = PixelFormat.TRANSPARENT;
-        p.gravity = Gravity.RIGHT | Gravity.TOP;
-
+        p.gravity = Gravity.END | Gravity.TOP;
         mHeightView = new View(context);
         windowManager.addView(mHeightView, p);
     }
@@ -82,15 +80,28 @@ public abstract class Window implements Stoppable, WindowTouchListener {
     }
 
     /**
-     * stop() MUST be called or the window does not get removed from the android screen
+     * {@link #stop()} MUST be called or the window does not get removed from the android screen
      * otherwise, the view remains on the screen even after you stop the service.
      *
-     * If you choose to override stop(), you should call super.stop() to remove the view.
+     * If you choose to override {@link #stop()}, you should call super.stop() to remove the view.
+     * Try not to use WindowManager to remove the view yourself, as attempting to remove the view
+     * twice from WindowManager (very possible if you have a touch event closing the window) will
+     * cause a crash.
      */
     @Override
     public void stop() {
+
         Log.d(TAG, "WINDOW CLOSING");
-        windowManager.removeView(window);
+
+        synchronized (this){
+
+            if (mWindowClosed){
+                return;
+            }
+
+            mWindowClosed = true;
+            windowManager.removeView(window);
+        }
     }
 
     /**

@@ -33,8 +33,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:animateLayoutChanges="true"
-                    android:layout_margin="5dp">
-                </ca.fuwafuwa.kaku.Windows.Views.KanjiGridView>
+                    android:layout_margin="5dp" />
 
                 <ScrollView
                     android:layout_width="match_parent"
@@ -96,6 +95,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
+
+        <ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
+            android:id="@+id/kanji_choice_grid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"/>
+
         <TextView
             android:id="@+id/info_window_text_test"
             android:textColor="@android:color/darker_gray"
