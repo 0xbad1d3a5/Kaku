@@ -52,6 +52,10 @@ public class KanjiGridView extends ViewGroup {
         mCellSize = KakuTools.dpToPx(mContext, 37);
     }
 
+    public void setCellSize(int dp){
+        mCellSize = KakuTools.dpToPx(mContext, dp);
+    }
+
     public void setText(InformationWindow infoWin, OcrResult ocrResult){
 
         mKanjiCount = 0;
@@ -79,10 +83,13 @@ public class KanjiGridView extends ViewGroup {
 
             KanjiCharacterView kanji_view = new KanjiCharacterView(mContext);
             kanji_view.setKanjiViewCallback(infoWin);
+            kanji_view.setSize(90);
+            kanji_view.setTextSize(70);
             kanji_view.setText(kanji);
             kanji_view.setCharPos(offset);
 
             addView(kanji_view);
+            kanji_view.setBackground();
             mKanjiViewList.add(kanji_view);
             mKanjiCount++;
             offset += Character.charCount(curr);

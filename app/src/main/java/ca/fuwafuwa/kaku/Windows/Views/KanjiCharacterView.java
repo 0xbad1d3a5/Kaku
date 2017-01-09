@@ -28,6 +28,8 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     private static final String TAG = KanjiCharacterView.class.getName();
 
+    private int mSizePx;
+    private int mTextSizeDp;
     private int mCharPos;
     private boolean mResetOrigPos;
     private Point mOrigPos;
@@ -61,6 +63,8 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         mGestureDetector = new GestureDetector(mContext, this);
         mOrigPos = new Point();
         mResetOrigPos = true;
+        mSizePx = KakuTools.dpToPx(mContext, 35);
+        mTextSizeDp = 20;
     }
 
     public void setKanjiViewCallback(KanjiViewListener callback){
@@ -83,22 +87,30 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         mCharPos = charPos;
     }
 
-    public void removeHighlight(){
+    public void setSize(int dp){
+        mSizePx = KakuTools.dpToPx(mContext, dp);
+    }
+
+    public void setTextSize(int dp){
+        mTextSizeDp = dp;
+    }
+
+    public void removeBackground(){
         setBackground(null);
     }
 
-    public void setHighlight(){
+    public void setBackground(){
         Drawable bg = mContext.getDrawable(R.drawable.border_translucent);
         setBackground(bg);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
-        int size = KakuTools.dpToPx(mContext, 35);
-        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, mTextSizeDp);
         setTextColor(Color.BLACK);
+        setBackgroundColor(Color.WHITE);
         setGravity(Gravity.CENTER);
-        setMeasuredDimension(size, size);
+        setMeasuredDimension(mSizePx, mSizePx);
     }
 
     @Override
@@ -156,7 +168,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         setX(motionEvent1.getRawX() - motionEvent.getRawX() + mOrigPos.x);
         setY(motionEvent1.getRawY() - motionEvent.getRawY() + mOrigPos.y);
         setVisibility(View.INVISIBLE);
-        mCallback.onKanjiViewScroll(this, motionEvent1);
+        mCallback.onKanjiViewScroll(this, motionEvent, motionEvent1);
         return true;
     }
 

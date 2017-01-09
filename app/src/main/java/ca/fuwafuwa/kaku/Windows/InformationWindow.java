@@ -66,16 +66,27 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
         mKanjiGrid.setText(this, ocrResult);
     }
 
-    public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e){
+    public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent oe, MotionEvent e){
+
+        KanjiGridView kgv = (KanjiGridView) window.findViewById(R.id.kanji_choice_grid);
+        kgv.removeAllViews();
+        kgv.setCellSize(100);
+        StringBuilder sb1 = new StringBuilder();
+        for (Pair<String, Double> choice : kanjiView.getChoices()){
+            sb1.append(choice.first);
+        }
+        kgv.updateTextEdits(this, sb1.toString());
+        kgv.setY(oe.getRawY());
+        kgv.invalidate();
 
         TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
         for (Pair<String, Double> choice : kanjiView.getChoices()){
-            sb.append(String.format("%s: %f\n", choice.first, choice.second));
+            sb2.append(String.format("%s: %f\n", choice.first, choice.second));
         }
         tv.setX(e.getRawX());
         tv.setY(e.getRawY());
-        tv.setText(sb.toString());
+        tv.setText(sb2.toString());
 
         TextView tv1 = (TextView) window.findViewById(R.id.info_window_text_cord);
         tv1.setText(String.format("X: %f Y: %f", e.getRawX(), e.getRawY()));
@@ -83,6 +94,10 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
 
     @Override
     public void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
+
+        KanjiGridView kgv = (KanjiGridView) window.findViewById(R.id.kanji_choice_grid);
+        kgv.removeAllViews();
+
         TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
         tv.setX(0);
         tv.setY(0);
@@ -94,7 +109,7 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
 
         List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
         for (KanjiCharacterView k : kanjiViewList){
-            k.removeHighlight();
+            k.removeBackground();
         }
 
         mSearcher.search(new SearchInfo(mText, kanjiView.getCharPos(), kanjiView));
@@ -223,11 +238,11 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
         if (results.size() > 0){
             String kanji = results.get(0).getKanji();
             for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){
-                mKanjiGrid.getKanjiViewList().get(i).setHighlight();
+                mKanjiGrid.getKanjiViewList().get(i).setBackground();
             }
         }
         else {
-            mKanjiGrid.getKanjiViewList().get(start).setHighlight();
+            mKanjiGrid.getKanjiViewList().get(start).setBackground();
         }
     }
 
