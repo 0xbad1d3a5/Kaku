@@ -128,6 +128,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
+        Log.d(TAG, "onLayout");
         if (mResetOrigPos){
             getLocationOnScreen(mOrigPosRaw);
             mOrigPos.x = (int) getX();

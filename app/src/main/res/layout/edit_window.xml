@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/edit_text_linear_layout">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ca.fuwafuwa.kaku.Windows.Views.ChoiceEditText
+        android:id="@+id/edit_text"
+        android:maxLines="1"
+        android:inputType="text"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:textColor="@android:color/black"
+        android:background="@android:color/white"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

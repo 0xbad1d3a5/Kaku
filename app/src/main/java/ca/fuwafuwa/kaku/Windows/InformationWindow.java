@@ -23,6 +23,7 @@ import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
+import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
 import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceGridView;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceImageView;
@@ -42,6 +43,7 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     private KanjiGridView mKanjiGrid;
     private LinearLayout mLinearLayout;
     private Searcher mSearcher;
+    private OcrResult mOcrResult;
     private String mText;
 
     public InformationWindow(MainService context) {
@@ -62,6 +64,7 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     }
 
     public void setOcrResults(OcrResult ocrResult){
+        this.mOcrResult = ocrResult;
         this.mText = ocrResult.getText();
         mKanjiGrid.setText(this, ocrResult);
     }
@@ -83,7 +86,19 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
         cgv.onKanjiViewScrollEnd(kanjiView, e);
 
         ChoiceImageView civ = (ChoiceImageView) window.findViewById(R.id.kanji_choice_edit);
-        civ.onKanjiViewScrollEnd(kanjiView, e);
+        ChoiceType editChoice = civ.onKanjiViewScrollEnd(kanjiView, e);
+
+        switch (editChoice){
+            case DELETE:
+                mOcrResult.getOcrChoices().remove(kanjiView.getCharPos());
+                mKanjiGrid.removeAllViews();
+                mKanjiGrid.setText(this, mOcrResult);
+                break;
+            case EDIT:
+                EditWindow editWindow = new EditWindow(context);
+                editWindow.setKanjiView(kanjiView);
+                break;
+        }
 
         updateInternalText();
     }
@@ -105,12 +120,12 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT);
         params.x = 0;
         params.y = 0;
-        params.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
         params.gravity = Gravity.TOP | Gravity.CENTER;
+        params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
         return params;
     }
 

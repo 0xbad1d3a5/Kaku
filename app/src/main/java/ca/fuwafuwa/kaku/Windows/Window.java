@@ -105,12 +105,13 @@ public abstract class Window implements Stoppable, WindowTouchListener {
     }
 
     /**
-     * Override this if implementing Window does not need to move around
+     * Override this and {@link #onScroll} if implementing Window does not need to move around
      *
      * @param e MotionEvent for moving the Window
      * @return Returns whether the MotionEvent was handled
      */
     public boolean onTouch(MotionEvent e){
+
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDX = params.x - (int) e.getRawX();
@@ -121,6 +122,20 @@ public abstract class Window implements Stoppable, WindowTouchListener {
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+        if (e1 == null || e2 == null){
+            return false;
+        }
+
+        params.x = mDX + (int) e2.getRawX();
+        params.y = mDY + (int) e2.getRawY();
+        fixBoxBounds();
+        windowManager.updateViewLayout(window, params);
+        return true;
     }
 
     @Override
@@ -154,20 +169,6 @@ public abstract class Window implements Stoppable, WindowTouchListener {
     }
 
     @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
-        if (e1 == null || e2 == null){
-            return false;
-        }
-
-        params.x = mDX + (int) e2.getRawX();
-        params.y = mDY + (int) e2.getRawY();
-        fixBoxBounds();
-        windowManager.updateViewLayout(window, params);
-        return true;
-    }
-
-    @Override
     public void onLongPress(MotionEvent e) {
 
     }
@@ -184,6 +185,7 @@ public abstract class Window implements Stoppable, WindowTouchListener {
      * @return Returns whether the MotionEvent was handled
      */
     public boolean onResize(MotionEvent e){
+
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDX = params.width - (int) e.getRawX();
@@ -210,6 +212,7 @@ public abstract class Window implements Stoppable, WindowTouchListener {
      * @return Default LayoutParams for Window
      */
     protected WindowManager.LayoutParams getDefaultParams(){
+
         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.width = KakuTools.dpToPx(context, 150);
         params.height = KakuTools.dpToPx(context, 150);
