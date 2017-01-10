@@ -96,25 +96,17 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
+        <ca.fuwafuwa.kaku.Windows.Views.ChoiceImageView
+            android:id="@+id/kanji_choice_edit"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
         <ca.fuwafuwa.kaku.Windows.Views.ChoiceGridView
             android:id="@+id/kanji_choice_grid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"/>
 
-        <TextView
-            android:id="@+id/info_window_text_test"
-            android:textColor="@android:color/darker_gray"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""/>
-        <TextView
-            android:id="@+id/info_window_text_cord"
-            android:textColor="@android:color/darker_gray"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="Cord"/>
     </RelativeLayout>
 
 </FrameLayout>

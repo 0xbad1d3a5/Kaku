@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.PixelFormat;
 import android.util.Log;
-import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -13,7 +12,6 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextSwitcher;
-import android.widget.TextView;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -27,6 +25,7 @@ import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceGridView;
+import ca.fuwafuwa.kaku.Windows.Views.ChoiceImageView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 
@@ -72,19 +71,9 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
 
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScroll(kanjiView, e1, e2);
-        cgv.setY(e1.getRawY());
 
-        TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
-        StringBuilder sb2 = new StringBuilder();
-        for (Pair<String, Double> choice : kanjiView.getChoices()){
-            sb2.append(String.format("%s: %f\n", choice.first, choice.second));
-        }
-        tv.setX(e2.getRawX());
-        tv.setY(e2.getRawY());
-        tv.setText(sb2.toString());
-
-        TextView tv1 = (TextView) window.findViewById(R.id.info_window_text_cord);
-        tv1.setText(String.format("X: %f Y: %f", e2.getRawX(), e2.getRawY()));
+        ChoiceImageView civ = (ChoiceImageView) window.findViewById(R.id.kanji_choice_edit);
+        civ.onKanjiViewScroll(getStatusBarHeight(), kanjiView, e1, e2);
     }
 
     @Override
@@ -93,10 +82,8 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScrollEnd(kanjiView, e);
 
-        TextView tv = (TextView) window.findViewById(R.id.info_window_text_test);
-        tv.setX(0);
-        tv.setY(0);
-        tv.setText("");
+        ChoiceImageView civ = (ChoiceImageView) window.findViewById(R.id.kanji_choice_edit);
+        civ.onKanjiViewScrollEnd(kanjiView, e);
 
         updateInternalText();
     }

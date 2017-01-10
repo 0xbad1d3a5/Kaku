@@ -33,6 +33,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     private int mCharPos;
     private boolean mResetOrigPos;
     private Point mOrigPos;
+    private int[] mOrigPosRaw;
     private Context mContext;
     private KanjiViewListener mCallback;
     private GestureDetector mGestureDetector;
@@ -62,6 +63,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         mContext = context;
         mGestureDetector = new GestureDetector(mContext, this);
         mOrigPos = new Point();
+        mOrigPosRaw = new int[2];
         mResetOrigPos = true;
         mSizePx = KakuTools.dpToPx(mContext, 35);
         mTextSizeDp = 20;
@@ -77,6 +79,10 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     public List<Pair<String, Double>> getChoices(){
         return mChoices;
+    }
+
+    public int[] getOrigPosRaw(){
+        return mOrigPosRaw;
     }
 
     public int getCharPos() {
@@ -123,6 +129,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         super.onLayout(changed, left, top, right, bottom);
 
         if (mResetOrigPos){
+            getLocationOnScreen(mOrigPosRaw);
             mOrigPos.x = (int) getX();
             mOrigPos.y = (int) getY();
             mResetOrigPos = false;
