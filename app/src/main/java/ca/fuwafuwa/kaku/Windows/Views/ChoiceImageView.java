@@ -9,6 +9,7 @@ import android.widget.RelativeLayout;
 
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
 
 /**
  * Created by Xyresic on 1/9/2017.
@@ -18,12 +19,6 @@ public class ChoiceImageView extends ImageView {
 
     private Context mContext;
     private KanjiCharacterView mKanjiView;
-
-    private enum ChoiceType {
-        EDIT,
-        DELETE,
-        NONE
-    }
 
     public ChoiceImageView(Context context) {
         super(context);
@@ -55,10 +50,10 @@ public class ChoiceImageView extends ImageView {
         if (mKanjiView != null && mKanjiView == kanjiView){
             switch (getChoiceType(kanjiView, e2)){
                 case EDIT:
-                    setImageResource(R.drawable.icon_delete);
+                    setImageResource(R.drawable.icon_edit);
                     break;
                 case DELETE:
-                    setImageResource(R.drawable.icon_edit);
+                    setImageResource(R.drawable.icon_delete);
                     break;
                 case NONE:
                     setImageResource(R.drawable.icon_swap);
@@ -74,10 +69,10 @@ public class ChoiceImageView extends ImageView {
         setVisibility(View.VISIBLE);
     }
 
-    public void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e){
+    public ChoiceType onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e){
 
         if (mKanjiView == null){
-            return;
+            return ChoiceType.NONE;
         }
 
         setVisibility(INVISIBLE);
@@ -85,6 +80,8 @@ public class ChoiceImageView extends ImageView {
         if (mKanjiView == kanjiView) {
             mKanjiView = null;
         }
+
+        return getChoiceType(kanjiView, e);
     }
 
     private ChoiceType getChoiceType(KanjiCharacterView kanjiView, MotionEvent e){
@@ -94,10 +91,10 @@ public class ChoiceImageView extends ImageView {
         if (e.getRawY() < pos[1]){
             int mid =  pos[0] + kanjiView.getWidth() / 2;
             if (e.getRawX() < mid){
-                return ChoiceType.DELETE;
+                return ChoiceType.EDIT;
             }
             else {
-                return ChoiceType.EDIT;
+                return ChoiceType.DELETE;
             }
         }
 

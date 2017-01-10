@@ -18,7 +18,6 @@ public class KanjiGridView extends SquareGridView {
     private static final String TAG = KanjiGridView.class.getName();
 
     private int mKanjiCount = 0;
-    private List<KanjiCharacterView> mKanjiViewList = new ArrayList<>();
 
     public KanjiGridView(Context context) {
         super(context);
@@ -47,7 +46,6 @@ public class KanjiGridView extends SquareGridView {
             kanji_view.setCharPos(mKanjiCount);
 
             addView(kanji_view);
-            mKanjiViewList.add(kanji_view);
             mKanjiCount++;
         }
 
@@ -56,6 +54,14 @@ public class KanjiGridView extends SquareGridView {
     }
 
     public List<KanjiCharacterView> getKanjiViewList(){
-        return mKanjiViewList;
+
+        int count = getChildCount();
+        List<KanjiCharacterView> kanjiViewList = new ArrayList<>();
+
+        for (int i = 0; i < count; i++){
+            kanjiViewList.add((KanjiCharacterView) getChildAt(i));
+        }
+
+        return kanjiViewList;
     }
 }

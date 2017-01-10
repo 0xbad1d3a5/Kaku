@@ -77,7 +77,6 @@ public class ChoiceGridView extends SquareGridView {
         }
 
         setY(e1.getRawY());
-
     }
 
     public void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e){
