@@ -62,7 +62,7 @@ public class ChoiceGridView extends SquareGridView {
         }
 
         mKanjiView = kanjiView;
-        mKanjiChoices = new ArrayList<KanjiCharacterView>();
+        mKanjiChoices = new ArrayList<>();
         setItemCount(mKanjiView.getChoices().size());
 
         for (Pair<String, Double> choice : kanjiView.getChoices()){
@@ -75,6 +75,9 @@ public class ChoiceGridView extends SquareGridView {
 
             mKanjiChoices.add(kanji_view);
         }
+
+        setY(e1.getRawY());
+
     }
 
     public void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e){
@@ -97,8 +100,7 @@ public class ChoiceGridView extends SquareGridView {
 
     private boolean checkForSelection(KanjiCharacterView kanjiView, MotionEvent e){
 
-        int[] pos = new int[2];
-        kanjiView.getLocationOnScreen(pos);
+        int[] pos = kanjiView.getOrigPosRaw();
 
         if (pos[0] < e.getRawX() && e.getRawX() < pos[0] + kanjiView.getWidth() &&
                 pos[1] < e.getRawY() && e.getRawY() < pos[1] + kanjiView.getHeight()){
