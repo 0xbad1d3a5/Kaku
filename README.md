@@ -12,3 +12,19 @@ Installation instructions:
 4. Move everything in Kaku/ca.fuwafuwa.kaku to /Android/data/ca.fuwafuwa.kaku
 5. Go to your phone's settings and find the setting "Draw over other apps" - enable that setting for Kaku (where the setting is depends on Android version, so you may have to Google this)
 6. Launch Kaku and hopefully it should work - double tap to OCR
+
+```
+   For step 4, the directory structure on Android should look like:
+   
+   /Android/data/ca.fuwafuwa.kaku
+   |
+   -> /files
+      |
+      -> /screenshots
+      |
+      -> /tessdata
+      |
+      -> KanjiDict2.db
+      |
+      -> OrmLiteJmDict.db
+```
