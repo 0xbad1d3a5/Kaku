@@ -25,9 +25,9 @@ import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 /**
  * Created by 0x1bad1d3a on 4/16/2016.
  */
-public class TesseractRunnable implements Runnable, Stoppable {
+public class OcrRunnable implements Runnable, Stoppable {
 
-    private static final String TAG = TesseractRunnable.class.getName();
+    private static final String TAG = OcrRunnable.class.getName();
 
     private MainService mContext;
     private CaptureWindow mCaptureWindow;
@@ -36,7 +36,7 @@ public class TesseractRunnable implements Runnable, Stoppable {
     private BoxParams mBox;
     private Object mBoxLock = new Object();
 
-    public TesseractRunnable(MainService context, CaptureWindow captureWindow){
+    public OcrRunnable(MainService context, CaptureWindow captureWindow){
         mContext = context;
         mCaptureWindow = captureWindow;
         mBox = null;
@@ -70,10 +70,10 @@ public class TesseractRunnable implements Runnable, Stoppable {
                 Log.d(TAG, "THREAD STOPPED WAITING");
 
                 long startTime = System.currentTimeMillis();
-                Bitmap bitmap = getReadyScreenshotBox(mBox, 0);
+                Bitmap mBitmap = getReadyScreenshotBox(mBox, 0);
                 long screenTime = System.currentTimeMillis();
 
-                if (bitmap == null){
+                if (mBitmap == null){
                     sendToastToContext("Error getting image");
                     mBox = null;
                     continue;
@@ -81,20 +81,19 @@ public class TesseractRunnable implements Runnable, Stoppable {
 
                 mCaptureWindow.showLoadingAnimation();
 
-                mTessBaseAPI.setImage(bitmap);
-                mTessBaseAPI.getHOCRText(0);
-                List<List<Pair<String, Double>>> ocrChoices = processOcrIterator(mTessBaseAPI.getResultIterator());
+                mTessBaseAPI.setImage(mBitmap);
+                String hocr = mTessBaseAPI.getHOCRText(0);
+                List<OcrChar> ocrChars = processOcrIterator(mTessBaseAPI.getResultIterator());
                 mTessBaseAPI.clear();
 
-                if (ocrChoices.size() > 0){
-                    sendOcrResultToContext(new OcrResult(ocrChoices, screenTime - startTime, System.currentTimeMillis() - screenTime));
+                if (ocrChars.size() > 0){
+                    sendOcrResultToContext(new OcrResult(mBitmap, ocrChars, screenTime - startTime, System.currentTimeMillis() - screenTime));
                 }
 
                 mCaptureWindow.stopLoadingAnimation();
 
                 mBox = null;
-                saveBitmap(bitmap);
-                bitmap.recycle();
+                saveBitmap(mBitmap);
             }
             catch (FileNotFoundException e){
                 e.printStackTrace();
@@ -186,24 +185,20 @@ public class TesseractRunnable implements Runnable, Stoppable {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
     }
 
-    private List<List<Pair<String, Double>>> processOcrIterator(ResultIterator iterator){
+    private List<OcrChar> processOcrIterator(ResultIterator iterator){
 
         iterator.begin();
 
-        int i = 0;
-        List<List<Pair<String, Double>>> ocrChoices = new ArrayList<>();
+        List<OcrChar> ocrChars = new ArrayList<>();
         do {
-            List<Pair<String, Double>> choicesAndConfidence = iterator.getChoicesAndConfidence(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
-            ocrChoices.add(choicesAndConfidence);
-            i++;
-            for (Pair<String, Double> cc : choicesAndConfidence){
-                Log.d(TAG, String.format("%d: %s - %f", i, cc.first, cc.second));
-            }
+            List<Pair<String, Double>> choices = iterator.getChoicesAndConfidence(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
+            int[] pos = iterator.getBoundingBox(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
+            ocrChars.add(new OcrChar(choices, pos));
         } while (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL));
 
         iterator.delete();
 
-        return ocrChoices;
+        return ocrChars;
     }
 
     private void sendOcrResultToContext(OcrResult result){

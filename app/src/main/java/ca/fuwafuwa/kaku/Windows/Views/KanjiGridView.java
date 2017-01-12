@@ -2,11 +2,11 @@ package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.fuwafuwa.kaku.Ocr.OcrChar;
 import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.Windows.InformationWindow;
 
@@ -38,11 +38,11 @@ public class KanjiGridView extends SquareGridView {
     public void setText(InformationWindow infoWin, OcrResult ocrResult){
 
         mKanjiCount = 0;
-        for (List<Pair<String, Double>> choices : ocrResult.getOcrChoices()){
+        for (OcrChar ocrChar : ocrResult.getOcrChars()){
             KanjiCharacterView kanji_view = new KanjiCharacterView(mContext);
             kanji_view.setKanjiViewCallback(infoWin);
-            kanji_view.setText(choices.get(0).first);
-            kanji_view.setChoices(choices);
+            kanji_view.setText(ocrChar.getBestChoice());
+            kanji_view.setOcrChar(ocrChar);
             kanji_view.setCharPos(mKanjiCount);
 
             addView(kanji_view);

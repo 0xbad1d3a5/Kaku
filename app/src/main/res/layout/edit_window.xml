@@ -6,8 +6,12 @@
     android:id="@+id/edit_text_linear_layout">
 
     <ImageView
+        android:id="@+id/edit_kanji_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:scaleType="fitCenter"
+        android:layout_above="@+id/edit_text" />
 
     <ca.fuwafuwa.kaku.Windows.Views.ChoiceEditText
         android:id="@+id/edit_text"

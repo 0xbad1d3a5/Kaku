@@ -8,7 +8,7 @@ import android.view.animation.AnimationUtils;
 
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.BoxParams;
-import ca.fuwafuwa.kaku.Ocr.TesseractRunnable;
+import ca.fuwafuwa.kaku.Ocr.OcrRunnable;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
@@ -20,7 +20,7 @@ public class CaptureWindow extends Window implements WindowTouchListener {
 
     private static final String TAG = CaptureWindow.class.getName();
 
-    private TesseractRunnable mTessRunnable;
+    private OcrRunnable mTessRunnable;
     private Thread mTessThread;
     private View mWindowBox;
     private Animation mFadeRepeat;
@@ -41,7 +41,7 @@ public class CaptureWindow extends Window implements WindowTouchListener {
 
         this.commonParser = new CommonParser(context);
 
-        mTessRunnable = new TesseractRunnable(this.context, this);
+        mTessRunnable = new OcrRunnable(this.context, this);
         mTessThread = new Thread(mTessRunnable);
         mTessThread.setDaemon(true);
         mTessThread.start();

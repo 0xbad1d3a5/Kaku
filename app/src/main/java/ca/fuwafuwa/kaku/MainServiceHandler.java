@@ -36,6 +36,5 @@ public class MainServiceHandler extends Handler {
         else {
             Toast.makeText(mContext, String.format("Unable to handle type: %s", message.obj.getClass().getName()), Toast.LENGTH_SHORT).show();
         }
-
     }
 }
