@@ -66,8 +66,7 @@ public class SquareGridView extends ViewGroup {
             child.measure(cellWidthSpec, cellHeightSpec);
         }
 
-        // Use the size our parents gave us
-        //setMeasuredDimension(resolveSize(mCellWidth*count, widthMeasureSpec), resolveSize(mCellHeight*count, heightMeasureSpec));
+        // set width to mCellSize * count if width is smaller than screen, and just screen width if larger
         int x = resolveSize(mCellSize * count, widthMeasureSpec);
         mRows = (int) Math.ceil((double) mItemCount / (double) (x / mCellSize));
         mRows = mRows <= 0 ? 1 : mRows;

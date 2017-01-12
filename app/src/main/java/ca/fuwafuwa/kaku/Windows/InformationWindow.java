@@ -70,13 +70,23 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     }
 
     @Override
+    public void onKanjiViewScrollStart(KanjiCharacterView kanjiView, MotionEvent e) {
+
+        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
+        cgv.onKanjiViewScrollStart(mOcrResult, kanjiView, e);
+
+        ChoiceImageView civ = (ChoiceImageView) window.findViewById(R.id.kanji_choice_edit);
+        civ.onKanjiViewScrollStart(getStatusBarHeight(), kanjiView, e);
+    }
+
+    @Override
     public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
 
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScroll(kanjiView, e1, e2);
 
         ChoiceImageView civ = (ChoiceImageView) window.findViewById(R.id.kanji_choice_edit);
-        civ.onKanjiViewScroll(getStatusBarHeight(), kanjiView, e1, e2);
+        civ.onKanjiViewScroll(kanjiView, e1, e2);
     }
 
     @Override
@@ -90,13 +100,13 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
 
         switch (editChoice){
             case DELETE:
-                mOcrResult.getOcrChoices().remove(kanjiView.getCharPos());
+                mOcrResult.getOcrChars().remove(kanjiView.getCharPos());
                 mKanjiGrid.removeAllViews();
                 mKanjiGrid.setText(this, mOcrResult);
                 break;
             case EDIT:
                 EditWindow editWindow = new EditWindow(context);
-                editWindow.setKanjiView(kanjiView);
+                editWindow.setInfo(mOcrResult, kanjiView);
                 break;
         }
 

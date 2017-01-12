@@ -124,6 +124,9 @@ public abstract class Window implements Stoppable, WindowTouchListener {
         return false;
     }
 
+    /**
+     * See {@link #onTouch}
+     */
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
@@ -138,41 +141,63 @@ public abstract class Window implements Stoppable, WindowTouchListener {
         return true;
     }
 
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
         return false;
     }
 
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
     @Override
     public boolean onDoubleTap(MotionEvent e) {
         return false;
     }
 
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
     @Override
     public boolean onDoubleTapEvent(MotionEvent e) {
         return false;
     }
 
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
     @Override
     public boolean onDown(MotionEvent e) {
         return false;
     }
 
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
     @Override
     public void onShowPress(MotionEvent e) {
-
     }
 
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         return false;
     }
 
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
     @Override
     public void onLongPress(MotionEvent e) {
-
     }
 
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         return false;

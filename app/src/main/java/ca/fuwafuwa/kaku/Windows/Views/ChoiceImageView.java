@@ -18,7 +18,6 @@ import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
 public class ChoiceImageView extends ImageView {
 
     private Context mContext;
-    private KanjiCharacterView mKanjiView;
 
     public ChoiceImageView(Context context) {
         super(context);
@@ -44,43 +43,32 @@ public class ChoiceImageView extends ImageView {
         setLayoutParams(new RelativeLayout.LayoutParams(KakuTools.dpToPx(context, 35), KakuTools.dpToPx(context, 35)));
     }
 
-    public void onKanjiViewScroll(int statusBarHeight, KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
+    public void onKanjiViewScrollStart(int statusBarHeight, KanjiCharacterView kanjiView, MotionEvent e){
 
-        // No need to update layout as we are in the same onScroll, just check collision
-        if (mKanjiView != null && mKanjiView == kanjiView){
-            switch (getChoiceType(kanjiView, e2)){
-                case EDIT:
-                    setImageResource(R.drawable.icon_edit);
-                    break;
-                case DELETE:
-                    setImageResource(R.drawable.icon_delete);
-                    break;
-                case NONE:
-                    setImageResource(R.drawable.icon_swap);
-                    break;
-            }
-            return;
-        }
-
-        mKanjiView = kanjiView;
         int[] pos = kanjiView.getOrigPosRaw();
         setX(pos[0]);
         setY(pos[1] - statusBarHeight);
         setVisibility(View.VISIBLE);
     }
 
+    public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
+
+        switch (getChoiceType(kanjiView, e2)){
+            case EDIT:
+                setImageResource(R.drawable.icon_edit);
+                break;
+            case DELETE:
+                setImageResource(R.drawable.icon_delete);
+                break;
+            case NONE:
+                setImageResource(R.drawable.icon_swap);
+                break;
+        }
+    }
+
     public ChoiceType onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e){
 
-        if (mKanjiView == null){
-            return ChoiceType.NONE;
-        }
-
         setVisibility(INVISIBLE);
-
-        if (mKanjiView == kanjiView) {
-            mKanjiView = null;
-        }
-
         return getChoiceType(kanjiView, e);
     }
 

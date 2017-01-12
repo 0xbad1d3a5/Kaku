@@ -1,10 +1,13 @@
 package ca.fuwafuwa.kaku.Windows;
 
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.view.MotionEvent;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import ca.fuwafuwa.kaku.MainService;
+import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.Interfaces.InputDoneListener;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceEditText;
@@ -25,8 +28,16 @@ public class EditWindow extends Window implements InputDoneListener {
         ((ChoiceEditText) window.findViewById(R.id.edit_text)).setInputDoneCallback(this);
     }
 
-    public void setKanjiView(KanjiCharacterView kanjiView){
+    public void setInfo(OcrResult ocrResult, KanjiCharacterView kanjiView){
+
         mKanjiView = kanjiView;
+
+        int[] pos = kanjiView.getOcrChar().getPos();
+        Bitmap orig = ocrResult.getBitmap();
+        Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], pos[2] - pos[0], pos[3] - pos[1]);
+
+        ImageView iv = (ImageView) window.findViewById(R.id.edit_kanji_image);
+        iv.setImageBitmap(bitmapChar);
     }
 
     @Override
