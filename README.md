@@ -1,7 +1,9 @@
 Kaku: 画 (かく) - stroke (of a kanji, etc.)
 
 DEMO VID: https://www.youtube.com/watch?v=Uq9AwxClY3g
+
 TEST APK: https://play.google.com/apps/testing/ca.fuwafuwa.kaku
+
 DB FILES: http://fuwafuwa.ca/f/JGBWH1MMvv.zip
 
 Installation instructions:
