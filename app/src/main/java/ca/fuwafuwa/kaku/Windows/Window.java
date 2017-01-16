@@ -16,11 +16,11 @@ import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.Windows.Views.ResizeView;
 import ca.fuwafuwa.kaku.Windows.Views.WindowView;
 
-public abstract class Window implements Stoppable, WindowTouchListener {
+public abstract class Window implements Stoppable, WindowListener {
 
     private static final String TAG = Window.class.getName();
 

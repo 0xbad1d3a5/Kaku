@@ -9,14 +9,13 @@ import android.widget.ImageView;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Interfaces.InputDoneListener;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceEditText;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 
 /**
  * Created by Xyresic on 4/23/2016.
  */
-public class EditWindow extends Window implements InputDoneListener {
+public class EditWindow extends Window implements ChoiceEditText.InputDoneListener {
 
     public static final String TAG = EditWindow.class.getName();
 

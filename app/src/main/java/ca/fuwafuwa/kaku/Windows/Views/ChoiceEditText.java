@@ -8,13 +8,15 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import ca.fuwafuwa.kaku.Windows.Interfaces.InputDoneListener;
-
 /**
  * Created by Xyresic on 1/10/2017.
  */
 
 public class ChoiceEditText extends EditText {
+
+    public interface InputDoneListener {
+        void onInputDone(String input);
+    }
 
     private static final String TAG = ChoiceEditText.class.getName();
 

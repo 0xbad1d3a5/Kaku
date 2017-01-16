@@ -10,13 +10,13 @@ import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.BoxParams;
 import ca.fuwafuwa.kaku.Ocr.OcrRunnable;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 
 /**
  * Created by Xyresic on 4/13/2016.
  */
-public class CaptureWindow extends Window implements WindowTouchListener {
+public class CaptureWindow extends Window implements WindowListener {
 
     private static final String TAG = CaptureWindow.class.getName();
 

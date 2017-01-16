@@ -15,6 +15,7 @@
 
     <ca.fuwafuwa.kaku.Windows.Views.ChoiceEditText
         android:id="@+id/edit_text"
+        android:imeOptions="flagNoExtractUi"
         android:maxLines="1"
         android:inputType="text"
         android:padding="10dp"

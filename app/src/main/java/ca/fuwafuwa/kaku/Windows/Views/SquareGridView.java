@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows.Views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -11,6 +12,13 @@ import ca.fuwafuwa.kaku.KakuTools;
  * Created by Xyresic on 5/5/2016.
  */
 public class SquareGridView extends ViewGroup {
+
+    public interface SquareViewListener {
+        void onSquareScrollStart(KanjiCharacterView kanjiView, MotionEvent e);
+        void onSquareScroll(KanjiCharacterView kanjiView, MotionEvent oe, MotionEvent e);
+        void onSquareScrollEnd(KanjiCharacterView kanjiView, MotionEvent e);
+        void onSquareTouch(KanjiCharacterView kanjiView);
+    }
 
     private static final String TAG = SquareGridView.class.getName();
 
@@ -61,8 +69,8 @@ public class SquareGridView extends ViewGroup {
         int cellHeightSpec = MeasureSpec.makeMeasureSpec(mCellSize, MeasureSpec.AT_MOST);
 
         int count = getChildCount();
-        for (int index=0; index<count; index++) {
-            final View child = getChildAt(index);
+        for (int index = 0; index < count; index++) {
+            View child = getChildAt(index);
             child.measure(cellWidthSpec, cellHeightSpec);
         }
 
@@ -90,7 +98,7 @@ public class SquareGridView extends ViewGroup {
         int i = 0;
         int count = getChildCount();
         for (int index=0; index<count; index++) {
-            final View child = getChildAt(index);
+            View child = getChildAt(index);
             int w = child.getMeasuredWidth();
             int h = child.getMeasuredHeight();
             int left = x + ((mCellSize - w) / 2);

@@ -7,14 +7,14 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
 
-import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 
 /**
  * Created by Xyresic on 4/13/2016.
  */
 public class ResizeView extends LinearLayout implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
-    private WindowTouchListener mWindowTouchListener;
+    private WindowListener mWindowListener;
     private GestureDetectorCompat mDetector;
 
     public ResizeView(Context context) {
@@ -37,16 +37,16 @@ public class ResizeView extends LinearLayout implements GestureDetector.OnGestur
         mDetector.setOnDoubleTapListener(this);
     }
 
-    public void setWindowListener(WindowTouchListener windowTouchListener){
-        this.mWindowTouchListener = windowTouchListener;
+    public void setWindowListener(WindowListener windowListener){
+        this.mWindowListener = windowListener;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
         if (mDetector.onTouchEvent(e)){
-            return mWindowTouchListener.onDoubleTap(e);
+            return mWindowListener.onDoubleTap(e);
         }
-        return mWindowTouchListener.onResize(e);
+        return mWindowListener.onResize(e);
     }
 
     @Override
