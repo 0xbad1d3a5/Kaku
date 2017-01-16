@@ -17,7 +17,6 @@ import android.widget.TextView;
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.Ocr.OcrChar;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 
 /**
  * Created by 0x1bad1d3a on 5/5/2016.
@@ -33,7 +32,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     private Point mOrigPos;
     private int[] mOrigPosRaw;
     private Context mContext;
-    private KanjiViewListener mCallback;
+    private SquareGridView.SquareViewListener mCallback;
     private GestureDetector mGestureDetector;
     private MotionEvent mScrollStartEvent;
     private OcrChar mOcrChar;
@@ -68,7 +67,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         mTextSizeDp = 20;
     }
 
-    public void setKanjiViewCallback(KanjiViewListener callback){
+    public void setKanjiViewCallback(SquareGridView.SquareViewListener callback){
         this.mCallback = callback;
     }
 
@@ -151,7 +150,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
             setX(mOrigPos.x);
             setY(mOrigPos.y);
             setVisibility(View.VISIBLE);
-            mCallback.onKanjiViewScrollEnd(this, e);
+            mCallback.onSquareScrollEnd(this, e);
             mScrollStartEvent = null;
         }
 
@@ -172,7 +171,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         Log.d(TAG, "onSingleTapUp");
-        mCallback.onKanjiViewTouch(this);
+        mCallback.onSquareTouch(this);
         return true;
     }
 
@@ -181,13 +180,13 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
         if (mScrollStartEvent == null){
             mScrollStartEvent = motionEvent;
-            mCallback.onKanjiViewScrollStart(this, mScrollStartEvent);
+            mCallback.onSquareScrollStart(this, mScrollStartEvent);
         }
         else {
             setX(motionEvent1.getRawX() - motionEvent.getRawX() + mOrigPos.x);
             setY(motionEvent1.getRawY() - motionEvent.getRawY() + mOrigPos.y);
             setVisibility(View.INVISIBLE);
-            mCallback.onKanjiViewScroll(this, motionEvent, motionEvent1);
+            mCallback.onSquareScroll(this, motionEvent, motionEvent1);
         }
 
         return true;

@@ -6,14 +6,14 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-import ca.fuwafuwa.kaku.Windows.Interfaces.WindowTouchListener;
+import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 
 /**
  * Created by 0x1bad1d3a on 4/13/2016.
  */
 public class WindowView extends RelativeLayout {
 
-    private WindowTouchListener mWindowTouchListener;
+    private WindowListener mWindowListener;
     private GestureDetectorCompat mDetector;
 
     public WindowView(Context context) {
@@ -28,8 +28,8 @@ public class WindowView extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void setWindowListener(WindowTouchListener windowTouchListener){
-        this.mWindowTouchListener = windowTouchListener;
+    public void setWindowListener(WindowListener windowListener){
+        this.mWindowListener = windowListener;
     }
 
     public void setDetector(GestureDetectorCompat detector){
@@ -41,6 +41,6 @@ public class WindowView extends RelativeLayout {
         if (mDetector.onTouchEvent(e)){
             return true;
         }
-        return mWindowTouchListener.onTouch(e);
+        return mWindowListener.onTouch(e);
     }
 }

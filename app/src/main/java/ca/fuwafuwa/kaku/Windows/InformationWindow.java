@@ -24,16 +24,16 @@ import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
-import ca.fuwafuwa.kaku.Windows.Interfaces.KanjiViewListener;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceGridView;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceImageView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
+import ca.fuwafuwa.kaku.Windows.Views.SquareGridView;
 
 /**
  * Created by 0x1bad1d3a on 4/23/2016.
  */
-public class InformationWindow extends Window implements KanjiViewListener, Searcher.SearchDictDone {
+public class InformationWindow extends Window implements SquareGridView.SquareViewListener, Searcher.SearchDictDone {
 
     private static final String TAG = InformationWindow.class.getName();
     private static final float FLICK_THRESHOLD = -0.05f;
@@ -70,7 +70,7 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     }
 
     @Override
-    public void onKanjiViewScrollStart(KanjiCharacterView kanjiView, MotionEvent e) {
+    public void onSquareScrollStart(KanjiCharacterView kanjiView, MotionEvent e) {
 
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScrollStart(mOcrResult, kanjiView, e);
@@ -80,7 +80,7 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     }
 
     @Override
-    public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
+    public void onSquareScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
 
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScroll(kanjiView, e1, e2);
@@ -90,7 +90,7 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     }
 
     @Override
-    public void onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
+    public void onSquareScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
 
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScrollEnd(kanjiView, e);
@@ -114,7 +114,7 @@ public class InformationWindow extends Window implements KanjiViewListener, Sear
     }
 
     @Override
-    public void onKanjiViewTouch(KanjiCharacterView kanjiView) {
+    public void onSquareTouch(KanjiCharacterView kanjiView) {
 
         List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
         for (KanjiCharacterView k : kanjiViewList){

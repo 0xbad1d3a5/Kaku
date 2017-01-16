@@ -73,6 +73,8 @@ public class OcrRunnable implements Runnable, Stoppable {
                 Bitmap mBitmap = getReadyScreenshotBox(mBox, 0);
                 long screenTime = System.currentTimeMillis();
 
+                saveBitmap(mBitmap);
+
                 if (mBitmap == null){
                     sendToastToContext("Error getting image");
                     mBox = null;
@@ -93,7 +95,6 @@ public class OcrRunnable implements Runnable, Stoppable {
                 mCaptureWindow.stopLoadingAnimation();
 
                 mBox = null;
-                saveBitmap(mBitmap);
             }
             catch (FileNotFoundException e){
                 e.printStackTrace();
@@ -187,9 +188,15 @@ public class OcrRunnable implements Runnable, Stoppable {
 
     private List<OcrChar> processOcrIterator(ResultIterator iterator){
 
-        iterator.begin();
-
         List<OcrChar> ocrChars = new ArrayList<>();
+
+        if (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL)){
+            iterator.begin();
+        }
+        else {
+            return ocrChars;
+        }
+
         do {
             List<Pair<String, Double>> choices = iterator.getChoicesAndConfidence(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
             int[] pos = iterator.getBoundingBox(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
