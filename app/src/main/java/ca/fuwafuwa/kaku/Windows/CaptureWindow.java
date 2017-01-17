@@ -1,11 +1,14 @@
 package ca.fuwafuwa.kaku.Windows;
 
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.BoxParams;
 import ca.fuwafuwa.kaku.Ocr.OcrRunnable;
@@ -56,7 +59,13 @@ public class CaptureWindow extends Window implements WindowListener {
     @Override
     public boolean onDoubleTap(MotionEvent e) {
         tessStarted = true;
-        mTessRunnable.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
+
+        int[] viewPos = new int[2];
+        mWindowBox.getLocationOnScreen(viewPos);
+
+        // TODO: Replace the first 1 with R.drawable.border_translucent.StrokeWidth when I figure out how
+        int offset = KakuTools.dpToPx(this.context, 1)+1;
+        mTessRunnable.runTess(new BoxParams(viewPos[0]+offset, viewPos[1]+offset, params.width-(2*offset), params.height-(2*offset)));
 
 //        try {
 //            commonParser.parseJmDict();
