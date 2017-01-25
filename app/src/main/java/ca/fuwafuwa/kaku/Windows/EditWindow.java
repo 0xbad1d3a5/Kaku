@@ -17,9 +17,14 @@ import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
  */
 public class EditWindow extends Window implements ChoiceEditText.InputDoneListener {
 
+    public interface InputDoneListener {
+        void onInputDone();
+    }
+
     public static final String TAG = EditWindow.class.getName();
 
-    KanjiCharacterView mKanjiView;
+    private InputDoneListener mCallback;
+    private KanjiCharacterView mKanjiView;
 
     public EditWindow(final MainService context) {
         super(context, R.layout.edit_window);
@@ -32,13 +37,22 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
         mKanjiView = kanjiView;
 
         int[] pos = kanjiView.getOcrChar().getPos();
-        Bitmap orig = ocrResult.getBitmap();
-        Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], pos[2] - pos[0], pos[3] - pos[1]);
+        if (pos != null){
+            Bitmap orig = ocrResult.getBitmap();
+            Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], pos[2] - pos[0], pos[3] - pos[1]);
 
-        ImageView iv = (ImageView) window.findViewById(R.id.edit_kanji_image);
-        iv.setImageBitmap(bitmapChar);
+            ImageView iv = (ImageView) window.findViewById(R.id.edit_kanji_image);
+            iv.setImageBitmap(bitmapChar);
+        }
     }
 
+    public void setInputDoneCallback(InputDoneListener callback){
+        mCallback = callback;
+    }
+
+    /**
+     * We need to override here because we need cannot have the FLAG_NOT_FOCUSABLE flag set in {@link Window#getDefaultParams()}
+     */
     @Override
     protected WindowManager.LayoutParams getDefaultParams() {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
@@ -68,8 +82,9 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
     }
 
     @Override
-    public void onInputDone(String input) {
+    public void onEditTextInputDone(String input) {
         mKanjiView.setText(input);
+        mCallback.onInputDone();
         stop();
     }
 }

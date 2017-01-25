@@ -15,7 +15,7 @@ import android.widget.EditText;
 public class ChoiceEditText extends EditText {
 
     public interface InputDoneListener {
-        void onInputDone(String input);
+        void onEditTextInputDone(String input);
     }
 
     private static final String TAG = ChoiceEditText.class.getName();
@@ -70,7 +70,7 @@ public class ChoiceEditText extends EditText {
         if (actionCode == EditorInfo.IME_ACTION_DONE){
             if (mCallback != null){
                 mImeManager.hideSoftInputFromWindow(getWindowToken(), 0);
-                mCallback.onInputDone(getText().toString());
+                mCallback.onEditTextInputDone(getText().toString());
             }
         }
         super.onEditorAction(actionCode);
@@ -81,7 +81,7 @@ public class ChoiceEditText extends EditText {
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK){
             if (mCallback != null){
                 mImeManager.hideSoftInputFromWindow(getWindowToken(), 0);
-                mCallback.onInputDone(getText().toString());
+                mCallback.onEditTextInputDone(getText().toString());
             }
         }
         return super.onKeyPreIme(keyCode, event);

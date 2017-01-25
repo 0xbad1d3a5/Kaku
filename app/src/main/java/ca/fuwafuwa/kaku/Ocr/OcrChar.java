@@ -30,6 +30,9 @@ public class OcrChar {
         return mChoices;
     }
 
+    /**
+     * @return Position of the OCR bounding box for the recognized character. If null, this {@link OcrChar} was not made through the OCR engine.
+     */
     public int[] getPos(){
         return mPos;
     }
