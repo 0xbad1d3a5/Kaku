@@ -37,7 +37,7 @@ public class CaptureWindow extends Window implements WindowListener {
 
         mFadeRepeat = AnimationUtils.loadAnimation(this.context, R.anim.fade_repeat);
         mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.border_translucent, null);
-        mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border9patch_transparent, null);
+        mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border_transparent, null);
 
         this.commonParser = new CommonParser(context);
 
@@ -78,9 +78,9 @@ public class CaptureWindow extends Window implements WindowListener {
         context.getHandler().post(new Runnable() {
             @Override
             public void run() {
+                mWindowBox.setBackground(mBorderTranslucent);
                 mWindowBox.setAnimation(mFadeRepeat);
                 mWindowBox.startAnimation(mFadeRepeat);
-                mWindowBox.setBackground(mBorderTranslucent);
             }
         });
     }
