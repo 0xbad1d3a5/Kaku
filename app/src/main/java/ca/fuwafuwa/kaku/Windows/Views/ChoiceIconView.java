@@ -15,26 +15,26 @@ import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
  * Created by 0x1bad1d3a on 1/9/2017.
  */
 
-public class ChoiceImageView extends ImageView {
+public class ChoiceIconView extends ImageView {
 
     private Context mContext;
 
-    public ChoiceImageView(Context context) {
+    public ChoiceIconView(Context context) {
         super(context);
         Init(context);
     }
 
-    public ChoiceImageView(Context context, AttributeSet attrs) {
+    public ChoiceIconView(Context context, AttributeSet attrs) {
         super(context, attrs);
         Init(context);
     }
 
-    public ChoiceImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ChoiceIconView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         Init(context);
     }
 
-    public ChoiceImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ChoiceIconView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         Init(context);
     }

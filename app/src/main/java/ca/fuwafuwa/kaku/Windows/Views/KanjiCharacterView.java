@@ -25,17 +25,20 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     private static final String TAG = KanjiCharacterView.class.getName();
 
-    private int mSizePx;
-    private int mTextSizeDp;
-    private int mCharPos;
-    private boolean mResetOrigPos;
-    private Point mOrigPos;
-    private int[] mOrigPosRaw;
     private Context mContext;
+    private Point mOrigPos;
     private SquareGridView.SquareViewListener mCallback;
     private GestureDetector mGestureDetector;
     private MotionEvent mScrollStartEvent;
     private OcrChar mOcrChar;
+
+    private int mSizePx;
+    private int mTextSizeDp;
+    private int mCharPos;
+    private int[] mOrigPosRaw;
+
+    private boolean mResetOrigPos;
+    private boolean mEdited;
 
     public KanjiCharacterView(Context context) {
         super(context);
@@ -65,6 +68,7 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         mResetOrigPos = true;
         mSizePx = KakuTools.dpToPx(mContext, 35);
         mTextSizeDp = 20;
+        mEdited = false;
     }
 
     public void setKanjiViewCallback(SquareGridView.SquareViewListener callback){
@@ -99,6 +103,14 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         mTextSizeDp = dp;
     }
 
+    public boolean isEdited() {
+        return mEdited;
+    }
+
+    public void setEdited(boolean mEdited) {
+        this.mEdited = mEdited;
+    }
+
     public void removeBackground(){
         setBackground(null);
     }
@@ -126,7 +138,6 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        Log.d(TAG, "onLayout");
         if (mResetOrigPos){
             getLocationOnScreen(mOrigPosRaw);
             mOrigPos.x = (int) getX();
@@ -159,8 +170,8 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
 
     @Override
     public boolean onDown(MotionEvent motionEvent) {
-        Log.d(TAG, String.format("onDown: %f x %f", getX(), getY()));
-        return false;
+        Log.d(TAG, String.format("%s: onDown: %f x %f", getText(), getX(), getY()));
+        return true;
     }
 
     @Override

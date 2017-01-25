@@ -55,18 +55,20 @@ public class ChoiceGridView extends SquareGridView {
         setItemCount(kanjiView.getOcrChar().getAllChoices().size() + 1);
 
         int[] pos = kanjiView.getOcrChar().getPos();
-        int dp10 = KakuTools.dpToPx(mContext, 10);
-        Bitmap orig = ocrResult.getBitmap();
-        Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], pos[2] - pos[0], pos[3] - pos[1]);
-        KanjiImageView charImage = new KanjiImageView(mContext);
+        if (pos != null){
+            int dp10 = KakuTools.dpToPx(mContext, 10);
+            Bitmap orig = ocrResult.getBitmap();
+            Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], pos[2] - pos[0], pos[3] - pos[1]);
+            KanjiImageView charImage = new KanjiImageView(mContext);
 
-        charImage.setSize(90);
-        charImage.setPadding(dp10, dp10, dp10, dp10);
-        charImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        charImage.setCropToPadding(true);
-        charImage.setImageBitmap(bitmapChar);
-        charImage.setBackground(R.drawable.border_black_translucent_bg);
-        addView(charImage);
+            charImage.setSize(90);
+            charImage.setPadding(dp10, dp10, dp10, dp10);
+            charImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            charImage.setCropToPadding(true);
+            charImage.setImageBitmap(bitmapChar);
+            charImage.setBackground(R.drawable.border_black_translucent_bg);
+            addView(charImage);
+        }
 
         for (Pair<String, Double> choice : kanjiView.getOcrChar().getAllChoices()){
             KanjiCharacterView kanji_view = new KanjiCharacterView(mContext);
@@ -111,6 +113,7 @@ public class ChoiceGridView extends SquareGridView {
         }
 
         removeAllViews();
+        mKanjiChoices = null;
     }
 
     private boolean checkForSelection(KanjiCharacterView kanjiView, MotionEvent e){

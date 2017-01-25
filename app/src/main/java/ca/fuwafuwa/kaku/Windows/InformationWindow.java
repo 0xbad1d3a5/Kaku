@@ -25,7 +25,7 @@ import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceGridView;
-import ca.fuwafuwa.kaku.Windows.Views.ChoiceImageView;
+import ca.fuwafuwa.kaku.Windows.Views.ChoiceIconView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 import ca.fuwafuwa.kaku.Windows.Views.SquareGridView;
@@ -33,7 +33,7 @@ import ca.fuwafuwa.kaku.Windows.Views.SquareGridView;
 /**
  * Created by 0x1bad1d3a on 4/23/2016.
  */
-public class InformationWindow extends Window implements SquareGridView.SquareViewListener, Searcher.SearchDictDone {
+public class InformationWindow extends Window implements SquareGridView.SquareViewListener, Searcher.SearchDictDone, EditWindow.InputDoneListener{
 
     private static final String TAG = InformationWindow.class.getName();
     private static final float FLICK_THRESHOLD = -0.05f;
@@ -72,49 +72,62 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     @Override
     public void onSquareScrollStart(KanjiCharacterView kanjiView, MotionEvent e) {
 
+        Log.d(TAG, "onSquareScrollStart");
+
+        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
+        civ.onKanjiViewScrollStart(getStatusBarHeight(), kanjiView, e);
+
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScrollStart(mOcrResult, kanjiView, e);
-
-        ChoiceImageView civ = (ChoiceImageView) window.findViewById(R.id.kanji_choice_edit);
-        civ.onKanjiViewScrollStart(getStatusBarHeight(), kanjiView, e);
     }
 
     @Override
     public void onSquareScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
 
+        Log.d(TAG, "onSquareScroll");
+
+        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
+        civ.onKanjiViewScroll(kanjiView, e1, e2);
+
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScroll(kanjiView, e1, e2);
-
-        ChoiceImageView civ = (ChoiceImageView) window.findViewById(R.id.kanji_choice_edit);
-        civ.onKanjiViewScroll(kanjiView, e1, e2);
     }
 
     @Override
     public void onSquareScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
 
+        Log.d(TAG, "onSquareScrollEnd");
+
+        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
+        ChoiceType editChoice = civ.onKanjiViewScrollEnd(kanjiView, e);
+
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScrollEnd(kanjiView, e);
 
-        ChoiceImageView civ = (ChoiceImageView) window.findViewById(R.id.kanji_choice_edit);
-        ChoiceType editChoice = civ.onKanjiViewScrollEnd(kanjiView, e);
-
         switch (editChoice){
             case DELETE:
-                mOcrResult.getOcrChars().remove(kanjiView.getCharPos());
-                mKanjiGrid.removeAllViews();
-                mKanjiGrid.setText(this, mOcrResult);
+                kanjiView.setText("");
+                kanjiView.setEdited(true);
+                onInputDone();
                 break;
             case EDIT:
+                kanjiView.setEdited(true);
                 EditWindow editWindow = new EditWindow(context);
                 editWindow.setInfo(mOcrResult, kanjiView);
+                editWindow.setInputDoneCallback(this);
+                break;
+            case NONE:
+                updateInternalText();
                 break;
         }
-
-        updateInternalText();
     }
 
     @Override
     public void onSquareTouch(KanjiCharacterView kanjiView) {
+
+        Log.d(TAG, "onSquareScrollTouch");
+
+        Log.d(TAG, kanjiView.getText().toString());
 
         List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
         for (KanjiCharacterView k : kanjiViewList){
@@ -283,6 +296,12 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
 
         TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.kd2_results);
         tv.setText(sb.toString());
+    }
+
+    @Override
+    public void onInputDone() {
+        mKanjiGrid.correctText(this);
+        updateInternalText();
     }
 
     private void updateInternalText(){

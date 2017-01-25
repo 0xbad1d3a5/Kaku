@@ -96,7 +96,7 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <ca.fuwafuwa.kaku.Windows.Views.ChoiceImageView
+        <ca.fuwafuwa.kaku.Windows.Views.ChoiceIconView
             android:id="@+id/kanji_choice_edit"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
