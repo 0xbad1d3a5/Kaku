@@ -3,6 +3,7 @@ package ca.fuwafuwa.kaku.Ocr;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeoutException;
 
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.MainService;
+import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
 /**
@@ -71,18 +73,17 @@ public class OcrRunnable implements Runnable, Stoppable {
                 Bitmap mBitmap = getReadyScreenshotBox(mBox);
                 long screenTime = System.currentTimeMillis();
 
-                saveBitmap(mBitmap);
-
                 if (mBitmap == null){
                     sendToastToContext("Error getting image");
                     mBox = null;
                     continue;
                 }
+                saveBitmap(mBitmap);
 
                 mCaptureWindow.showLoadingAnimation();
 
                 mTessBaseAPI.setImage(mBitmap);
-                String hocr = mTessBaseAPI.getHOCRText(0);
+                mTessBaseAPI.getHOCRText(0);
                 List<OcrChar> ocrChars = processOcrIterator(mTessBaseAPI.getResultIterator());
                 mTessBaseAPI.clear();
 
@@ -138,31 +139,69 @@ public class OcrRunnable implements Runnable, Stoppable {
         }
     }
 
-    private Bitmap getReadyScreenshotBox(BoxParams box) throws OutOfMemoryError, StackOverflowError, TimeoutException, FileNotFoundException {
+    private Bitmap getReadyScreenshotBox(BoxParams box) throws OutOfMemoryError, StackOverflowError, TimeoutException, FileNotFoundException, InterruptedException {
 
         Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
 
-        /*
-        Bitmap borderPattern = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.border_pattern);
-        Bitmap croppedPattern = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, 8, 1);
-        if (!croppedPattern.sameAs(borderPattern)){
-            bitmapOriginal.recycle();
-            if (!box.equals(mBox)){
-                return getReadyScreenshotBox(mBox, attempts + 1);
-            }
-            return getReadyScreenshotBox(box, attempts + 1);
-        }
-        */
+        boolean screenshotReady;
+        long startTime = System.nanoTime();
+        Bitmap screenshot;
 
-        Bitmap bitmapOriginal = convertImageToBitmap(mContext.getScreenshot());
-        Bitmap croppedBitmap = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, box.width, box.height);
-        bitmapOriginal.recycle();
+        do {
+
+            Image rawScreenshot = mContext.getScreenshot();
+            if (rawScreenshot == null){
+                return null;
+            }
+
+            screenshot = convertImageToBitmap(rawScreenshot);
+            screenshotReady = checkScreenshotIsReady(screenshot, box);
+
+        } while (!screenshotReady && System.nanoTime() < startTime + 4000000000L);
+
+        Bitmap croppedBitmap = Bitmap.createBitmap(screenshot, box.x, box.y, box.width, box.height);
+
+        if (!screenshotReady){
+            saveBitmap(screenshot);
+            saveBitmap(croppedBitmap);
+            return null;
+        }
+
         return croppedBitmap;
     }
 
-    private Bitmap convertImageToBitmap(Image image) throws OutOfMemoryError {
+    private boolean checkScreenshotIsReady(Bitmap screenshot, BoxParams box){
 
-        Log.d(TAG, String.format("Image Dimensions: %dx%d", image.getWidth(), image.getHeight()));
+        int readyColor = ContextCompat.getColor(mContext, R.color.holo_red_dark);
+
+        for (int x = box.x; x < box.x + box.width; x++){
+            if (readyColor != screenshot.getPixel(x, box.y)){
+                return false;
+            }
+        }
+
+        for (int x = box.x; x < box.x + box.width; x++){
+            if (readyColor != screenshot.getPixel(x, box.y + box.height - 1)){
+                return false;
+            }
+        }
+
+        for (int y = box.y; y < box.y + box.height; y++){
+            if (readyColor != screenshot.getPixel(box.x, y)){
+                return false;
+            }
+        }
+
+        for (int y = box.y; y < box.y + box.height; y++){
+            if (readyColor != screenshot.getPixel(box.x + box.width - 1, y)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private Bitmap convertImageToBitmap(Image image) throws OutOfMemoryError {
 
         Image.Plane[] planes = image.getPlanes();
         ByteBuffer buffer = planes[0].getBuffer();

@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
-import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.BoxParams;
 import ca.fuwafuwa.kaku.Ocr.OcrRunnable;
@@ -21,13 +20,12 @@ public class CaptureWindow extends Window implements WindowListener {
 
     private static final String TAG = CaptureWindow.class.getName();
 
-    private OcrRunnable mTessRunnable;
+    private OcrRunnable mOcr;
     private Thread mTessThread;
     private View mWindowBox;
     private Animation mFadeRepeat;
     private Drawable mBorderDefault;
     private Drawable mBorderReady;
-    private boolean tessStarted = false;
 
     private CommonParser commonParser;
 
@@ -42,8 +40,8 @@ public class CaptureWindow extends Window implements WindowListener {
 
         this.commonParser = new CommonParser(context);
 
-        mTessRunnable = new OcrRunnable(this.context, this);
-        mTessThread = new Thread(mTessRunnable);
+        mOcr = new OcrRunnable(this.context, this);
+        mTessThread = new Thread(mOcr);
         mTessThread.setDaemon(true);
         mTessThread.start();
     }
@@ -51,19 +49,20 @@ public class CaptureWindow extends Window implements WindowListener {
     @Override
     public boolean onTouch(MotionEvent e) {
         setOpacity(e);
-        return super.onTouch(e);
+        boolean handled = super.onTouch(e);
+        performOcr(e);
+        return handled;
     }
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        tessStarted = true;
 
+        /*
+        tessStarted = true;
         int[] viewPos = new int[2];
         mWindowBox.getLocationOnScreen(viewPos);
-
-        // TODO: Replace the first 1 with R.drawable.bg_translucent_border_blue_blue.StrokeWidth when I figure out how
-        int offset = KakuTools.dpToPx(this.context, 1)+1;
-        mTessRunnable.runTess(new BoxParams(viewPos[0]+offset, viewPos[1]+offset, params.width-(2*offset), params.height-(2*offset)));
+        mOcr.runTess(new BoxParams(viewPos[0], viewPos[1], params.width, params.height));
+        */
 
 //        try {
 //            commonParser.parseJmDict();
@@ -78,7 +77,9 @@ public class CaptureWindow extends Window implements WindowListener {
     @Override
     public boolean onResize(MotionEvent e) {
         setOpacity(e);
-        return super.onResize(e);
+        boolean handled = super.onResize(e);
+        performOcr(e);
+        return handled;
     }
 
     public void showLoadingAnimation(){
@@ -104,7 +105,7 @@ public class CaptureWindow extends Window implements WindowListener {
 
     @Override
     public void stop() {
-        mTessRunnable.stop();
+        mOcr.stop();
         super.stop();
     }
 
@@ -114,12 +115,16 @@ public class CaptureWindow extends Window implements WindowListener {
                 mWindowBox.setBackground(mBorderDefault);
                 break;
             case MotionEvent.ACTION_UP:
-                if (!tessStarted) {
-                    mTessRunnable.cancel();
-                    mWindowBox.setBackground(mBorderReady);
-                }
-                tessStarted = false;
+                mWindowBox.setBackground(mBorderReady);
                 break;
+        }
+    }
+
+    private void performOcr(MotionEvent e){
+        if (e.getAction() == MotionEvent.ACTION_UP){
+            int[] viewPos = new int[2];
+            mWindowBox.getLocationOnScreen(viewPos);
+            mOcr.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
         }
     }
 }

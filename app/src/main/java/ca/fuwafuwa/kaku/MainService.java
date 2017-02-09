@@ -183,10 +183,11 @@ public class MainService extends Service implements Stoppable {
         return mHandler;
     }
 
-    public Image getScreenshot() throws TimeoutException {
-        long startTime = System.currentTimeMillis();
+    public Image getScreenshot() throws TimeoutException, InterruptedException {
+        long startTime = System.nanoTime();
         Image image = mImageReader.acquireLatestImage();
-        while (image == null && startTime + 1000 > System.currentTimeMillis()){
+        while (image == null && System.nanoTime() < startTime + 2000000000){
+            Thread.sleep(20);
             image = mImageReader.acquireLatestImage();
         }
         return image;
