@@ -5,11 +5,11 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/border9patch_transparent" />
+        android:background="@drawable/bg_transparent_border_0_nil_default" />
     <RelativeLayout
         android:id="@+id/capture_box"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/border_transparent">
+        android:background="@drawable/bg_transparent_border_0_nil_ready">
     </RelativeLayout>
 </FrameLayout>

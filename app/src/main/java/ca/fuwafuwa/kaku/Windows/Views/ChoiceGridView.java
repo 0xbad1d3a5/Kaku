@@ -66,7 +66,7 @@ public class ChoiceGridView extends SquareGridView {
             charImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
             charImage.setCropToPadding(true);
             charImage.setImageBitmap(bitmapChar);
-            charImage.setBackground(R.drawable.border_black_translucent_bg);
+            charImage.setBackground(R.drawable.bg_translucent_black_border_black);
             addView(charImage);
         }
 
@@ -75,7 +75,7 @@ public class ChoiceGridView extends SquareGridView {
             kanji_view.setSize(90);
             kanji_view.setTextSize(60);
             kanji_view.setText(choice.first);
-            kanji_view.setBackground(R.drawable.border_black_white_bg);
+            kanji_view.setBackground(R.drawable.bg_solid_border_white_black);
             addView(kanji_view);
 
             mKanjiChoices.add(kanji_view);
@@ -92,10 +92,10 @@ public class ChoiceGridView extends SquareGridView {
 
         for (KanjiCharacterView k : mKanjiChoices){
             if (checkForSelection(k, e2)){
-                k.setBackground(R.drawable.border_black_blue_bg);
+                k.setBackground(R.drawable.bg_solid_border_blue_black);
             }
             else {
-                k.setBackground(R.drawable.border_black_white_bg);
+                k.setBackground(R.drawable.bg_solid_border_white_black);
             }
         }
     }

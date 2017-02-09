@@ -37,8 +37,8 @@ public class CaptureWindow extends Window implements WindowListener {
         mWindowBox = window.findViewById(R.id.capture_box);
 
         mFadeRepeat = AnimationUtils.loadAnimation(this.context, R.anim.fade_repeat);
-        mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.border_translucent, null);
-        mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border_transparent, null);
+        mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.bg_translucent_border_blue_blue, null);
+        mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border_transparent_ready, null);
 
         this.commonParser = new CommonParser(context);
 
@@ -61,7 +61,7 @@ public class CaptureWindow extends Window implements WindowListener {
         int[] viewPos = new int[2];
         mWindowBox.getLocationOnScreen(viewPos);
 
-        // TODO: Replace the first 1 with R.drawable.border_translucent.StrokeWidth when I figure out how
+        // TODO: Replace the first 1 with R.drawable.bg_translucent_border_blue_blue.StrokeWidth when I figure out how
         int offset = KakuTools.dpToPx(this.context, 1)+1;
         mTessRunnable.runTess(new BoxParams(viewPos[0]+offset, viewPos[1]+offset, params.width-(2*offset), params.height-(2*offset)));
 
