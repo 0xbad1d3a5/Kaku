@@ -70,7 +70,7 @@ public class OcrRunnable implements Runnable, Stoppable {
                 Log.d(TAG, "THREAD STOPPED WAITING");
 
                 long startTime = System.currentTimeMillis();
-                Bitmap mBitmap = getReadyScreenshotBox(mBox, 0);
+                Bitmap mBitmap = getReadyScreenshotBox(mBox);
                 long screenTime = System.currentTimeMillis();
 
                 saveBitmap(mBitmap);
@@ -90,6 +90,9 @@ public class OcrRunnable implements Runnable, Stoppable {
 
                 if (ocrChars.size() > 0){
                     sendOcrResultToContext(new OcrResult(mBitmap, ocrChars, screenTime - startTime, System.currentTimeMillis() - screenTime));
+                }
+                else{
+                    sendToastToContext("No Characters Recognized.");
                 }
 
                 mCaptureWindow.stopLoadingAnimation();
@@ -137,26 +140,11 @@ public class OcrRunnable implements Runnable, Stoppable {
         }
     }
 
-    private Bitmap getReadyScreenshotBox(BoxParams box, int attempts) throws OutOfMemoryError, StackOverflowError, TimeoutException, FileNotFoundException {
-
-        if (attempts > 10){
-            return null;
-        }
+    private Bitmap getReadyScreenshotBox(BoxParams box) throws OutOfMemoryError, StackOverflowError, TimeoutException, FileNotFoundException {
 
         Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
+
         Bitmap bitmapOriginal = convertImageToBitmap(mContext.getScreenshot());
-        //saveBitmap(bitmapOriginal);
-
-        Bitmap borderPattern = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.border_pattern);
-        Bitmap croppedPattern = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, 8, 1);
-        if (!croppedPattern.sameAs(borderPattern)){
-            bitmapOriginal.recycle();
-            if (!box.equals(mBox)){
-                return getReadyScreenshotBox(mBox, attempts + 1);
-            }
-            return getReadyScreenshotBox(box, attempts + 1);
-        }
-
         Bitmap croppedBitmap = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, box.width, box.height);
         bitmapOriginal.recycle();
         return croppedBitmap;
