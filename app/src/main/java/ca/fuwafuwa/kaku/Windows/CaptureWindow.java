@@ -25,8 +25,8 @@ public class CaptureWindow extends Window implements WindowListener {
     private Thread mTessThread;
     private View mWindowBox;
     private Animation mFadeRepeat;
-    private Drawable mBorderTranslucent;
-    private Drawable mBorder9PatchTransparent;
+    private Drawable mBorderDefault;
+    private Drawable mBorderReady;
     private boolean tessStarted = false;
 
     private CommonParser commonParser;
@@ -37,8 +37,8 @@ public class CaptureWindow extends Window implements WindowListener {
         mWindowBox = window.findViewById(R.id.capture_box);
 
         mFadeRepeat = AnimationUtils.loadAnimation(this.context, R.anim.fade_repeat);
-        mBorderTranslucent = this.context.getResources().getDrawable(R.drawable.bg_translucent_border_blue_blue, null);
-        mBorder9PatchTransparent = this.context.getResources().getDrawable(R.drawable.border_transparent_ready, null);
+        mBorderDefault = this.context.getResources().getDrawable(R.drawable.bg_translucent_border_0_blue_blue, null);
+        mBorderReady = this.context.getResources().getDrawable(R.drawable.bg_transparent_border_0_nil_ready, null);
 
         this.commonParser = new CommonParser(context);
 
@@ -85,7 +85,7 @@ public class CaptureWindow extends Window implements WindowListener {
         context.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                mWindowBox.setBackground(mBorderTranslucent);
+                mWindowBox.setBackground(mBorderDefault);
                 mWindowBox.setAnimation(mFadeRepeat);
                 mWindowBox.startAnimation(mFadeRepeat);
             }
@@ -96,7 +96,7 @@ public class CaptureWindow extends Window implements WindowListener {
         context.getHandler().post(new Runnable() {
             @Override
             public void run() {
-                mWindowBox.setBackground(mBorder9PatchTransparent);
+                mWindowBox.setBackground(mBorderReady);
                 mWindowBox.clearAnimation();
             }
         });
@@ -111,12 +111,12 @@ public class CaptureWindow extends Window implements WindowListener {
     private void setOpacity(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mWindowBox.setBackground(mBorderTranslucent);
+                mWindowBox.setBackground(mBorderDefault);
                 break;
             case MotionEvent.ACTION_UP:
                 if (!tessStarted) {
                     mTessRunnable.cancel();
-                    mWindowBox.setBackground(mBorder9PatchTransparent);
+                    mWindowBox.setBackground(mBorderReady);
                 }
                 tessStarted = false;
                 break;
