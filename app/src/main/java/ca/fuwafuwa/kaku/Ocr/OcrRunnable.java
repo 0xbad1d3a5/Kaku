@@ -1,7 +1,6 @@
 package ca.fuwafuwa.kaku.Ocr;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.Message;
 import android.util.Log;
@@ -19,7 +18,6 @@ import java.util.concurrent.TimeoutException;
 
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.MainService;
-import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
 /**
@@ -143,6 +141,18 @@ public class OcrRunnable implements Runnable, Stoppable {
     private Bitmap getReadyScreenshotBox(BoxParams box) throws OutOfMemoryError, StackOverflowError, TimeoutException, FileNotFoundException {
 
         Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
+
+        /*
+        Bitmap borderPattern = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.border_pattern);
+        Bitmap croppedPattern = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, 8, 1);
+        if (!croppedPattern.sameAs(borderPattern)){
+            bitmapOriginal.recycle();
+            if (!box.equals(mBox)){
+                return getReadyScreenshotBox(mBox, attempts + 1);
+            }
+            return getReadyScreenshotBox(box, attempts + 1);
+        }
+        */
 
         Bitmap bitmapOriginal = convertImageToBitmap(mContext.getScreenshot());
         Bitmap croppedBitmap = Bitmap.createBitmap(bitmapOriginal, box.x, box.y, box.width, box.height);
