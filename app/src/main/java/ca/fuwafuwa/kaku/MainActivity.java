@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
                     .putExtra(MainService.EXTRA_RESULT_INTENT, data);
 
             startService(i);
-            //this.finish();
+            this.finish();
         }
     }
 }
