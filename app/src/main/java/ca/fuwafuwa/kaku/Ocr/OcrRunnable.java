@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
+import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
@@ -116,6 +117,10 @@ public class OcrRunnable implements Runnable, Stoppable {
         }
     }
 
+    /**
+     * Unblocks the thread and starts OCR
+     * @param box Coordinates and size of the area to OCR from the screen
+     */
     public void runTess(BoxParams box){
         synchronized (mBoxLock){
             mBox = box;
@@ -125,11 +130,17 @@ public class OcrRunnable implements Runnable, Stoppable {
         }
     }
 
+    /**
+     * Cancels OCR recognition in progress if Tesseract has been started
+     */
     public void cancel(){
         mTessBaseAPI.stop();
         Log.d(TAG, "CANCELED");
     }
 
+    /**
+     * Cancels any OCR recognition in progress and stops any further OCR attempts
+     */
     @Override
     public void stop(){
         synchronized (mBoxLock){
@@ -159,11 +170,11 @@ public class OcrRunnable implements Runnable, Stoppable {
 
         } while (!screenshotReady && System.nanoTime() < startTime + 4000000000L);
 
-        Bitmap croppedBitmap = Bitmap.createBitmap(screenshot, box.x, box.y, box.width, box.height);
+        Bitmap croppedBitmap = getCroppedBitmap(screenshot, box);
 
         if (!screenshotReady){
-            saveBitmap(screenshot);
-            saveBitmap(croppedBitmap);
+            saveBitmap(screenshot, "error");
+            saveBitmap(croppedBitmap, "error");
             return null;
         }
 
@@ -216,8 +227,20 @@ public class OcrRunnable implements Runnable, Stoppable {
         return bitmap;
     }
 
+    private Bitmap getCroppedBitmap(Bitmap screenshot, BoxParams box){
+        int borderSize = KakuTools.dpToPx(mContext, 1) + 1; // +1 due to rounding errors
+        return Bitmap.createBitmap(screenshot, box.x + borderSize,
+                                               box.y + borderSize,
+                                               box.width - (2 * borderSize),
+                                               box.height - (2 * borderSize));
+    }
+
     private void saveBitmap(Bitmap bitmap) throws FileNotFoundException {
-        String fs = String.format("%s/screenshots/screen %d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), System.nanoTime());
+        saveBitmap(bitmap, "screen");
+    }
+
+    private void saveBitmap(Bitmap bitmap, String name) throws FileNotFoundException {
+        String fs = String.format("%s/screenshots/%s_%d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), name, System.nanoTime());
         Log.d(TAG, fs);
         FileOutputStream fos = new FileOutputStream(fs);
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
