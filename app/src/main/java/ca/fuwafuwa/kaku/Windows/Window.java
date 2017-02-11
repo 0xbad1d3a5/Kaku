@@ -75,6 +75,7 @@ public abstract class Window implements Stoppable, WindowListener {
 
     public void reInit(){
         mRealDisplaySize = context.getRealDisplaySize();
+        Log.d(TAG, "Display Size: " + mRealDisplaySize);
         fixBoxBounds();
         windowManager.updateViewLayout(window, params);
     }
@@ -111,7 +112,6 @@ public abstract class Window implements Stoppable, WindowListener {
      * @return Returns whether the MotionEvent was handled
      */
     public boolean onTouch(MotionEvent e){
-
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDX = params.x - (int) e.getRawX();
@@ -119,6 +119,7 @@ public abstract class Window implements Stoppable, WindowListener {
                 return true;
             case MotionEvent.ACTION_UP:
                 fixBoxBounds();
+                windowManager.updateViewLayout(window, params);
                 return true;
         }
         return false;
@@ -204,13 +205,15 @@ public abstract class Window implements Stoppable, WindowListener {
     }
 
     /**
-     * Override this if implementing Window does not need to resize
+     * Override this if implementing Window does not need to resize.
+     *
+     * Overriding {@link #onTouch} will NOT prevent this event from being triggered as
+     * it is bring triggered from another view (the resize view) at the current moment.
      *
      * @param e MotionEvent for resizing the Window
      * @return Returns whether the MotionEvent was handled
      */
     public boolean onResize(MotionEvent e){
-
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDX = params.width - (int) e.getRawX();
@@ -218,6 +221,7 @@ public abstract class Window implements Stoppable, WindowListener {
                 return true;
             case MotionEvent.ACTION_UP:
                 fixBoxBounds();
+                windowManager.updateViewLayout(window, params);
                 return true;
             case MotionEvent.ACTION_MOVE:
                 params.width = mDX + (int) e.getRawX();
@@ -237,7 +241,6 @@ public abstract class Window implements Stoppable, WindowListener {
      * @return Default LayoutParams for Window
      */
     protected WindowManager.LayoutParams getDefaultParams(){
-
         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.width = KakuTools.dpToPx(context, 150);
         params.height = KakuTools.dpToPx(context, 150);
@@ -258,6 +261,7 @@ public abstract class Window implements Stoppable, WindowListener {
     }
 
     /**
+     * @deprecated Try to get rid of this
      * @return System status bar height in pixels
      */
     protected int getStatusBarHeight() {

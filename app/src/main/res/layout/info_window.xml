@@ -12,7 +12,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="100dp"
-        android:background="@drawable/shape_white">
+        android:background="@drawable/bg_solid_border_corners_0_white_black_round">
 
         <LinearLayout
             android:orientation="vertical"
