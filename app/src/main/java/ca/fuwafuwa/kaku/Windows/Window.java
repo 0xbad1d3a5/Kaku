@@ -75,6 +75,7 @@ public abstract class Window implements Stoppable, WindowListener {
 
     public void reInit(){
         mRealDisplaySize = context.getRealDisplaySize();
+        Log.d(TAG, "Display Size: " + mRealDisplaySize);
         fixBoxBounds();
         windowManager.updateViewLayout(window, params);
     }
@@ -204,7 +205,10 @@ public abstract class Window implements Stoppable, WindowListener {
     }
 
     /**
-     * Override this if implementing Window does not need to resize
+     * Override this if implementing Window does not need to resize.
+     *
+     * Overriding {@link #onTouch} will NOT prevent this event from being triggered as
+     * it is bring triggered from another view (the resize view) at the current moment.
      *
      * @param e MotionEvent for resizing the Window
      * @return Returns whether the MotionEvent was handled

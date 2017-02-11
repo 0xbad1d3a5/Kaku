@@ -3,6 +3,7 @@ package ca.fuwafuwa.kaku.Windows;
 import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
@@ -21,52 +22,63 @@ public class CaptureWindow extends Window implements WindowListener {
     private static final String TAG = CaptureWindow.class.getName();
 
     private OcrRunnable mOcr;
-    private Thread mTessThread;
     private View mWindowBox;
     private Animation mFadeRepeat;
     private Drawable mBorderDefault;
     private Drawable mBorderReady;
+    private boolean mAllowOcr;
 
-    private CommonParser commonParser;
+    private CommonParser mCommonParser;
 
-    public CaptureWindow(MainService context) {
+    public CaptureWindow(final MainService context) {
         super(context, R.layout.capture_window);
 
-        mWindowBox = window.findViewById(R.id.capture_box);
+        this.mCommonParser = new CommonParser(context);
 
         mFadeRepeat = AnimationUtils.loadAnimation(this.context, R.anim.fade_repeat);
         mBorderDefault = this.context.getResources().getDrawable(R.drawable.bg_translucent_border_0_blue_blue, null);
         mBorderReady = this.context.getResources().getDrawable(R.drawable.bg_transparent_border_0_nil_ready, null);
-
-        this.commonParser = new CommonParser(context);
+        mAllowOcr = false;
 
         mOcr = new OcrRunnable(this.context, this);
-        mTessThread = new Thread(mOcr);
-        mTessThread.setDaemon(true);
-        mTessThread.start();
+        Thread tessThread = new Thread(mOcr);
+        tessThread.setDaemon(true);
+        tessThread.start();
+
+        windowManager.getDefaultDisplay().getRotation();
+
+        // Need to wait for the view to finish updating before we try to determine it's location
+        mWindowBox = window.findViewById(R.id.capture_box);
+        mWindowBox.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (mAllowOcr){
+                    performOcr();
+                }
+            }
+        });
+
+        mWindowBox.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                context.onCaptureWindowFinishedInitializing();
+                mWindowBox.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
     }
 
     @Override
     public boolean onTouch(MotionEvent e) {
-        setOpacity(e);
-        boolean handled = super.onTouch(e);
-        performOcr(e);
-        return handled;
+        setOpacityAndOcr(e);
+        return super.onTouch(e);
     }
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
 
-        /*
-        tessStarted = true;
-        int[] viewPos = new int[2];
-        mWindowBox.getLocationOnScreen(viewPos);
-        mOcr.runTess(new BoxParams(viewPos[0], viewPos[1], params.width, params.height));
-        */
-
 //        try {
-//            commonParser.parseJmDict();
-//            commonParser.parseKanjiDict2();
+//            mCommonParser.parseJmDict();
+//            mCommonParser.parseKanjiDict2();
 //        } catch (Exception e1) {
 //            e1.printStackTrace();
 //        }
@@ -76,10 +88,14 @@ public class CaptureWindow extends Window implements WindowListener {
 
     @Override
     public boolean onResize(MotionEvent e) {
-        setOpacity(e);
-        boolean handled = super.onResize(e);
-        performOcr(e);
-        return handled;
+        setOpacityAndOcr(e);
+        return super.onResize(e);
+    }
+
+    @Override
+    public void stop() {
+        mOcr.stop();
+        super.stop();
     }
 
     public void showLoadingAnimation(){
@@ -103,28 +119,22 @@ public class CaptureWindow extends Window implements WindowListener {
         });
     }
 
-    @Override
-    public void stop() {
-        mOcr.stop();
-        super.stop();
-    }
-
-    private void setOpacity(MotionEvent e){
+    private void setOpacityAndOcr(MotionEvent e){
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mWindowBox.setBackground(mBorderDefault);
                 break;
             case MotionEvent.ACTION_UP:
                 mWindowBox.setBackground(mBorderReady);
+                mAllowOcr = true;
                 break;
         }
     }
 
-    private void performOcr(MotionEvent e){
-        if (e.getAction() == MotionEvent.ACTION_UP){
-            int[] viewPos = new int[2];
-            mWindowBox.getLocationOnScreen(viewPos);
-            mOcr.runTess(new BoxParams(params.x, params.y + getStatusBarHeight(), params.width, params.height));
-        }
+    private void performOcr(){
+        int[] viewPos = new int[2];
+        mWindowBox.getLocationOnScreen(viewPos);
+        mOcr.runTess(new BoxParams(viewPos[0], viewPos[1], params.width, params.height));
+        mAllowOcr = false;
     }
 }
