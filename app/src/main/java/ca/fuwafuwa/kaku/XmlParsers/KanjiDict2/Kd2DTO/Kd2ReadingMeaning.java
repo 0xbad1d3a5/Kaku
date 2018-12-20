@@ -11,7 +11,7 @@ import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2Consts;
 
 /**
- * Created by 0x1bad1d3a on 12/1/2016.
+ * Created by 0xbad1d3a5 on 12/1/2016.
  */
 public class Kd2ReadingMeaning {
 

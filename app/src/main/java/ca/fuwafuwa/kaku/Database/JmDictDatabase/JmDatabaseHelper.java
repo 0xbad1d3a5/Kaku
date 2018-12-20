@@ -34,7 +34,7 @@ import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.ReadingRestriction;
 import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
 
 /**
- * Created by 0x1bad1d3a on 7/26/2016.
+ * Created by 0xbad1d3a5 on 7/26/2016.
  */
 public class JmDatabaseHelper extends DatabaseHelper {
 

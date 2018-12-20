@@ -14,7 +14,7 @@ import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
 
 /**
- * Created by 0x1bad1d3a on 12/1/2016.
+ * Created by 0xbad1d3a5 on 12/1/2016.
  */
 
 public class Kd2DatabaseHelper extends DatabaseHelper {

@@ -9,7 +9,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import ca.fuwafuwa.kaku.KakuTools;
 
 /**
- * Created by 0x1bad1d3a on 7/25/2016.
+ * Created by 0xbad1d3a5 on 7/25/2016.
  */
 @DatabaseTable
 public class Kanji {

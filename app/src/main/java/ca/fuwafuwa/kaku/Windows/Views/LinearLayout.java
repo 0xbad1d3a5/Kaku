@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 /**
- * Created by 0x1bad1d3a on 1/8/2017.
+ * Created by 0xbad1d3a5 on 1/8/2017.
  */
 
 public class LinearLayout extends android.widget.LinearLayout {

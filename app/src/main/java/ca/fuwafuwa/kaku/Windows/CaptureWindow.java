@@ -15,7 +15,7 @@ import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 
 /**
- * Created by 0x1bad1d3a on 4/13/2016.
+ * Created by 0xbad1d3a5 on 4/13/2016.
  */
 public class CaptureWindow extends Window implements WindowListener {
 
@@ -76,6 +76,8 @@ public class CaptureWindow extends Window implements WindowListener {
     @Override
     public boolean onDoubleTap(MotionEvent e) {
 
+        performOcr();
+
 //        try {
 //            mCommonParser.parseJmDict();
 //            mCommonParser.parseKanjiDict2();
@@ -126,7 +128,7 @@ public class CaptureWindow extends Window implements WindowListener {
                 break;
             case MotionEvent.ACTION_UP:
                 mWindowBox.setBackground(mBorderReady);
-                mAllowOcr = true;
+                //mAllowOcr = true;
                 break;
         }
     }

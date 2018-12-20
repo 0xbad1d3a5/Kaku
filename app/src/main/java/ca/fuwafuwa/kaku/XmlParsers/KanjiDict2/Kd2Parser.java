@@ -24,7 +24,7 @@ import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2DTO.Kd2Reading;
 import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2DTO.Kd2RmGroup;
 
 /**
- * Created by 0x1bad1d3a on 12/1/2016.
+ * Created by 0xbad1d3a5 on 12/1/2016.
  */
 
 public class Kd2Parser implements DictParser {

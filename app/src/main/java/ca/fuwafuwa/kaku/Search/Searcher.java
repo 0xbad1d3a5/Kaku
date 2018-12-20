@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Search;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -10,7 +11,7 @@ import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 
 /**
- * Created by 0x1bad1d3a on 8/28/2016.
+ * Created by 0xbad1d3a5 on 8/28/2016.
  */
 public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskDone {
 

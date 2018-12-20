@@ -1,6 +1,6 @@
 package ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2DTO;
 
-import junit.framework.Assert;
+//import junit.framework.Assert;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -12,7 +12,7 @@ import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2Consts;
 
 /**
- * Created by 0x1bad1d3a on 12/2/2016.
+ * Created by 0xbad1d3a5 on 12/2/2016.
  */
 public class Kd2Reading {
 
@@ -32,8 +32,8 @@ public class Kd2Reading {
         r_status = attrMap.get(Kd2Consts.R_STATUS);
         text = CommonParser.parseString(parser);
 
-        Assert.assertNull("Depreciated", on_type);
-        Assert.assertNull("Depreciated", r_status);
+        //Assert.assertNull("Depreciated", on_type);
+        //Assert.assertNull("Depreciated", r_status);
     }
 
     public String getR_type() {

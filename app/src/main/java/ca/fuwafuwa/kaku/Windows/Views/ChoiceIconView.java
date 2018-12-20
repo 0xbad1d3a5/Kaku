@@ -12,7 +12,7 @@ import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
 
 /**
- * Created by 0x1bad1d3a on 1/9/2017.
+ * Created by 0xbad1d3a5 on 1/9/2017.
  */
 
 public class ChoiceIconView extends ImageView {

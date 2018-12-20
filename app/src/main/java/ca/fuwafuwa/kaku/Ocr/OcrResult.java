@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import java.util.List;
 
 /**
- * Created by 0x1bad1d3a on 5/2/2016.
+ * Created by 0xbad1d3a5 on 5/2/2016.
  */
 public class OcrResult {
 

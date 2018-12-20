@@ -9,7 +9,7 @@ import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.Windows.InformationWindow;
 
 /**
- * Created by 0x1bad1d3a on 4/15/2016.
+ * Created by 0xbad1d3a5 on 4/15/2016.
  */
 public class MainServiceHandler extends Handler {
 

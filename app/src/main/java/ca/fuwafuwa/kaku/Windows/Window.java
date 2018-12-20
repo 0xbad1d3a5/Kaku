@@ -3,6 +3,7 @@ package ca.fuwafuwa.kaku.Windows;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.os.Build;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
 import android.view.Gravity;
@@ -65,7 +66,7 @@ public abstract class Window implements Stoppable, WindowListener {
         WindowManager.LayoutParams p = new WindowManager.LayoutParams();
         p.width = 1;
         p.height = WindowManager.LayoutParams.MATCH_PARENT;
-        p.type = WindowManager.LayoutParams.TYPE_PHONE;
+        p.type = Build.VERSION.SDK_INT > 25 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
         p.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         p.format = PixelFormat.TRANSPARENT;
         p.gravity = Gravity.END | Gravity.TOP;
@@ -244,7 +245,7 @@ public abstract class Window implements Stoppable, WindowListener {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.width = KakuTools.dpToPx(context, 150);
         params.height = KakuTools.dpToPx(context, 150);
-        params.type = WindowManager.LayoutParams.TYPE_PHONE;
+        params.type = Build.VERSION.SDK_INT > 25 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
         params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         params.format = PixelFormat.TRANSLUCENT;
         params.x = 0;

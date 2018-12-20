@@ -3,6 +3,7 @@ package ca.fuwafuwa.kaku.Windows;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -31,7 +32,7 @@ import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 import ca.fuwafuwa.kaku.Windows.Views.SquareGridView;
 
 /**
- * Created by 0x1bad1d3a on 4/23/2016.
+ * Created by 0xbad1d3a5 on 4/23/2016.
  */
 public class InformationWindow extends Window implements SquareGridView.SquareViewListener, Searcher.SearchDictDone, EditWindow.InputDoneListener{
 
@@ -142,8 +143,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                Build.VERSION.SDK_INT > 25 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT);
         params.x = 0;
         params.y = 0;

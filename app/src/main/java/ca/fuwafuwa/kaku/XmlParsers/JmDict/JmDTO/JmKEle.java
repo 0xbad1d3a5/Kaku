@@ -11,7 +11,7 @@ import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmConsts;
 
 /**
- * Created by 0x1bad1d3a on 4/25/2016.
+ * Created by 0xbad1d3a5 on 4/25/2016.
  */
 
 /**

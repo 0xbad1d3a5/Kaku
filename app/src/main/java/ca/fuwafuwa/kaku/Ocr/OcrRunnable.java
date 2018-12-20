@@ -24,7 +24,7 @@ import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
 /**
- * Created by 0x1bad1d3a on 4/16/2016.
+ * Created by 0xbad1d3a5 on 4/16/2016.
  */
 public class OcrRunnable implements Runnable, Stoppable {
 
@@ -258,7 +258,7 @@ public class OcrRunnable implements Runnable, Stoppable {
         }
 
         do {
-            List<Pair<String, Double>> choices = iterator.getChoicesAndConfidence(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
+            List<Pair<String, Double>> choices = iterator.getSymbolChoicesAndConfidence();
             int[] pos = iterator.getBoundingBox(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
             ocrChars.add(new OcrChar(choices, pos));
         } while (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL));

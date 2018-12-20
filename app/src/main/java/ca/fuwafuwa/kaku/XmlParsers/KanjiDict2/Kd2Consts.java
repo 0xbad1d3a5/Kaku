@@ -1,7 +1,7 @@
 package ca.fuwafuwa.kaku.XmlParsers.KanjiDict2;
 
 /**
- * Created by 0x1bad1d3a on 11/30/2016.
+ * Created by 0xbad1d3a5 on 11/30/2016.
  */
 
 public class Kd2Consts {

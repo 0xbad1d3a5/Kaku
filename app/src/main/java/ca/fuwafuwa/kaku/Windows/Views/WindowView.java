@@ -9,7 +9,7 @@ import android.widget.RelativeLayout;
 import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 
 /**
- * Created by 0x1bad1d3a on 4/13/2016.
+ * Created by 0xbad1d3a5 on 4/13/2016.
  */
 public class WindowView extends RelativeLayout {
 

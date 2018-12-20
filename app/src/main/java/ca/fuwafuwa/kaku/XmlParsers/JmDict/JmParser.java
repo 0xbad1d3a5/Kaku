@@ -43,7 +43,7 @@ import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmDTO.JmREle;
 import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmDTO.JmSense;
 
 /**
- * Created by 0x1bad1d3a on 4/30/2016.
+ * Created by 0xbad1d3a5 on 4/30/2016.
  */
 public class JmParser implements DictParser {
 

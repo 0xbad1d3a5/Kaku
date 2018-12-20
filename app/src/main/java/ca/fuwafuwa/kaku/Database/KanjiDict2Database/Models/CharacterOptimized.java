@@ -5,7 +5,7 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 
 /**
- * Created by 0x1bad1d3a on 12/3/2016.
+ * Created by 0xbad1d3a5 on 12/3/2016.
  */
 
 public class CharacterOptimized {

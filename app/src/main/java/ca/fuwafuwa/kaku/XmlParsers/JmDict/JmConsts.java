@@ -1,7 +1,7 @@
 package ca.fuwafuwa.kaku.XmlParsers.JmDict;
 
 /**
- * Created by 0x1bad1d3a on 4/25/2016.
+ * Created by 0xbad1d3a5 on 4/25/2016.
  */
 public class JmConsts {
 

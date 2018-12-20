@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import ca.fuwafuwa.kaku.KakuTools;
 
 /**
- * Created by 0x1bad1d3a on 1/11/2017.
+ * Created by 0xbad1d3a5 on 1/11/2017.
  */
 
 public class KanjiImageView extends ImageView {

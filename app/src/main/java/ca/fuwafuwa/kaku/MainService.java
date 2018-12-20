@@ -1,12 +1,15 @@
 package ca.fuwafuwa.kaku;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
@@ -15,8 +18,10 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -30,7 +35,7 @@ import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 import ca.fuwafuwa.kaku.Windows.Window;
 
 /**
- * Created by 0x1bad1d3a on 4/9/2016.
+ * Created by 0xbad1d3a5 on 4/9/2016.
  */
 public class MainService extends Service implements Stoppable {
 
@@ -126,7 +131,16 @@ public class MainService extends Service implements Stoppable {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "CREATING MAINSERVICE: " + System.identityHashCode(this));
-        Notification n = new NotificationCompat.Builder(this)
+
+        String channelId;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            channelId = createNotificationChannel();
+        }
+        else {
+            channelId = "";
+        }
+
+        Notification n = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Kaku is running")
                 .setContentText("Tap here to close Kaku")
@@ -203,5 +217,17 @@ public class MainService extends Service implements Stoppable {
         }
         mImageReader = ImageReader.newInstance(mRealDisplaySize.x, mRealDisplaySize.y, PixelFormat.RGBA_8888, 2);
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(getClass().getName(), mRealDisplaySize.x, mRealDisplaySize.y, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null, mHandler);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private String createNotificationChannel(){
+        String channelId = "kaku_service";
+        String channelName = "Kaku Background Service";
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
+        channel.setLightColor(Color.BLUE);
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager service = getSystemService(Context.NOTIFICATION_SERVICE) instanceof NotificationManager ? (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE) : null;
+        service.createNotificationChannel(channel);
+        return channelId;
     }
 }

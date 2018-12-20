@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -13,7 +14,7 @@ import ca.fuwafuwa.kaku.Windows.Views.ChoiceEditText;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 
 /**
- * Created by 0x1bad1d3a on 4/23/2016.
+ * Created by 0xbad1d3a5 on 4/23/2016.
  */
 public class EditWindow extends Window implements ChoiceEditText.InputDoneListener {
 
@@ -58,7 +59,7 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                Build.VERSION.SDK_INT > 25 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
                 0,
                 PixelFormat.TRANSLUCENT);
         params.x = 0;

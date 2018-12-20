@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Search;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 
@@ -12,7 +13,7 @@ import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Kd2DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 
 /**
- * Created by 0x1bad1d3a on 12/16/2016.
+ * Created by 0xbad1d3a5 on 12/16/2016.
  */
 
 public class Kd2Task extends AsyncTask<Void, Void, List<CharacterOptimized>> {
@@ -20,6 +21,8 @@ public class Kd2Task extends AsyncTask<Void, Void, List<CharacterOptimized>> {
     public interface SearchKd2TaskDone {
         void kd2TaskCallback(List<CharacterOptimized> results, SearchInfo searchInfo);
     }
+
+    private static final String TAG = Kd2Task.class.getName();
 
     private SearchInfo mSearchInfo;
     private Kd2DatabaseHelper mKd2DbHelper;
@@ -37,7 +40,6 @@ public class Kd2Task extends AsyncTask<Void, Void, List<CharacterOptimized>> {
     protected List<CharacterOptimized> doInBackground(Void... params) {
 
         try {
-
             String character = new String(new int[]{mSearchInfo.getText().codePointAt(mSearchInfo.getTextOffset())}, 0, 1);
             List<CharacterOptimized> characters = mCharacterOptimizedDao.queryBuilder().where().like("kanji", character + "%").query();
             return characters;

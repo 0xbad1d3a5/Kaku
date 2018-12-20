@@ -15,7 +15,7 @@ import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
 
 /**
- * Created by 0x1bad1d3a on 5/5/2016.
+ * Created by 0xbad1d3a5 on 5/5/2016.
  */
 public class ChoiceGridView extends SquareGridView {
 
