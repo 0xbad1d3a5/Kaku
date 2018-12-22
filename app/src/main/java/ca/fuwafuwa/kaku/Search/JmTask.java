@@ -15,6 +15,8 @@ import java.util.List;
 
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
+import ca.fuwafuwa.kaku.Deinflictor.DeinflectionInfo;
+import ca.fuwafuwa.kaku.Deinflictor.Deinflector;
 
 /**
  * Created by 0xbad1d3a5 on 12/16/2016.
@@ -30,13 +32,14 @@ public class JmTask extends AsyncTask<Void, Void, List<EntryOptimized>> {
     private JmDatabaseHelper mJmDbHelper;
     private Dao<EntryOptimized, Integer> mEntryOptimizedDao;
     private SearchJmTaskDone mSearchJmTaskDone;
-    private static Tokenizer tokenizer = new Tokenizer.Builder().mode(TokenizerBase.Mode.NORMAL).build();
+    private Deinflector mDeinflector;
 
     public JmTask(SearchInfo searchInfo, SearchJmTaskDone taskDone, Context context) throws SQLException {
         this.mSearchInfo = searchInfo;
         this.mSearchJmTaskDone = taskDone;
         this.mJmDbHelper = JmDatabaseHelper.instance(context);
         this.mEntryOptimizedDao = mJmDbHelper.getDbDao(EntryOptimized.class);
+        this.mDeinflector = new Deinflector(context);
     }
 
     @Override
@@ -58,10 +61,7 @@ public class JmTask extends AsyncTask<Void, Void, List<EntryOptimized>> {
 
             Collections.sort(matchedEntries);
 
-            EntryOptimized a = getDeinflictedFormIfExists(mText);
-            if (a != null){
-                matchedEntries.add(0, a);
-            }
+            matchedEntries.addAll(0, getDeinflictedFormsIfExists(mText, mTextOffset));
 
             return matchedEntries;
 
@@ -77,19 +77,26 @@ public class JmTask extends AsyncTask<Void, Void, List<EntryOptimized>> {
         mSearchJmTaskDone.jmTaskCallback(result, mSearchInfo);
     }
 
-    private EntryOptimized getDeinflictedFormIfExists(String text) throws SQLException {
+    private List<EntryOptimized> getDeinflictedFormsIfExists(String text, int textOffset) throws SQLException
+    {
+        int end = textOffset + 30 >= text.length() ? text.length() - 1 : textOffset + 30;
+        String word = text.substring(textOffset, end);
+        List<EntryOptimized> matchedEntries = new ArrayList<>();
 
-        List<Token> tokens = tokenizer.tokenize(text);
+        while (word.length() > 0){
 
-        if (tokens.size() <= 1){
-            return null;
+            List<DeinflectionInfo> resultsList = mDeinflector.getPotentialDeinflections(word);
+
+            for (DeinflectionInfo result : resultsList){
+                EntryOptimized entry = mEntryOptimizedDao.queryBuilder().where().eq("kanji", result.getWord()).queryForFirst();
+                if (entry != null){
+                    matchedEntries.add(entry);
+                }
+            }
+            word = word.substring(0, word.length() - 1);
         }
 
-        if (tokens.get(1).getConjugationType() != "*"){
-            return mEntryOptimizedDao.queryBuilder().where().eq("kanji", tokens.get(0).getBaseForm()).queryForFirst();
-        }
-
-        return null;
+        return matchedEntries;
     }
 
     private boolean isMatch(String text, int textOffset, String kanjiText) throws SQLException {

@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
-        private val TAG = MainService::class.java!!.getName()
+        private val TAG = MainService::class.java.getName()
 
         private val REQUEST_SCREENSHOT = 100
     }
