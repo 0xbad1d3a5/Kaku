@@ -3,6 +3,9 @@ package ca.fuwafuwa.kaku.Search;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.atilika.kuromoji.TokenizerBase;
+import com.atilika.kuromoji.ipadic.Token;
+import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
@@ -27,6 +30,7 @@ public class JmTask extends AsyncTask<Void, Void, List<EntryOptimized>> {
     private JmDatabaseHelper mJmDbHelper;
     private Dao<EntryOptimized, Integer> mEntryOptimizedDao;
     private SearchJmTaskDone mSearchJmTaskDone;
+    private static Tokenizer tokenizer = new Tokenizer.Builder().mode(TokenizerBase.Mode.NORMAL).build();
 
     public JmTask(SearchInfo searchInfo, SearchJmTaskDone taskDone, Context context) throws SQLException {
         this.mSearchInfo = searchInfo;
@@ -53,6 +57,12 @@ public class JmTask extends AsyncTask<Void, Void, List<EntryOptimized>> {
             }
 
             Collections.sort(matchedEntries);
+
+            EntryOptimized a = getDeinflictedFormIfExists(mText);
+            if (a != null){
+                matchedEntries.add(0, a);
+            }
+
             return matchedEntries;
 
         } catch (SQLException e) {
@@ -65,6 +75,21 @@ public class JmTask extends AsyncTask<Void, Void, List<EntryOptimized>> {
     @Override
     protected void onPostExecute(List<EntryOptimized> result){
         mSearchJmTaskDone.jmTaskCallback(result, mSearchInfo);
+    }
+
+    private EntryOptimized getDeinflictedFormIfExists(String text) throws SQLException {
+
+        List<Token> tokens = tokenizer.tokenize(text);
+
+        if (tokens.size() <= 1){
+            return null;
+        }
+
+        if (tokens.get(1).getConjugationType() != "*"){
+            return mEntryOptimizedDao.queryBuilder().where().eq("kanji", tokens.get(0).getBaseForm()).queryForFirst();
+        }
+
+        return null;
     }
 
     private boolean isMatch(String text, int textOffset, String kanjiText) throws SQLException {

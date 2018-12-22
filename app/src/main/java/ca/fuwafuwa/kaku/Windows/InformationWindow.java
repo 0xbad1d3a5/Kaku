@@ -261,6 +261,9 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         if (results.size() > 0){
             String kanji = results.get(0).getKanji();
             for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){
+                if (i >= mKanjiGrid.getKanjiViewList().size()){
+                    break;
+                }
                 mKanjiGrid.getKanjiViewList().get(i).setBackground();
             }
         }
