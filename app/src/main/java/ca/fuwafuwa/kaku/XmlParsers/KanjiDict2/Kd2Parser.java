@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
+import ca.fuwafuwa.kaku.Database.IDatabaseHelper;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.XmlParsers.Interfaces.DictParser;
 import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2DTO.Kd2Character;
@@ -31,10 +32,10 @@ public class Kd2Parser implements DictParser {
 
     private static final String TAG = Kd2Parser.class.getName();
 
-    private DatabaseHelper mDbHelper;
+    private IDatabaseHelper mDbHelper;
     private int parseCount = 0;
 
-    Kd2Parser(DatabaseHelper dbHelper){
+    Kd2Parser(IDatabaseHelper dbHelper){
         mDbHelper = dbHelper;
     }
 

@@ -19,6 +19,7 @@ import java.util.List;
 
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
+import ca.fuwafuwa.kaku.LangUtils;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
@@ -46,6 +47,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private Searcher mSearcher;
     private OcrResult mOcrResult;
     private String mText;
+    private List<EntryOptimized> mJmResults;
+    private List<CharacterOptimized> mKd2Results;
 
     public InformationWindow(MainService context) {
 
@@ -55,6 +58,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         mGestureDetector = new GestureDetector(this.context, this);
         mKanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
         mLinearLayout = (LinearLayout) window.findViewById(R.id.info_text);
+        mJmResults = null;
+        mKd2Results = null;
 
         try {
             mSearcher = new Searcher(context);
@@ -136,6 +141,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         }
 
         mSearcher.search(new SearchInfo(mText, kanjiView.getCharPos(), kanjiView));
+        mJmResults = null;
+        mKd2Results = null;
     }
 
     @Override
@@ -236,27 +243,11 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     @Override
     public void jmResultsCallback(List<EntryOptimized> results, SearchInfo search) {
 
-        StringBuilder sb = new StringBuilder();
+        mJmResults = results;
 
-        for (EntryOptimized eo : results){
-            sb.append(eo.getKanji());
-            if (!eo.getReadings().isEmpty()){
-                sb.append(" (");
-                sb.append(eo.getReadings());
-                sb.append(")");
-            }
-            sb.append("\n");
-            sb.append(eo.getMeanings());
-            sb.append("\n\n");
-        }
+        displayResults();
 
-        if (sb.length() > 2){
-            sb.setLength(sb.length() - 1);
-        }
-
-        TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.jm_results);
-        tv.setText(sb.toString());
-
+        // Highlights words in the window as long as they match
         int start = mKanjiGrid.getKanjiViewList().indexOf(search.getKanjiCharacterView());
         if (results.size() > 0){
             String kanji = results.get(0).getKanji();
@@ -275,9 +266,44 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     @Override
     public void kd2ResultsCallback(List<CharacterOptimized> results, SearchInfo search) {
 
+        mKd2Results = results;
+
+        displayResults();
+    }
+
+    @Override
+    public void onInputDone() {
+        mKanjiGrid.correctText(this);
+        updateInternalText();
+    }
+
+    private void displayResults(){
+
+        // Protect against potential race-condition if either cached value gets nulled
+        List<EntryOptimized> jmResults = mJmResults;
+        List<CharacterOptimized> kd2Results = mKd2Results;
+        if (jmResults == null || kd2Results == null){
+            return;
+        }
+
         StringBuilder sb = new StringBuilder();
 
-        for (CharacterOptimized co : results){
+        for (EntryOptimized eo : jmResults){
+
+            sb.append(eo.getKanji());
+
+            if (!eo.getReadings().isEmpty()){
+                sb.append(" (");
+                sb.append(eo.getReadings());
+                sb.append(")");
+            }
+
+            sb.append("\n");
+            sb.append(getMeaning(eo));
+            sb.append("\n\n");
+        }
+
+        for (CharacterOptimized co : kd2Results){
             sb.append(co.getKanji());
             if (!co.getOnyomi().isEmpty()){
                 sb.append(" (");
@@ -298,14 +324,30 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
             sb.setLength(sb.length() - 2);
         }
 
-        TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.kd2_results);
+        TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.jm_results);
         tv.setText(sb.toString());
     }
 
-    @Override
-    public void onInputDone() {
-        mKanjiGrid.correctText(this);
-        updateInternalText();
+    private String getMeaning(EntryOptimized entry){
+
+        String[] meanings = entry.getMeanings().split("\ufffc", -1);
+        String[] pos = entry.getPos().split("\ufffc", -1);
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < meanings.length; i++){
+            if (i != 0){
+                sb.append(" ");
+            }
+            sb.append(LangUtils.Companion.ConvertIntToCircledNum(i + 1));
+            sb.append(" ");
+            if (!pos[i].isEmpty()){
+                sb.append(String.format("(%s) ", pos[i]));
+            }
+            sb.append(meanings[i]);
+        }
+
+        return sb.toString();
     }
 
     private void updateInternalText(){

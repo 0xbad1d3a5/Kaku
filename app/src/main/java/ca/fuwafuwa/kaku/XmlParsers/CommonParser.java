@@ -71,6 +71,31 @@ public class CommonParser {
         return sb.toString();
     }
 
+    public static String parseOnlyEntityRef(XmlPullParser parser) throws IOException, XmlPullParserException {
+
+        if (parser.isEmptyElementTag()){
+            parser.nextToken();
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        String XMLTAG = parser.getName();
+        parser.require(XmlPullParser.START_TAG, null, XMLTAG);
+        parser.nextToken();
+
+        while (!XMLTAG.equals(parser.getName())) {
+            switch (parser.getEventType()) {
+                case XmlPullParser.ENTITY_REF:
+                    sb.append(parser.getName());
+                    break;
+            }
+            parser.nextToken();
+        }
+
+        parser.require(XmlPullParser.END_TAG, null, XMLTAG);
+        return sb.toString();
+    }
+
     public static HashMap<String, String> parseAttributes(XmlPullParser parser){
         HashMap<String, String> attrMap = new HashMap<>();
         int numAttr = parser.getAttributeCount();

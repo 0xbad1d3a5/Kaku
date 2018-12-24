@@ -33,6 +33,7 @@ public abstract class Window implements Stoppable, WindowListener {
     private Point mRealDisplaySize;
     private int mDX;
     private int mDY;
+    private int mMinSize;
     private View mHeightView;
 
     private boolean mWindowClosed = false;
@@ -48,6 +49,7 @@ public abstract class Window implements Stoppable, WindowListener {
         window = inflater.inflate(R.layout.window, null);
         mRealDisplaySize = this.context.getRealDisplaySize();
         params = getDefaultParams();
+        mMinSize = KakuTools.dpToPx(context, 20);
 
         WindowView mWindowView = (WindowView) window.findViewById(R.id.window_view);
         ResizeView mResizeView = (ResizeView) window.findViewById(R.id.resize_view);
@@ -302,11 +304,11 @@ public abstract class Window implements Stoppable, WindowListener {
         if (params.height > mRealDisplaySize.y){
             params.height = mRealDisplaySize.y;
         }
-        if (params.width < 100){
-            params.width = 100;
+        if (params.width < mMinSize){
+            params.width = mMinSize;
         }
-        if (params.height < 100){
-            params.height = 100;
+        if (params.height < mMinSize){
+            params.height = mMinSize;
         }
     }
 }

@@ -1,19 +1,14 @@
 package ca.fuwafuwa.kaku;
 
-import android.content.Context;
+import android.util.Xml;
 
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
 
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.io.File;
 import java.util.List;
 
 import ca.fuwafuwa.kaku.Deinflictor.PosMap;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * To work on unit tests, switch the Test Artifact in the Build Variants view.
@@ -40,12 +35,6 @@ public class ExampleUnitTest {
         for (Token token : tokens) {
             System.out.println(token.getSurface() + "\t" + GetTokenString(token));
         }
-    }
-
-    @Test
-    public void generateDic(){
-        Context context = mock(Context.class);
-        Mockito.when(context.getDatabasePath("")).thenReturn(new File(""));
     }
 
     @Test

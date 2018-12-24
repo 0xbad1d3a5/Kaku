@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.DbHelperFactory;
+import ca.fuwafuwa.kaku.Database.IDatabaseHelper;
 import ca.fuwafuwa.kaku.XmlParsers.Interfaces.DictParser;
 
 /**
@@ -37,7 +38,7 @@ public class ParserRunnable implements Runnable {
         mContext = context;
         DbHelperFactory mDbHelperFactory = new DbHelperFactory(context);
         mDbHelper = mDbHelperFactory.instance(dbHelperClass);
-        mDictParser = (DictParser) dictParserClass.getConstructor(DatabaseHelper.class).newInstance(mDbHelper);
+        mDictParser = (DictParser) dictParserClass.getConstructor(IDatabaseHelper.class).newInstance(mDbHelper);
         mDictXml = new FileInputStream(new File(mContext.getExternalFilesDir(null), fileName));
     }
 

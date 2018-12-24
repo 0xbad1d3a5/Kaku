@@ -38,7 +38,7 @@ import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
  */
 public class JmDatabaseHelper extends DatabaseHelper {
 
-    private static final String DATABASE_NAME = "OrmLiteJmDict.db";
+    private static final String DATABASE_NAME = "JmDict.db";
     private static final int DATABASE_VERSION = 1;
 
     private static JmDatabaseHelper instance;

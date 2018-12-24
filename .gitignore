@@ -1,3 +1,8 @@
+# Ignore data files for Kaku
+app/src/main/assets/JmDict.db
+app/src/main/assets/jpn.traineddata
+app/src/main/assets/KanjiDict2.db
+
 # Created by https://www.gitignore.io/api/android
 # Edit at https://www.gitignore.io/?templates=android
 

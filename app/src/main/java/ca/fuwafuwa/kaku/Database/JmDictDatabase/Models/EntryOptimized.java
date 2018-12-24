@@ -26,9 +26,9 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
     @DatabaseField(dataType = DataType.LONG_STRING)
     private String meanings;
 
-//    @Expose
-//    @DatabaseField(dataType = DataType.LONG_STRING)
-//    private String pos;
+    @Expose
+    @DatabaseField(dataType = DataType.LONG_STRING)
+    private String pos;
 
     private boolean onlyKana = false;
 
@@ -59,6 +59,16 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
         this.meanings = meanings;
     }
 
+    public String getPos()
+    {
+        return pos;
+    }
+
+    public void setPos(String pos)
+    {
+        this.pos = pos;
+    }
+
     public boolean isOnlyKana() {
         return onlyKana;
     }
@@ -80,4 +90,6 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
             return 1;
         }
     }
+
+
 }

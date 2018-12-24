@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
+import ca.fuwafuwa.kaku.Database.IDatabaseHelper;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Entry;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Kanji;
@@ -34,6 +35,7 @@ import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Reading;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.ReadingIrregularity;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.ReadingPriority;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.ReadingRestriction;
+import ca.fuwafuwa.kaku.LangUtils;
 import ca.fuwafuwa.kaku.XmlParsers.Interfaces.DictParser;
 import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmDTO.JmEntry;
 import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmDTO.JmGloss;
@@ -49,10 +51,10 @@ public class JmParser implements DictParser {
 
     private static final String TAG = JmParser.class.getName();
 
-    private DatabaseHelper mDbHelper;
+    private IDatabaseHelper mDbHelper;
     private int parseCount = 0;
 
-    public JmParser(DatabaseHelper dbHelper){
+    public JmParser(IDatabaseHelper dbHelper){
         mDbHelper = dbHelper;
     }
 
@@ -84,60 +86,90 @@ public class JmParser implements DictParser {
         List<EntryOptimized> optimizedEntries = new ArrayList<>();
 
         // May be multiple kanji entries
-        for (JmKEle kEle : jmEntry.getKEle()){
-            EntryOptimized eo = new EntryOptimized();
-            eo.setKanji(kEle.getKeb());
-            optimizedEntries.add(eo);
+        for (JmKEle kEle : jmEntry.getKEle())
+        {
+            EntryOptimized entryOptimized = new EntryOptimized();
+            entryOptimized.setKanji(kEle.getKeb());
+            optimizedEntries.add(entryOptimized);
         }
 
-        // If no kanji entries, check the
-        if (optimizedEntries.isEmpty()){
-            for (JmREle rEle : jmEntry.getREle()){
-                EntryOptimized eo = new EntryOptimized();
-                eo.setKanji(rEle.getReb());
-                eo.setOnlyKana(true);
-                optimizedEntries.add(eo);
+        // If no kanji entries, the reading entry is the kanji
+        if (optimizedEntries.isEmpty())
+        {
+            for (JmREle rEle : jmEntry.getREle())
+            {
+                EntryOptimized entryOptimized = new EntryOptimized();
+                entryOptimized.setKanji(rEle.getReb());
+                entryOptimized.setOnlyKana(true);
+                optimizedEntries.add(entryOptimized);
             }
         }
 
         for (EntryOptimized entryOptimized : optimizedEntries){
 
             String kanji = entryOptimized.getKanji();
-            List<String> readings = new ArrayList<>();
-            List<String> meanings = new ArrayList<>();
+            List<String> eoReadings = new ArrayList<>();
+            List<String> eoMeanings = new ArrayList<>();
+            List<String> eoPos = new ArrayList<>();
 
-            if (!entryOptimized.isOnlyKana()){
-                for (JmREle rEle : jmEntry.getREle()){
-                    List<String> rRestrict = rEle.getReRestr();
-                    if (!rRestrict.isEmpty() && rRestrict.contains(kanji)){
-                        readings.add(rEle.getReb());
+            if (!entryOptimized.isOnlyKana())
+            {
+                for (JmREle rEle : jmEntry.getREle())
+                {
+                    List<String> readingRestriction = rEle.getReRestr();
+
+                    if (!readingRestriction.isEmpty() && readingRestriction.contains(kanji))
+                    {
+                        eoReadings.add(rEle.getReb());
                     }
-                    else if (rRestrict.isEmpty()){
-                        readings.add(rEle.getReb());
+                    else if (readingRestriction.isEmpty())
+                    {
+                        eoReadings.add(rEle.getReb());
                     }
                 }
             }
 
-            for (JmSense sense : jmEntry.getSense()){
-                List<String> kRestrict = sense.getStagk();
-                if (!kRestrict.isEmpty() && kRestrict.contains(kanji)){
-                    for (JmGloss gloss : sense.getGloss()){
-                        if (gloss.isEnglish()) {
-                            meanings.add(gloss.getText());
+            for (JmSense sense : jmEntry.getSense())
+            {
+                List<String> kanjiRestriction = sense.getStagk();
+                List<String> meaningSense = new ArrayList<>();
+
+                StringBuilder fullSense = new StringBuilder();
+
+                if (!kanjiRestriction.isEmpty() && kanjiRestriction.contains(kanji))
+                {
+                    for (JmGloss gloss : sense.getGloss())
+                    {
+                        if (gloss.isEnglish())
+                        {
+                            meaningSense.add(gloss.getText());
                         }
                     }
                 }
-                else if (kRestrict.isEmpty()){
-                    for (JmGloss gloss : sense.getGloss()){
-                        if (gloss.isEnglish()) {
-                            meanings.add(gloss.getText());
+                else if (kanjiRestriction.isEmpty())
+                {
+                    for (JmGloss gloss : sense.getGloss())
+                    {
+                        if (gloss.isEnglish())
+                        {
+                            meaningSense.add(gloss.getText());
                         }
                     }
                 }
+
+                fullSense.append(Joiner.on(", ").join(meaningSense));
+
+                eoMeanings.add(fullSense.toString());
+                eoPos.add(Joiner.on(",").join(sense.getPos()));
             }
 
-            entryOptimized.setReadings(Joiner.on(", ").join(readings));
-            entryOptimized.setMeanings(Joiner.on(", ").join(meanings));
+            entryOptimized.setReadings(Joiner.on(", ").join(eoReadings));
+            entryOptimized.setMeanings(Joiner.on("\ufffc").join(eoMeanings));
+            entryOptimized.setPos(Joiner.on("\ufffc").join(eoPos));
+
+            if (eoMeanings.size() != eoPos.size()){
+                throw new RuntimeException();
+            }
 
             mDbHelper.getDbDao(EntryOptimized.class).create(entryOptimized);
         }

@@ -12,13 +12,11 @@ import java.sql.SQLException;
  * Created by 0xbad1d3a5 on 12/1/2016.
  */
 
-public abstract class DatabaseHelper extends OrmLiteSqliteOpenHelper {
+public abstract class DatabaseHelper extends OrmLiteSqliteOpenHelper implements IDatabaseHelper {
 
     public DatabaseHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory, int databaseVersion) {
         super(context, databaseName, factory, databaseVersion);
     }
 
     public abstract void deleteDatabase();
-
-    public abstract <T> Dao<T, Integer> getDbDao(Class clazz) throws SQLException;
 }

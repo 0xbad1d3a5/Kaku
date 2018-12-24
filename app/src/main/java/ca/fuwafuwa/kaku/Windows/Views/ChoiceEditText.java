@@ -53,9 +53,9 @@ public class ChoiceEditText extends EditText {
             @Override
             public void run() {
                 String currentKeyboard =  Settings.Secure.getString(mContext.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
-                if (currentKeyboard == null || !currentKeyboard.contains("handwriting")){
-                    mImeManager.showInputMethodPicker();
-                }
+//                if (currentKeyboard == null || !currentKeyboard.contains("handwriting")){
+//                    mImeManager.showInputMethodPicker();
+//                }
                 mImeManager.showSoftInput(ChoiceEditText.this, InputMethodManager.SHOW_FORCED);
             }
         });

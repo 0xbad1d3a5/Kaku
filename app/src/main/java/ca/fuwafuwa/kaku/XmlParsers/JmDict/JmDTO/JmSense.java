@@ -7,7 +7,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 import ca.fuwafuwa.kaku.XmlParsers.JmDict.JmConsts;
@@ -24,7 +26,7 @@ public class JmSense {
 
     private List<String> stagk = new ArrayList<>();
     private List<String> stagr = new ArrayList<>();
-    private List<String> pos = new ArrayList<>();
+    private HashSet<String> pos = new HashSet<>();
     private List<String> xref = new ArrayList<>();
     private List<String> ant = new ArrayList<>();
     private List<String> field = new ArrayList<>();
@@ -49,7 +51,7 @@ public class JmSense {
                     stagr.add(CommonParser.parseString(parser));
                     break;
                 case JmConsts.POS:
-                    pos.add(CommonParser.parseString(parser));
+                    pos.add(CommonParser.parseOnlyEntityRef(parser));
                     break;
                 case JmConsts.XREF:
                     xref.add(CommonParser.parseString(parser));
@@ -108,7 +110,7 @@ public class JmSense {
      * in an entry, the part-of-speech of an earlier sense will apply to
      * later senses unless there is a new part-of-speech indicated.
      */
-    public List<String> getPos(){
+    public HashSet<String> getPos(){
         return this.pos;
     }
 
