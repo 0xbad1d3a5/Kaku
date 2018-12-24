@@ -18,7 +18,7 @@ import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskDone {
 
     public interface SearchDictDone {
-        void jmResultsCallback(List<EntryOptimized> results, SearchInfo search);
+        void jmResultsCallback(List<JmSearchResult> results, SearchInfo search);
         void kd2ResultsCallback(List<CharacterOptimized> results, SearchInfo search);
     }
 
@@ -47,9 +47,9 @@ public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskD
     }
 
     @Override
-    public void jmTaskCallback(@NotNull List<? extends EntryOptimized> results, @NotNull SearchInfo searchInfo)
+    public void jmTaskCallback(@NotNull List<JmSearchResult> results, @NotNull SearchInfo searchInfo)
     {
-        mSearchDictDone.jmResultsCallback((List<EntryOptimized>)results, searchInfo);
+        mSearchDictDone.jmResultsCallback(results, searchInfo);
     }
 
     @Override

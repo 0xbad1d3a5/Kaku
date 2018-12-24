@@ -23,6 +23,7 @@ import ca.fuwafuwa.kaku.LangUtils;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
+import ca.fuwafuwa.kaku.Search.JmSearchResult;
 import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
@@ -47,7 +48,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private Searcher mSearcher;
     private OcrResult mOcrResult;
     private String mText;
-    private List<EntryOptimized> mJmResults;
+    private List<JmSearchResult> mJmResults;
     private List<CharacterOptimized> mKd2Results;
 
     public InformationWindow(MainService context) {
@@ -241,7 +242,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     @Override
-    public void jmResultsCallback(List<EntryOptimized> results, SearchInfo search) {
+    public void jmResultsCallback(List<JmSearchResult> results, SearchInfo search) {
 
         mJmResults = results;
 
@@ -250,7 +251,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         // Highlights words in the window as long as they match
         int start = mKanjiGrid.getKanjiViewList().indexOf(search.getKanjiCharacterView());
         if (results.size() > 0){
-            String kanji = results.get(0).getKanji();
+            String kanji = results.get(0).getWord();
             for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){
                 if (i >= mKanjiGrid.getKanjiViewList().size()){
                     break;
@@ -280,7 +281,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private void displayResults(){
 
         // Protect against potential race-condition if either cached value gets nulled
-        List<EntryOptimized> jmResults = mJmResults;
+        List<JmSearchResult> jmResults = mJmResults;
         List<CharacterOptimized> kd2Results = mKd2Results;
         if (jmResults == null || kd2Results == null){
             return;
@@ -288,18 +289,23 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
 
         StringBuilder sb = new StringBuilder();
 
-        for (EntryOptimized eo : jmResults){
+        for (JmSearchResult jmSearchResult : jmResults){
 
-            sb.append(eo.getKanji());
+            sb.append(jmSearchResult.getEntry().getKanji());
 
-            if (!eo.getReadings().isEmpty()){
+            if (!jmSearchResult.getEntry().getReadings().isEmpty()){
                 sb.append(" (");
-                sb.append(eo.getReadings());
+                sb.append(jmSearchResult.getEntry().getReadings());
                 sb.append(")");
             }
 
+            String deinfReason = jmSearchResult.getDeinfInfo().getReason();
+            if (deinfReason != null && !deinfReason.isEmpty()){
+                sb.append(String.format(" %s", deinfReason));
+            }
+
             sb.append("\n");
-            sb.append(getMeaning(eo));
+            sb.append(getMeaning(jmSearchResult.getEntry()));
             sb.append("\n\n");
         }
 
@@ -324,7 +330,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
             sb.setLength(sb.length() - 2);
         }
 
-        TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.jm_results);
+        TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.dict_results);
         tv.setText(sb.toString());
     }
 

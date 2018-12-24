@@ -50,7 +50,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
                         <TextSwitcher
-                            android:id="@+id/jm_results"
+                            android:id="@+id/dict_results"
                             android:measureAllChildren="false"
                             android:animateLayoutChanges="true"
                             android:inAnimation="@anim/slide_in"
@@ -62,21 +62,6 @@
                                 android:layout_height="wrap_content" />
                             <TextView
                                 android:textColor="@android:color/black"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
-                        </TextSwitcher>
-                        <TextSwitcher
-                            android:id="@+id/kd2_results"
-                            android:measureAllChildren="false"
-                            android:animateLayoutChanges="true"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-                            <TextView
-                                android:textColor="@android:color/darker_gray"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
-                            <TextView
-                                android:textColor="@android:color/darker_gray"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" />
                         </TextSwitcher>

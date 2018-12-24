@@ -125,7 +125,7 @@ class Deinflector(context: Context) {
                     var newDeinflectedWord = DeinflectionInfo(
                             newWord,
                             rule.type shr 8,
-                            if (currDeinflectionInfo.reason.isNotEmpty()) rule.reason + " < " + currDeinflectionInfo.reason else rule.reason
+                            if (currDeinflectionInfo.reason.isNotEmpty()) "< ${rule.reason} ${currDeinflectionInfo.reason}" else "< ${rule.reason}"
                     )
                     prevSeenDeinfWords.put(newWord, deinfWordChain.size)
                     deinfWordChain.add(newDeinflectedWord)

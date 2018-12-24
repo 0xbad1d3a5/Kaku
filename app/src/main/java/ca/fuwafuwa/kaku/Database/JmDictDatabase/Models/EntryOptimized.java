@@ -90,6 +90,4 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
             return 1;
         }
     }
-
-
 }

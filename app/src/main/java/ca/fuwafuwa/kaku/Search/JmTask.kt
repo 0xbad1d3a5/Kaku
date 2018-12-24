@@ -2,15 +2,12 @@ package ca.fuwafuwa.kaku.Search
 
 import android.content.Context
 import android.os.AsyncTask
+import android.util.Log
 
-import com.atilika.kuromoji.TokenizerBase
-import com.atilika.kuromoji.ipadic.Token
-import com.atilika.kuromoji.ipadic.Tokenizer
 import com.j256.ormlite.dao.Dao
 
 import java.sql.SQLException
 import java.util.ArrayList
-import java.util.Collections
 
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized
@@ -22,15 +19,20 @@ import ca.fuwafuwa.kaku.Deinflictor.Deinflector
  */
 
 class JmTask @Throws(SQLException::class)
-constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: SearchJmTaskDone, context: Context) : AsyncTask<Void, Void, List<EntryOptimized>>()
+constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: SearchJmTaskDone, context: Context) : AsyncTask<Void, Void, List<JmSearchResult>>()
 {
+    companion object
+    {
+        private val TAG = JmTask::class.java.getName()
+    }
+
     private val mJmDbHelper: JmDatabaseHelper
     private val mEntryOptimizedDao: Dao<EntryOptimized, Int>
     private val mDeinflector: Deinflector
 
     interface SearchJmTaskDone
     {
-        fun jmTaskCallback(results: List<EntryOptimized>, searchInfo: SearchInfo)
+        fun jmTaskCallback(results: List<JmSearchResult>, searchInfo: SearchInfo)
     }
 
     init
@@ -40,7 +42,7 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
         this.mDeinflector = Deinflector(context)
     }
 
-    override fun doInBackground(vararg params: Void): List<EntryOptimized>?
+    override fun doInBackground(vararg params: Void): List<JmSearchResult>
     {
 
         val mText = mSearchInfo.text
@@ -48,21 +50,11 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
 
         try
         {
+            val startDictTime = System.currentTimeMillis()
             val character = String(intArrayOf(mText.codePointAt(mTextOffset)), 0, 1)
-            val entries = mEntryOptimizedDao.queryBuilder().where().like("kanji", "$character%").query()
-            val matchedEntries = ArrayList<EntryOptimized>()
-
-            for (e in entries)
-            {
-                if (isMatch(mText, mTextOffset, e.kanji))
-                {
-                    matchedEntries.add(e)
-                }
-            }
-
-            Collections.sort(matchedEntries)
-
-//            matchedEntries.addAll(0, getDeinflictedFormsIfExists(mText, mTextOffset))
+            val entries: Map<String, EntryOptimized> = mEntryOptimizedDao.queryBuilder().where().like("kanji", "$character%").query().associate { it.kanji to it }
+            val matchedEntries = getMatchedEntries(mText, mTextOffset, entries)
+            Log.d(TAG, "Dict lookup time: ${System.currentTimeMillis() - startDictTime}")
 
             return matchedEntries
 
@@ -71,71 +63,56 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
             e.printStackTrace()
         }
 
-        return null
+        return ArrayList()
     }
 
-    override fun onPostExecute(result: List<EntryOptimized>)
+    override fun onPostExecute(result: List<JmSearchResult>)
     {
         mSearchJmTaskDone.jmTaskCallback(result, mSearchInfo)
     }
 
     @Throws(SQLException::class)
-    private fun getDeinflictedFormsIfExists(text: String, textOffset: Int): List<EntryOptimized>
+    private fun getMatchedEntries(text: String, textOffset: Int, entries: Map<String, EntryOptimized>): List<JmSearchResult>
     {
-        val end = if (textOffset + 10 >= text.length) text.length - 1 else textOffset + 10
+        val end = if (textOffset + 80 >= text.length) text.length else textOffset + 80
         var word = text.substring(textOffset, end)
-        val matchedEntries = ArrayList<EntryOptimized>()
+        val seenEntries = HashSet<EntryOptimized>()
+        val results = ArrayList<JmSearchResult>()
 
-        while (word.length > 0)
+        while (word.isNotEmpty())
         {
+            val deinfResultsList: List<DeinflectionInfo> = mDeinflector.getPotentialDeinflections(word)
 
-            val resultsList = mDeinflector.getPotentialDeinflections(word)
-
-            for (result in resultsList)
+            var count = 0
+            for (deinfInfo in deinfResultsList)
             {
-                val entry = mEntryOptimizedDao.queryBuilder().where().eq("kanji", result.word).queryForFirst()
-                if (entry != null)
+                val entry: EntryOptimized? = entries[deinfInfo.word]
+
+                if (entry == null || seenEntries.contains(entry))
                 {
-                    matchedEntries.add(entry)
+                    continue
                 }
+
+                var valid = true
+                if (count > 0)
+                {
+                    valid = (deinfInfo.type and 1 != 0) && (entry.pos.contains("v1")) ||
+                            (deinfInfo.type and 2 != 0) && (entry.pos.contains("v5")) ||
+                            (deinfInfo.type and 4 != 0) && (entry.pos.contains("adj-i")) ||
+                            (deinfInfo.type and 8 != 0) && (entry.pos.contains("vk")) ||
+                            (deinfInfo.type and 16 != 0) && (entry.pos.contains("vs-"))
+                }
+
+                if (valid){
+                    results.add(JmSearchResult(entry, deinfInfo, word))
+                    seenEntries.add(entry)
+                }
+
+                count++
             }
             word = word.substring(0, word.length - 1)
         }
 
-        return matchedEntries
-    }
-
-    @Throws(SQLException::class)
-    private fun isMatch(text: String, textOffset: Int, kanjiText: String): Boolean
-    {
-        var textOffset = textOffset
-
-        val length = kanjiText.length
-        var offset = 0
-        while (offset < length)
-        {
-
-            val kanjiCodePoint = kanjiText.codePointAt(offset)
-            val textCodePoint: Int
-
-            try
-            {
-                textCodePoint = text.codePointAt(textOffset)
-            } catch (e: IndexOutOfBoundsException)
-            {
-                return false
-            }
-
-            if (kanjiCodePoint != textCodePoint)
-            {
-                return false
-            }
-
-            val characterOffset = Character.charCount(kanjiCodePoint)
-            offset += characterOffset
-            textOffset += characterOffset
-        }
-
-        return true
+        return results
     }
 }
