@@ -4,7 +4,7 @@ DEMO VID: https://www.youtube.com/watch?v=Uq9AwxClY3g
 
 TEST APK: https://play.google.com/apps/testing/ca.fuwafuwa.kaku (READ INSTALLATION INSTRUCTIONS FIRST!)
 
-DB FILES: http://fuwafuwa.ca/KakuData.zip
+DB FILES: http://fuwafuwa.ca/KakuData.zip (place these files in the /assets folder if you are trying to build this project)
 
 App requirements:
 
