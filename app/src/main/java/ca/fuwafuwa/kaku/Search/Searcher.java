@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -45,8 +47,9 @@ public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskD
     }
 
     @Override
-    public void jmTaskCallback(List<EntryOptimized> results, SearchInfo searchInfo) {
-        mSearchDictDone.jmResultsCallback(results, searchInfo);
+    public void jmTaskCallback(@NotNull List<? extends EntryOptimized> results, @NotNull SearchInfo searchInfo)
+    {
+        mSearchDictDone.jmResultsCallback((List<EntryOptimized>)results, searchInfo);
     }
 
     @Override

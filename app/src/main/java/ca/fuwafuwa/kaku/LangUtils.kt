@@ -75,5 +75,29 @@ class LangUtils {
 
             return result.toString()
         }
+
+        fun ConvertIntToCircledNum(num: Int): String
+        {
+            var circledNum: String = "($num)"
+
+            if (num == 0)
+            {
+                circledNum = "⓪"
+            } else if ((num >= 1) && (num <= 20))
+            {
+                circledNum = (('①' - 1) + num).toString()
+            }
+            // Note: Numbers over 20 may depend on font
+            else if ((num >= 21) && (num <= 35))
+            {
+                circledNum = (('㉑' - 21) + num).toString()
+            }
+            else if ((num >= 36) && (num <= 50))
+            {
+                circledNum = (('㊱' - 36) + num).toString()
+            }
+
+            return circledNum
+        }
     }
 }

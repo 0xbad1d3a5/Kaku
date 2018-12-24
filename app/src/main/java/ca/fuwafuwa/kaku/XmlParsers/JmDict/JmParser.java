@@ -83,12 +83,14 @@ public class JmParser implements DictParser {
 
         List<EntryOptimized> optimizedEntries = new ArrayList<>();
 
+        // May be multiple kanji entries
         for (JmKEle kEle : jmEntry.getKEle()){
             EntryOptimized eo = new EntryOptimized();
             eo.setKanji(kEle.getKeb());
             optimizedEntries.add(eo);
         }
 
+        // If no kanji entries, check the
         if (optimizedEntries.isEmpty()){
             for (JmREle rEle : jmEntry.getREle()){
                 EntryOptimized eo = new EntryOptimized();

@@ -26,6 +26,10 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
     @DatabaseField(dataType = DataType.LONG_STRING)
     private String meanings;
 
+//    @Expose
+//    @DatabaseField(dataType = DataType.LONG_STRING)
+//    private String pos;
+
     private boolean onlyKana = false;
 
     public EntryOptimized(){

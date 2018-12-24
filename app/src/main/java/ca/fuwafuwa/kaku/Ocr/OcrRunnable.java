@@ -186,30 +186,47 @@ public class OcrRunnable implements Runnable, Stoppable {
         int readyColor = ContextCompat.getColor(mContext, R.color.holo_red_dark);
 
         for (int x = box.x; x < box.x + box.width; x++){
-            if (readyColor != screenshot.getPixel(x, box.y)){
+            if (isARGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y))){
                 return false;
             }
         }
 
         for (int x = box.x; x < box.x + box.width; x++){
-            if (readyColor != screenshot.getPixel(x, box.y + box.height - 1)){
+            if (isARGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y + box.height - 1))){
                 return false;
             }
         }
 
         for (int y = box.y; y < box.y + box.height; y++){
-            if (readyColor != screenshot.getPixel(box.x, y)){
+            if (isARGBWithinTolorance(readyColor, screenshot.getPixel(box.x, y))){
                 return false;
             }
         }
 
         for (int y = box.y; y < box.y + box.height; y++){
-            if (readyColor != screenshot.getPixel(box.x + box.width - 1, y)){
+            if (isARGBWithinTolorance(readyColor, screenshot.getPixel(box.x + box.width - 1, y))){
                 return false;
             }
         }
 
         return true;
+    }
+
+    private boolean isARGBWithinTolorance(int color, int colorToCheck){
+
+        boolean isColorWithinTolorance = true;
+
+        isColorWithinTolorance &= isColorWithinTolorance(color, colorToCheck & 0x000000FF);
+        isColorWithinTolorance &= isColorWithinTolorance(color, (colorToCheck >> 8) & 0x000000FF);
+        isColorWithinTolorance &= isColorWithinTolorance(color, (colorToCheck >> 16) & 0x000000FF);
+        isColorWithinTolorance &= isColorWithinTolorance(color, (colorToCheck >> 24) & 0x000000FF);
+
+        return isColorWithinTolorance;
+    }
+
+    private boolean isColorWithinTolorance(int color, int colorToCheck)
+    {
+        return color - 2 <= colorToCheck && colorToCheck <= color + 2;
     }
 
     private Bitmap convertImageToBitmap(Image image) throws OutOfMemoryError {
