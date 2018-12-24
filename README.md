@@ -9,21 +9,13 @@ DB FILES: http://fuwafuwa.ca/KakuData.zip
 App requirements:
 
 * Android 5.0
-* "Draw over other apps" permission
+* "Draw over other apps" permission **** APP WILL NOT WORK WITHOUT THIS PERMISSION ****
 * "Fast enough" device
 
-Installation instructions:
-
-1. Install the application - do not attempt to launch the application, it will crash
-2. Unzip the file from fuwafuwa.ca and put it into your phone's storage
-3. Move everything from the extracted zip to /Android/data/ca.fuwafuwa.kaku
-4. Go to your phone's settings and find the setting "Draw over other apps" - enable that setting for Kaku (where the setting is depends on Android version, so you may have to Google this)
-5. Launch Kaku and hopefully it should work - double tap to OCR
-
-Note: The handwriting keyboard for manual corrections is currently hard-coded to Google Handwriting keyboard
+For best experience, install a handwriting keyboard (i.e., Google Handwriting Keyboard) so that you can manually input corrections when the OCR engine is totally wrong.
 
 ```
-   For step 3, the directory structure on Android should look like:
+   The directory structure on Android should look like:
    
    /Android/data/ca.fuwafuwa.kaku
    |
