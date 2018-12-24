@@ -14,8 +14,8 @@ android {
         applicationId "ca.fuwafuwa.kaku"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 3
-        versionName "1.1.1"
+        versionCode 4
+        versionName "1.2"
     }
     buildTypes {
         release {

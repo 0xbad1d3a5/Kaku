@@ -13,6 +13,7 @@ import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized
 import ca.fuwafuwa.kaku.Deinflictor.DeinflectionInfo
 import ca.fuwafuwa.kaku.Deinflictor.Deinflector
+import com.j256.ormlite.stmt.SelectArg
 
 /**
  * Created by 0xbad1d3a5 on 12/16/2016.
@@ -51,7 +52,7 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
         try
         {
             val startDictTime = System.currentTimeMillis()
-            val character = String(intArrayOf(mText.codePointAt(mTextOffset)), 0, 1)
+            val character = String(intArrayOf(mText.codePointAt(mTextOffset)), 0, 1).replace("%", "\\%")
             val entries: Map<String, EntryOptimized> = mEntryOptimizedDao.queryBuilder().where().like("kanji", "$character%").query().associate { it.kanji to it }
             val matchedEntries = getMatchedEntries(mText, mTextOffset, entries)
             Log.d(TAG, "Dict lookup time: ${System.currentTimeMillis() - startDictTime}")

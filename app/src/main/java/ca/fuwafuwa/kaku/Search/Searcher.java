@@ -53,7 +53,8 @@ public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskD
     }
 
     @Override
-    public void kd2TaskCallback(List<CharacterOptimized> results, SearchInfo searchInfo) {
-        mSearchDictDone.kd2ResultsCallback(results, searchInfo);
+    public void kd2TaskCallback(@NotNull List<? extends CharacterOptimized> results, @NotNull SearchInfo searchInfo)
+    {
+        mSearchDictDone.kd2ResultsCallback((List<CharacterOptimized>)results, searchInfo);
     }
 }
