@@ -51,6 +51,10 @@ public class ChoiceGridView extends SquareGridView {
 
     public void onKanjiViewScrollStart(OcrResult ocrResult, KanjiCharacterView kanjiView, MotionEvent e){
 
+        if (ocrResult == null){
+            return;
+        }
+
         mKanjiChoices = new ArrayList<>();
         setItemCount(kanjiView.getOcrChar().getAllChoices().size() + 1);
 

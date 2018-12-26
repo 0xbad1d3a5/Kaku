@@ -55,7 +55,28 @@ public class KanjiGridView extends SquareGridView {
         postInvalidate();
     }
 
-    public void correctText(InformationWindow infoWin){
+    public void setText(InformationWindow infoWin, String text){
+
+        List<String> charList = KakuTools.splitTextByChar(text);
+        int charListLength = charList.size();
+
+        mKanjiCount = 0;
+        for (int i = 0; i < charListLength; i++)
+        {
+            KanjiCharacterView kanjiView = new KanjiCharacterView(mContext);
+            kanjiView.setKanjiViewCallback(infoWin);
+            kanjiView.setText(charList.get(i));
+            kanjiView.setCharPos(mKanjiCount);
+
+            addView(kanjiView);
+            mKanjiCount++;
+        }
+
+        setItemCount(mKanjiCount);
+        postInvalidate();
+    }
+
+    public void correctTextForOcr(InformationWindow infoWin){
 
         List<OcrChar> ocrChars = recomputeOcrChars();
         List<KanjiCharacterView> kanjiViews = getKanjiViewList();
@@ -74,6 +95,47 @@ public class KanjiGridView extends SquareGridView {
             KanjiCharacterView kanjiView = (KanjiCharacterView) getChildAt(mKanjiCount);
             kanjiView.setText(ocrChar.getBestChoice());
             kanjiView.setOcrChar(ocrChar);
+            kanjiView.setCharPos(mKanjiCount);
+            mKanjiCount++;
+        }
+
+        setItemCount(mKanjiCount);
+        postInvalidate();
+    }
+
+    public void correctTextForText(InformationWindow infoWin){
+
+        ArrayList<String> newKanji = new ArrayList<>();
+
+        List<KanjiCharacterView> kanjiViews = getKanjiViewList();
+        for (KanjiCharacterView kcView : kanjiViews){
+            if (!kcView.isEdited()){
+                newKanji.add(kcView.getText().toString());
+            }
+            else {
+                List<String> charList = KakuTools.splitTextByChar(kcView.getText().toString());
+                int charListLength = charList.size();
+                for (int i = 0; i < charListLength; i++){
+                    newKanji.add(charList.get(i));
+                }
+            }
+            kcView.setEdited(false);
+        }
+
+        int kanjiViewSize = kanjiViews.size();
+        int newCharsSize = newKanji.size();
+
+        if (newCharsSize > kanjiViewSize){
+            addKanjiViews(infoWin, newCharsSize - kanjiViewSize);
+        }
+        else if (newCharsSize < kanjiViewSize){
+            removeKanjiViews(kanjiViewSize - newCharsSize);
+        }
+
+        mKanjiCount = 0;
+        for (String kanji : newKanji){
+            KanjiCharacterView kanjiView = (KanjiCharacterView) getChildAt(mKanjiCount);
+            kanjiView.setText(kanji);
             kanjiView.setCharPos(mKanjiCount);
             mKanjiCount++;
         }

@@ -1,5 +1,6 @@
 package ca.fuwafuwa.kaku.Ocr;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Message;
@@ -7,6 +8,8 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
 
+import com.googlecode.leptonica.android.Pix;
+import com.googlecode.leptonica.android.WriteFile;
 import com.googlecode.tesseract.android.ResultIterator;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -35,18 +38,22 @@ public class OcrRunnable implements Runnable, Stoppable {
     private TessBaseAPI mTessBaseAPI;
     private boolean mRunning = true;
     private BoxParams mBox;
+    private Bitmap mBitmap;
     private Object mBoxLock = new Object();
 
-    public OcrRunnable(MainService context, CaptureWindow captureWindow){
-        mContext = context;
+    public OcrRunnable(Context context, CaptureWindow captureWindow, boolean horizontalText){
+        mContext = (MainService) context;
         mCaptureWindow = captureWindow;
         mBox = null;
+        mBitmap = null;
 
         mTessBaseAPI = new TessBaseAPI();
         String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
         Log.e(TAG, storagePath);
         mTessBaseAPI.init(storagePath, "jpn");
-        //mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK_VERT_TEXT);
+        if (!horizontalText){
+            mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK_VERT_TEXT);
+        }
     }
 
     @Override
@@ -71,8 +78,6 @@ public class OcrRunnable implements Runnable, Stoppable {
                 Log.d(TAG, "THREAD STOPPED WAITING");
 
                 long startTime = System.currentTimeMillis();
-                Bitmap mBitmap = getReadyScreenshotBox(mBox);
-                long screenTime = System.currentTimeMillis();
 
                 if (mBitmap == null){
                     sendToastToContext("Error getting image");
@@ -89,15 +94,14 @@ public class OcrRunnable implements Runnable, Stoppable {
                 mTessBaseAPI.clear();
 
                 if (ocrChars.size() > 0){
-                    sendOcrResultToContext(new OcrResult(mBitmap, ocrChars, screenTime - startTime, System.currentTimeMillis() - screenTime));
+                    sendOcrResultToContext(new OcrResult(mBitmap, ocrChars, System.currentTimeMillis() - startTime));
                 }
                 else{
                     sendToastToContext("No Characters Recognized.");
                 }
 
-                mCaptureWindow.stopLoadingAnimation();
-
                 mBox = null;
+                mBitmap = null;
             }
             catch (FileNotFoundException e){
                 e.printStackTrace();
@@ -111,9 +115,8 @@ public class OcrRunnable implements Runnable, Stoppable {
             catch (InterruptedException e){
                 e.printStackTrace();
             }
-            catch (TimeoutException e) {
-                e.printStackTrace();
-            }
+
+            mCaptureWindow.stopLoadingAnimation();
         }
     }
 
@@ -121,8 +124,9 @@ public class OcrRunnable implements Runnable, Stoppable {
      * Unblocks the thread and starts OCR
      * @param box Coordinates and size of the area to OCR from the screen
      */
-    public void runTess(BoxParams box){
+    public void runTess(Bitmap bitmap, BoxParams box){
         synchronized (mBoxLock){
+            mBitmap = bitmap;
             mBox = box;
             mTessBaseAPI.stop();
             mBoxLock.notify();
@@ -148,119 +152,6 @@ public class OcrRunnable implements Runnable, Stoppable {
             mTessBaseAPI.stop();
             Log.d(TAG, "THREAD STOPPED");
         }
-    }
-
-    private Bitmap getReadyScreenshotBox(BoxParams box) throws OutOfMemoryError, StackOverflowError, TimeoutException, FileNotFoundException, InterruptedException {
-
-        Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
-
-        boolean screenshotReady;
-        long startTime = System.nanoTime();
-        Bitmap screenshot;
-
-        do {
-
-            Image rawScreenshot = mContext.getScreenshot();
-            if (rawScreenshot == null){
-                return null;
-            }
-
-            screenshot = convertImageToBitmap(rawScreenshot);
-            screenshotReady = checkScreenshotIsReady(screenshot, box);
-
-        } while (!screenshotReady && System.nanoTime() < startTime + 4000000000L);
-
-        Bitmap croppedBitmap = getCroppedBitmap(screenshot, box);
-
-        if (!screenshotReady){
-            saveBitmap(screenshot, "error");
-            saveBitmap(croppedBitmap, "error");
-            return null;
-        }
-
-        return croppedBitmap;
-    }
-
-    private boolean checkScreenshotIsReady(Bitmap screenshot, BoxParams box){
-
-        int readyColor = ContextCompat.getColor(mContext, R.color.holo_red_dark);
-
-        for (int x = box.x; x < box.x + box.width; x++){
-            if (isARGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y))){
-                return false;
-            }
-        }
-
-        for (int x = box.x; x < box.x + box.width; x++){
-            if (isARGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y + box.height - 1))){
-                return false;
-            }
-        }
-
-        for (int y = box.y; y < box.y + box.height; y++){
-            if (isARGBWithinTolorance(readyColor, screenshot.getPixel(box.x, y))){
-                return false;
-            }
-        }
-
-        for (int y = box.y; y < box.y + box.height; y++){
-            if (isARGBWithinTolorance(readyColor, screenshot.getPixel(box.x + box.width - 1, y))){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean isARGBWithinTolorance(int color, int colorToCheck){
-
-        boolean isColorWithinTolorance = true;
-
-        isColorWithinTolorance &= isColorWithinTolorance(color, colorToCheck & 0x000000FF);
-        isColorWithinTolorance &= isColorWithinTolorance(color, (colorToCheck >> 8) & 0x000000FF);
-        isColorWithinTolorance &= isColorWithinTolorance(color, (colorToCheck >> 16) & 0x000000FF);
-        isColorWithinTolorance &= isColorWithinTolorance(color, (colorToCheck >> 24) & 0x000000FF);
-
-        return isColorWithinTolorance;
-    }
-
-    private boolean isColorWithinTolorance(int color, int colorToCheck)
-    {
-        return color - 2 <= colorToCheck && colorToCheck <= color + 2;
-    }
-
-    private Bitmap convertImageToBitmap(Image image) throws OutOfMemoryError {
-
-        Image.Plane[] planes = image.getPlanes();
-        ByteBuffer buffer = planes[0].getBuffer();
-        int pixelStride = planes[0].getPixelStride();
-        int rowStride = planes[0].getRowStride();
-        int rowPadding = rowStride - pixelStride * image.getWidth();
-
-        Bitmap bitmap = Bitmap.createBitmap(image.getWidth() + rowPadding / pixelStride, image.getHeight(), Bitmap.Config.ARGB_8888);
-        bitmap.copyPixelsFromBuffer(buffer);
-        image.close();
-
-        return bitmap;
-    }
-
-    private Bitmap getCroppedBitmap(Bitmap screenshot, BoxParams box){
-        int borderSize = KakuTools.dpToPx(mContext, 1) + 1; // +1 due to rounding errors
-        return Bitmap.createBitmap(screenshot, box.x + borderSize,
-                                               box.y + borderSize,
-                                               box.width - (2 * borderSize),
-                                               box.height - (2 * borderSize));
-    }
-
-    private void saveBitmap(Bitmap bitmap) throws FileNotFoundException {
-        saveBitmap(bitmap, "screen");
-    }
-
-    private void saveBitmap(Bitmap bitmap, String name) throws FileNotFoundException {
-        String fs = String.format("%s/screenshots/%s_%d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), name, System.nanoTime());
-        Log.d(TAG, fs);
-        FileOutputStream fos = new FileOutputStream(fs);
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
     }
 
     private List<OcrChar> processOcrIterator(ResultIterator iterator){
@@ -291,5 +182,16 @@ public class OcrRunnable implements Runnable, Stoppable {
 
     private void sendToastToContext(String message){
         Message.obtain(mContext.getHandler(), 0, message).sendToTarget();
+    }
+
+    private void saveBitmap(Bitmap bitmap) throws FileNotFoundException {
+        saveBitmap(bitmap, "screen");
+    }
+
+    private void saveBitmap(Bitmap bitmap, String name) throws FileNotFoundException {
+        String fs = String.format("%s/screenshots/%s_%d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), name, System.nanoTime());
+        Log.d(TAG, fs);
+        FileOutputStream fos = new FileOutputStream(fs);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
     }
 }

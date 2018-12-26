@@ -21,11 +21,13 @@ import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 import ca.fuwafuwa.kaku.Windows.Views.ResizeView;
 import ca.fuwafuwa.kaku.Windows.Views.WindowView;
 
+import static android.content.Context.WINDOW_SERVICE;
+
 public abstract class Window implements Stoppable, WindowListener {
 
     private static final String TAG = Window.class.getName();
 
-    protected MainService context;
+    protected Context context;
     protected WindowManager windowManager;
     protected View window;
     protected WindowManager.LayoutParams params;
@@ -39,15 +41,15 @@ public abstract class Window implements Stoppable, WindowListener {
     private boolean mWindowClosed = false;
     private long mParamUpdateTimer = System.currentTimeMillis();
 
-    public Window(MainService context, int contentView){
+    public Window(Context context, int contentView){
 
         this.context = context;
 
         LayoutInflater inflater = (LayoutInflater) this.context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        windowManager = (WindowManager) this.context.getSystemService(Context.WINDOW_SERVICE);
+        windowManager = (WindowManager) this.context.getSystemService(WINDOW_SERVICE);
         window = inflater.inflate(R.layout.window, null);
-        mRealDisplaySize = this.context.getRealDisplaySize();
+        mRealDisplaySize = getRealDisplaySizeFromContext();
         params = getDefaultParams();
         mMinSize = KakuTools.dpToPx(context, 20);
 
@@ -77,10 +79,16 @@ public abstract class Window implements Stoppable, WindowListener {
     }
 
     public void reInit(){
-        mRealDisplaySize = context.getRealDisplaySize();
+        mRealDisplaySize = getRealDisplaySizeFromContext();
         Log.d(TAG, "Display Size: " + mRealDisplaySize);
         fixBoxBounds();
         windowManager.updateViewLayout(window, params);
+    }
+
+    private Point getRealDisplaySizeFromContext(){
+        Point displaySize = new Point();
+        ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getRealSize(displaySize);
+        return displaySize;
     }
 
     /**
@@ -123,6 +131,7 @@ public abstract class Window implements Stoppable, WindowListener {
             case MotionEvent.ACTION_UP:
                 fixBoxBounds();
                 windowManager.updateViewLayout(window, params);
+                onUp(e);
                 return true;
         }
         return false;
@@ -168,6 +177,11 @@ public abstract class Window implements Stoppable, WindowListener {
     public boolean onDoubleTapEvent(MotionEvent e) {
         return false;
     }
+
+    /**
+     * Override if your implementing Window needs to deal with this touch event
+     */
+    public boolean onUp(MotionEvent e){ return false; }
 
     /**
      * Override if your implementing Window needs to deal with this touch event
@@ -225,6 +239,7 @@ public abstract class Window implements Stoppable, WindowListener {
             case MotionEvent.ACTION_UP:
                 fixBoxBounds();
                 windowManager.updateViewLayout(window, params);
+                onUp(e);
                 return true;
             case MotionEvent.ACTION_MOVE:
                 params.width = mDX + (int) e.getRawX();
@@ -259,9 +274,7 @@ public abstract class Window implements Stoppable, WindowListener {
     /**
      * @return Real screen display size
      */
-    protected Point getRealDisplaySize(){
-        return mRealDisplaySize;
-    }
+    protected Point getRealDisplaySize(){ return new Point(mRealDisplaySize); }
 
     /**
      * @deprecated Try to get rid of this

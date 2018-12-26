@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.Log;
@@ -20,7 +21,6 @@ import java.util.List;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.LangUtils;
-import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Search.JmSearchResult;
@@ -51,7 +51,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private List<JmSearchResult> mJmResults;
     private List<CharacterOptimized> mKd2Results;
 
-    public InformationWindow(MainService context) {
+    public InformationWindow(Context context) {
 
         super(context, R.layout.info_window);
 
@@ -74,6 +74,12 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         this.mOcrResult = ocrResult;
         this.mText = ocrResult.getText();
         mKanjiGrid.setText(this, ocrResult);
+    }
+
+    public void setTextResults(String textResult){
+        this.mText = textResult;
+        mKanjiGrid.setText(this, textResult);
+        onSquareTouch(mKanjiGrid.getKanjiViewList().get(0));
     }
 
     @Override
@@ -274,7 +280,12 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
 
     @Override
     public void onInputDone() {
-        mKanjiGrid.correctText(this);
+        if (mOcrResult == null){
+            mKanjiGrid.correctTextForText(this);
+        }
+        else {
+            mKanjiGrid.correctTextForOcr(this);
+        }
         updateInternalText();
     }
 

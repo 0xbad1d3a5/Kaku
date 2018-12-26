@@ -11,13 +11,11 @@ public class OcrResult {
 
     private Bitmap mImage;
     private List<OcrChar> mOcrChars;
-    private long mScreenshotTime;
     private long mOcrTime;
 
-    public OcrResult(Bitmap image, List<OcrChar> ocrChoices, long screenshotTime, long ocrTime){
+    public OcrResult(Bitmap image, List<OcrChar> ocrChoices, long ocrTime){
         this.mImage = image;
         this.mOcrChars = ocrChoices;
-        this.mScreenshotTime = screenshotTime;
         this.mOcrTime = ocrTime;
     }
 
@@ -40,15 +38,7 @@ public class OcrResult {
         return sb.toString();
     }
 
-    public long getScreenshotTime(){
-        return mScreenshotTime;
-    }
-
-    public long getOcrTime(){
-        return mOcrTime;
-    }
-
     public String toString(){
-        return String.format("%s\nScreenshot Time: %d\nOcrTime: %d", getText(), mScreenshotTime, mOcrTime);
+        return String.format("%s\nOcrTime: %d", getText(), mOcrTime);
     }
 }

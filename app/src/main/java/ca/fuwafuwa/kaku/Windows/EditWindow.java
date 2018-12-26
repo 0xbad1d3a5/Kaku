@@ -1,6 +1,8 @@
 package ca.fuwafuwa.kaku.Windows;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.view.MotionEvent;
@@ -8,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import ca.fuwafuwa.kaku.MainService;
+import ca.fuwafuwa.kaku.Ocr.OcrChar;
 import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceEditText;
@@ -27,17 +30,26 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
     private InputDoneListener mCallback;
     private KanjiCharacterView mKanjiView;
 
-    public EditWindow(final MainService context) {
+    public EditWindow(Context context) {
         super(context, R.layout.edit_window);
 
         ((ChoiceEditText) window.findViewById(R.id.edit_text)).setInputDoneCallback(this);
+        ((ChoiceEditText) window.findViewById(R.id.edit_text)).requestFocus();
     }
 
     public void setInfo(OcrResult ocrResult, KanjiCharacterView kanjiView){
 
         mKanjiView = kanjiView;
 
-        int[] pos = kanjiView.getOcrChar().getPos();
+        OcrChar ocrChar = kanjiView.getOcrChar();
+
+        if (ocrChar == null){
+            ImageView iv = (ImageView) window.findViewById(R.id.edit_kanji_image);
+            iv.setBackgroundColor(0x44000000);
+            return;
+        }
+
+        int[] pos = ocrChar.getPos();
         if (pos != null){
             Bitmap orig = ocrResult.getBitmap();
             Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], pos[2] - pos[0], pos[3] - pos[1]);
@@ -84,8 +96,10 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
 
     @Override
     public void onEditTextInputDone(String input) {
-        mKanjiView.setText(input);
-        mCallback.onInputDone();
+        if (input != null && !input.isEmpty()){
+            mKanjiView.setText(input);
+            mCallback.onInputDone();
+        }
         stop();
     }
 }

@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -19,7 +20,6 @@ import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
@@ -28,7 +28,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import java.util.concurrent.TimeoutException;
 
@@ -72,8 +71,23 @@ public class MainService extends Service implements Stoppable {
     private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
     public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
+
+    public static final String KAKU_PREF_FILE = "ca.fuwafuwa.kaku";
+
+    public static final String KAKU_TOGGLE_IMAGE_PREVIEW = "KAKU_TOGGLE_IMAGE_PREVIEW";
+    public static final String KAKU_TOGGLE_PAGE_MODE = "KAKU_TOGGLE_PAGE_MODE";
+
+    public static final String KAKU_PREF_SHOW_PREVIEW_IMAGE = "ShowPreviewImage";
+    public static final String KAKU_PREF_HORIZONTAL_TEXT = "HorizontalText";
+
+    private static final int RESTART_SERVICE_FOR_IMAGE_PREVIEW = 300;
+    private static final int RESTART_SERVICE_FOR_PAGE_MODE = 400;
+
+
     private Intent mIntent;
     private int mResultCode;
+    private boolean mShowPreviewImage;
+    private boolean mHorizontalText;
 
     private WindowManager mWindowManager;
     private MediaProjectionManager mMediaProjectionManager;
@@ -106,7 +120,7 @@ public class MainService extends Service implements Stoppable {
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
 
         if (mCaptureWindow == null){
-            mCaptureWindow = new CaptureWindow(this);
+            mCaptureWindow = new CaptureWindow(this, mShowPreviewImage, mHorizontalText);
         }
         else {
             mCaptureWindow.reInit();
@@ -142,11 +156,21 @@ public class MainService extends Service implements Stoppable {
             channelId = "";
         }
 
+        SharedPreferences prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE);
+
+        mShowPreviewImage = prefs.getBoolean(KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
+        Intent toggleImagePreviewIntent = new Intent(this, MainActivity.class).putExtra(KAKU_TOGGLE_IMAGE_PREVIEW, 0);
+
+        mHorizontalText = prefs.getBoolean(KAKU_PREF_HORIZONTAL_TEXT, true);
+        Intent togglePageMode = new Intent(this, MainActivity.class).putExtra(KAKU_TOGGLE_PAGE_MODE, 0);
+
         Notification n = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Kaku is running")
-                .setContentText("Tap here to close Kaku")
+                .setContentTitle("Kaku is Running")
+                .setContentText(String.format("Tap Here to Close - Currently in %s", mHorizontalText ? "Horizontal Mode" : "Vertical Mode"))
                 .setContentIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, CloseMainService.class), 0))
+                .addAction(0, mShowPreviewImage ? "Threshold Off" : "Threshold On", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_IMAGE_PREVIEW, toggleImagePreviewIntent, 0))
+                .addAction(0, mHorizontalText ? "Vertical Mode" : "Horizontal Mode", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_PAGE_MODE, togglePageMode, 0))
                 .build();
 
         startForeground(1, n);

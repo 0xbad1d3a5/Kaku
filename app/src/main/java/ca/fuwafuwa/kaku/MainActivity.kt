@@ -1,9 +1,9 @@
 package ca.fuwafuwa.kaku
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
@@ -12,16 +12,41 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
+import ca.fuwafuwa.kaku.Windows.InformationWindow
 import java.io.File
 import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
     private var mMediaProjectionManager: MediaProjectionManager? = null
-
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+
+        var processText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+
+        if (processText != null){
+            InformationWindow(this).setTextResults(processText);
+            finish()
+        }
+
+        if (intent.hasExtra(MainService.KAKU_TOGGLE_IMAGE_PREVIEW)){
+
+            var prefs = getSharedPreferences(MainService.KAKU_PREF_FILE, Context.MODE_PRIVATE)
+            var mShowPreviewImage = prefs.getBoolean(MainService.KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
+            prefs.edit().putBoolean(MainService.KAKU_PREF_SHOW_PREVIEW_IMAGE, !mShowPreviewImage).apply()
+
+            stopService(Intent(this, MainService::class.java))
+        }
+
+        if (intent.hasExtra(MainService.KAKU_TOGGLE_PAGE_MODE)){
+
+            var prefs = getSharedPreferences(MainService.KAKU_PREF_FILE, Context.MODE_PRIVATE)
+            var mHorizontalText = prefs.getBoolean(MainService.KAKU_PREF_HORIZONTAL_TEXT, true);
+            prefs.edit().putBoolean(MainService.KAKU_PREF_HORIZONTAL_TEXT, !mHorizontalText).apply()
+
+            stopService(Intent(this, MainService::class.java))
+        }
 
         var checkPermissions = "Check \"Draw on Top of Other Apps\" Permission"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -31,7 +56,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         else {
-            Toast.makeText(this, "Manually $checkPermissions", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Manually $checkPermissions\nKaku Might Not Work on This Device", Toast.LENGTH_LONG).show()
         }
 
         mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
