@@ -268,7 +268,9 @@ public class CaptureWindow extends Window implements WindowListener {
         //pix = Convert.convertTo8(pix);
         pix = GrayQuant.pixThresholdToBinary(pix, mThreshold);
         //pix = Binarize.otsuAdaptiveThreshold(pix);
-        return WriteFile.writeBitmap(pix);
+        Bitmap returnBitmap = WriteFile.writeBitmap(pix);
+        pix.recycle();
+        return returnBitmap;
     }
 
     private CroppedScreenshot getCroppedScreenshot()

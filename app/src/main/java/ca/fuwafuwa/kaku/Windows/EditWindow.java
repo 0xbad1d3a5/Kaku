@@ -52,7 +52,37 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
         int[] pos = ocrChar.getPos();
         if (pos != null){
             Bitmap orig = ocrResult.getBitmap();
-            Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], pos[2] - pos[0], pos[3] - pos[1]);
+            orig = orig.copy(orig.getConfig(), true);
+
+            int width = pos[2] - pos[0];
+            int height = pos[3] - pos[1];
+            int xPos = pos[0];
+            int yPos = pos[1];
+
+            for (int xTop = pos[0]; xTop < width + xPos; xTop++){
+                orig.setPixel(xTop, yPos, Color.RED);
+            }
+            for (int xBottom = pos[0]; xBottom < width + xPos; xBottom++){
+                orig.setPixel(xBottom, yPos + height, Color.RED);
+            }
+            for (int yLeft = pos[1]; yLeft < height + yPos; yLeft++){
+                orig.setPixel(xPos, yLeft, Color.RED);
+            }
+            for (int yRight = pos[1]; yRight < height + yPos; yRight++){
+                orig.setPixel(xPos + width, yRight, Color.RED);
+            }
+
+            xPos = pos[0] - width * 2;
+            yPos = pos[1] - height * 2;
+            width = width + width * 4;
+            height = height + height * 4;
+
+            if (xPos < 0) xPos = 0;
+            if (yPos < 0) yPos = 0;
+            if (width + xPos > orig.getWidth()) width = orig.getWidth() - xPos;
+            if (height + yPos > orig.getHeight()) height = orig.getHeight() - yPos;
+
+            Bitmap bitmapChar = Bitmap.createBitmap(orig, xPos, yPos, width, height);
 
             ImageView iv = (ImageView) window.findViewById(R.id.edit_kanji_image);
             iv.setImageBitmap(bitmapChar);
@@ -96,7 +126,7 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
 
     @Override
     public void onEditTextInputDone(String input) {
-        if (input != null && !input.isEmpty()){
+        if (input != null && !input.trim().isEmpty()){
             mKanjiView.setText(input);
             mCallback.onInputDone();
         }
