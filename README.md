@@ -8,24 +8,8 @@ DB FILES: http://fuwafuwa.ca/KakuData.zip (place these files in the /assets fold
 
 App requirements:
 
-* Android 5.0
+* Android 5.0+
 * "Draw over other apps" permission **** APP WILL NOT WORK WITHOUT THIS PERMISSION ****
 * "Fast enough" device
 
 For best experience, install a handwriting keyboard (i.e., Google Handwriting Keyboard) so that you can manually input corrections when the OCR engine is totally wrong.
-
-```
-   The directory structure on Android should look like:
-   
-   /Android/data/ca.fuwafuwa.kaku
-   |
-   -> /files
-      |
-      -> /screenshots
-      |
-      -> /tessdata
-      |
-      -> KanjiDict2.db
-      |
-      -> OrmLiteJmDict.db
-```
