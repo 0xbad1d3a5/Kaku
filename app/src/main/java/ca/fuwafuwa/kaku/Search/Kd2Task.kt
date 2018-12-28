@@ -38,18 +38,8 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchKd2TaskDone:
 
     override fun doInBackground(vararg params: Void): List<CharacterOptimized>
     {
-
-        try
-        {
-            val character = String(intArrayOf(mSearchInfo.text.codePointAt(mSearchInfo.textOffset)), 0, 1).replace("%", "\\%")
-            return mCharacterOptimizedDao.queryBuilder().where().like("kanji", "$character%").query().toList()
-
-        } catch (e: SQLException)
-        {
-            e.printStackTrace()
-        }
-
-        return ArrayList()
+        val character = String(intArrayOf(mSearchInfo.text.codePointAt(mSearchInfo.textOffset)), 0, 1).replace("%", "\\%")
+        return mCharacterOptimizedDao.queryBuilder().where().like("kanji", "$character%").query().toList()
     }
 
     override fun onPostExecute(result: List<CharacterOptimized>)

@@ -13,7 +13,6 @@ import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized
 import ca.fuwafuwa.kaku.Deinflictor.DeinflectionInfo
 import ca.fuwafuwa.kaku.Deinflictor.Deinflector
-import com.j256.ormlite.stmt.SelectArg
 
 /**
  * Created by 0xbad1d3a5 on 12/16/2016.
@@ -28,7 +27,6 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
     }
 
     private val mJmDbHelper: JmDatabaseHelper
-    private val mEntryOptimizedDao: Dao<EntryOptimized, Int>
     private val mDeinflector: Deinflector
 
     interface SearchJmTaskDone
@@ -38,33 +36,23 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
 
     init
     {
-        this.mJmDbHelper = JmDatabaseHelper.instance(context)
-        this.mEntryOptimizedDao = mJmDbHelper.getDbDao(EntryOptimized::class.java)
-        this.mDeinflector = Deinflector(context)
+        mJmDbHelper = JmDatabaseHelper.instance(context)
+        mDeinflector = Deinflector(context)
     }
 
     override fun doInBackground(vararg params: Void): List<JmSearchResult>
     {
+        val text = mSearchInfo.text
+        val textOffset = mSearchInfo.textOffset
+        val entryOptimizedDao = mJmDbHelper.getDbDao<EntryOptimized>(EntryOptimized::class.java)
 
-        val mText = mSearchInfo.text
-        val mTextOffset = mSearchInfo.textOffset
+        val startDictTime = System.currentTimeMillis()
+        val character = String(intArrayOf(text.codePointAt(textOffset)), 0, 1).replace("%", "\\%")
+        val entries: List<EntryOptimized> = entryOptimizedDao.queryBuilder().where().like("kanji", "$character%").query()
+        val matchedEntries = rankResults(getMatchedEntries(text, textOffset, entries))
+        Log.d(TAG, "Dict lookup time: ${System.currentTimeMillis() - startDictTime}")
 
-        try
-        {
-            val startDictTime = System.currentTimeMillis()
-            val character = String(intArrayOf(mText.codePointAt(mTextOffset)), 0, 1).replace("%", "\\%")
-            val entries: Map<String, EntryOptimized> = mEntryOptimizedDao.queryBuilder().where().like("kanji", "$character%").query().associate { it.kanji to it }
-            val matchedEntries = getMatchedEntries(mText, mTextOffset, entries)
-            Log.d(TAG, "Dict lookup time: ${System.currentTimeMillis() - startDictTime}")
-
-            return matchedEntries
-
-        } catch (e: SQLException)
-        {
-            e.printStackTrace()
-        }
-
-        return ArrayList()
+        return matchedEntries
     }
 
     override fun onPostExecute(result: List<JmSearchResult>)
@@ -73,7 +61,7 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
     }
 
     @Throws(SQLException::class)
-    private fun getMatchedEntries(text: String, textOffset: Int, entries: Map<String, EntryOptimized>): List<JmSearchResult>
+    private fun getMatchedEntries(text: String, textOffset: Int, entries: List<EntryOptimized>): List<JmSearchResult>
     {
         val end = if (textOffset + 80 >= text.length) text.length else textOffset + 80
         var word = text.substring(textOffset, end)
@@ -87,33 +75,90 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
             var count = 0
             for (deinfInfo in deinfResultsList)
             {
-                val entry: EntryOptimized? = entries[deinfInfo.word]
+                val filteredEntry: List<EntryOptimized> = entries.filter { entry -> entry.kanji == deinfInfo.word }
 
-                if (entry == null || seenEntries.contains(entry))
+                if (filteredEntry.isEmpty())
                 {
                     continue
                 }
 
-                var valid = true
-                if (count > 0)
-                {
-                    valid = (deinfInfo.type and 1 != 0) && (entry.pos.contains("v1")) ||
-                            (deinfInfo.type and 2 != 0) && (entry.pos.contains("v5")) ||
-                            (deinfInfo.type and 4 != 0) && (entry.pos.contains("adj-i")) ||
-                            (deinfInfo.type and 8 != 0) && (entry.pos.contains("vk")) ||
-                            (deinfInfo.type and 16 != 0) && (entry.pos.contains("vs-"))
-                }
+                for (entry in filteredEntry){
 
-                if (valid){
-                    results.add(JmSearchResult(entry, deinfInfo, word))
-                    seenEntries.add(entry)
-                }
+                    if (seenEntries.contains(entry)){
+                        continue
+                    }
 
-                count++
+                    var valid = true
+
+                    /*
+                    if (count > 0)
+                    {
+                        valid = (deinfInfo.type and 1 != 0) && (entry.pos.contains("v1")) ||
+                                (deinfInfo.type and 2 != 0) && (entry.pos.contains("v5")) ||
+                                (deinfInfo.type and 4 != 0) && (entry.pos.contains("adj-i")) ||
+                                (deinfInfo.type and 8 != 0) && (entry.pos.contains("vk")) ||
+                                (deinfInfo.type and 16 != 0) && (entry.pos.contains("vs-"))
+                    }
+                    */
+
+                    if (valid){
+                        results.add(JmSearchResult(entry, deinfInfo, word))
+                        seenEntries.add(entry)
+                    }
+
+                    count++
+                }
             }
             word = word.substring(0, word.length - 1)
         }
 
         return results
+    }
+
+    private fun rankResults(results: List<JmSearchResult>) : List<JmSearchResult> {
+        return results.sortedWith(compareBy({ 0 - it.entry.kanji.length }, { getPriority(it) }))
+    }
+
+    private fun getPriority(result: JmSearchResult) : Int {
+
+        val priorities = result.entry.priorities.split(",")
+        var lowestPriority = Int.MAX_VALUE
+
+        for (priority in priorities){
+
+            var pri = Int.MAX_VALUE
+
+            if (priority.contains("nf")){ // looks like the range is nf01-nf48
+                pri = priority.substring(2).toInt()
+            }
+            else if (priority == "news1"){
+                pri = 60
+            }
+            else if (priority == "news2"){
+                pri = 70
+            }
+            else if (priority == "ichi1"){
+                pri = 80
+            }
+            else if (priority == "ichi2"){
+                pri = 90
+            }
+            else if (priority == "spec1"){
+                pri = 100
+            }
+            else if (priority == "spec2"){
+                pri = 110
+            }
+            else if (priority == "gai1"){
+                pri = 120
+            }
+            else if (priority == "gai2"){
+                pri = 130
+            }
+
+            lowestPriority = if (pri < lowestPriority) pri else lowestPriority
+        }
+
+        return lowestPriority
     }
 }

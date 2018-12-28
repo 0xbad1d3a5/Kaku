@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
+import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.BoxParams;
@@ -227,7 +228,7 @@ public class CaptureWindow extends Window implements WindowListener {
             {
                 CroppedScreenshot screenshot = getCroppedScreenshot();
 
-                if (screenshot.bitmap == null){
+                if (screenshot == null || screenshot.bitmap == null){
                     mProcessingPreview = false;
                     return;
                 }
@@ -414,7 +415,7 @@ public class CaptureWindow extends Window implements WindowListener {
     }
 
     private void saveBitmap(Bitmap bitmap, String name) throws FileNotFoundException {
-        String fs = String.format("%s/screenshots/%s_%d.png", context.getExternalFilesDir(null).getAbsolutePath(), name, System.nanoTime());
+        String fs = String.format("%s/%s/%s_%d.png", context.getExternalFilesDir(null).getAbsolutePath(), Constants.SCREENSHOT_FOLDER_NAME, name, System.nanoTime());
         Log.d(TAG, fs);
         FileOutputStream fos = new FileOutputStream(fs);
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);

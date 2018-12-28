@@ -1,9 +1,9 @@
 package ca.fuwafuwa.kaku
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import ca.fuwafuwa.kaku.Windows.InformationWindow
 import java.io.File
@@ -74,13 +75,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        copyFileIfNotExists(getExternalFilesDir(null).absolutePath, "JmDict.db")
-        copyFileIfNotExists(getExternalFilesDir(null).absolutePath, "KanjiDict2.db")
-        copyFileIfNotExists(getExternalFilesDir(null).absolutePath + "/tessdata", "jpn.traineddata")
-
-        var screenshotPath: String = getExternalFilesDir(null).absolutePath + "/screenshots"
-        createDirIfNotExists(screenshotPath)
-        deleteScreenshotsOlderThanOneWeek(screenshotPath)
+        setupKakuDatabasesAndFiles(this)
 
         val i = Intent(this, MainService::class.java)
                 .putExtra(MainService.EXTRA_RESULT_CODE, resultCode)
@@ -88,6 +83,69 @@ class MainActivity : AppCompatActivity() {
 
         startService(i)
         this.finish()
+    }
+
+    private fun setupKakuDatabasesAndFiles(context: Context)
+    {
+        val filesAndPaths = hashMapOf(JMDICT_DATABASE_NAME to context.getExternalFilesDir(null).absolutePath,
+                KANJI_DATABASE_NAME to context.getExternalFilesDir(null).absolutePath,
+                TESS_DATA_NAME to "${context.getExternalFilesDir(null).absolutePath}/$TESS_FOLDER_NAME")
+
+        if (shouldResetData(filesAndPaths))
+        {
+            Log.d(TAG, "Resetting Data")
+            for (fileAndPath in filesAndPaths){
+                File("${fileAndPath.value}/${fileAndPath.key}").delete()
+            }
+        }
+
+        copyFilesIfNotExists(filesAndPaths)
+
+        var screenshotPath: String = context.getExternalFilesDir(null).absolutePath + "/$SCREENSHOT_FOLDER_NAME"
+        createDirIfNotExists(screenshotPath)
+        deleteScreenshotsOlderThanOneWeek(screenshotPath)
+    }
+
+    private fun shouldResetData(filesAndPaths: Map<String, String>) : Boolean
+    {
+        for (fileAndPath in filesAndPaths){
+            if (!File("${fileAndPath.value}/${fileAndPath.key}").exists()) return true
+        }
+        return false
+    }
+
+    private fun createDirIfNotExists(path: String)
+    {
+        val dir = File(path)
+        if (!dir.exists())
+        {
+            dir.mkdirs()
+        }
+    }
+
+    private fun copyFilesIfNotExists(filesAndPaths: Map<String, String>)
+    {
+        for (fileAndPath in filesAndPaths)
+        {
+            val path = fileAndPath.value
+            val fileName = fileAndPath.key
+            val filePath = "$path/$fileName"
+
+            if (File(filePath).exists())
+            {
+                return
+            }
+
+            createDirIfNotExists(path)
+
+            val input = assets.open(fileName)
+            val output = FileOutputStream(filePath)
+
+            input.copyTo(output);
+            output.close()
+
+            Log.d(TAG, "Copied $filePath")
+        }
     }
 
     private fun deleteScreenshotsOlderThanOneWeek(path: String)
@@ -105,31 +163,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun createDirIfNotExists(path: String)
-    {
-        var dir = File(path)
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
-    }
-
-    private fun copyFileIfNotExists(path: String, fileName: String)
-    {
-        var filePath: String = String.format("%s/%s", path, fileName)
-
-        if (File(filePath).exists()){
-            return
-        }
-
-        createDirIfNotExists(path)
-
-        val input = assets.open(fileName)
-        val output = FileOutputStream(filePath)
-
-        input.copyTo(output);
-        output.close()
     }
 
     private fun isExternalStorageWritable(): Boolean

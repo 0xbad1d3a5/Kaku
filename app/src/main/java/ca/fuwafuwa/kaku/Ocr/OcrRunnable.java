@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
@@ -84,7 +85,7 @@ public class OcrRunnable implements Runnable, Stoppable {
                     mBox = null;
                     continue;
                 }
-                saveBitmap(mBitmap);
+                //saveBitmap(mBitmap);
 
                 mCaptureWindow.showLoadingAnimation();
 
@@ -102,21 +103,12 @@ public class OcrRunnable implements Runnable, Stoppable {
 
                 mBox = null;
                 mBitmap = null;
-            }
-            catch (FileNotFoundException e){
-                e.printStackTrace();
-            }
-            catch (OutOfMemoryError e){
-                e.printStackTrace();
-            }
-            catch (StackOverflowError e){
-                e.printStackTrace();
-            }
-            catch (InterruptedException e){
-                e.printStackTrace();
-            }
 
-            mCaptureWindow.stopLoadingAnimation();
+                mCaptureWindow.stopLoadingAnimation();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -189,7 +181,7 @@ public class OcrRunnable implements Runnable, Stoppable {
     }
 
     private void saveBitmap(Bitmap bitmap, String name) throws FileNotFoundException {
-        String fs = String.format("%s/screenshots/%s_%d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), name, System.nanoTime());
+        String fs = String.format("%s/%s/%s_%d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), Constants.SCREENSHOT_FOLDER_NAME, name, System.nanoTime());
         Log.d(TAG, fs);
         FileOutputStream fos = new FileOutputStream(fs);
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);

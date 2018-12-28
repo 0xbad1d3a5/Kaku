@@ -83,7 +83,6 @@ public class MainService extends Service implements Stoppable {
     private static final int RESTART_SERVICE_FOR_IMAGE_PREVIEW = 300;
     private static final int RESTART_SERVICE_FOR_PAGE_MODE = 400;
 
-
     private Intent mIntent;
     private int mResultCode;
     private boolean mShowPreviewImage;
@@ -169,7 +168,7 @@ public class MainService extends Service implements Stoppable {
                 .setContentTitle("Kaku is Running")
                 .setContentText(String.format("Tap Here to Close - Currently in %s", mHorizontalText ? "Horizontal Mode" : "Vertical Mode"))
                 .setContentIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, CloseMainService.class), 0))
-                .addAction(0, mShowPreviewImage ? "Threshold Off" : "Threshold On", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_IMAGE_PREVIEW, toggleImagePreviewIntent, 0))
+                .addAction(0, mShowPreviewImage ? "Binarization Off" : "Binarization On", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_IMAGE_PREVIEW, toggleImagePreviewIntent, 0))
                 .addAction(0, mHorizontalText ? "Vertical Mode" : "Horizontal Mode", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_PAGE_MODE, togglePageMode, 0))
                 .build();
 

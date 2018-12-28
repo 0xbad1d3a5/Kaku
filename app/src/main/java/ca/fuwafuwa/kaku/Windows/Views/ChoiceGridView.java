@@ -62,7 +62,11 @@ public class ChoiceGridView extends SquareGridView {
         if (pos != null){
             int dp10 = KakuTools.dpToPx(mContext, 10);
             Bitmap orig = ocrResult.getBitmap();
-            Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], pos[2] - pos[0], pos[3] - pos[1]);
+            int width = pos[2] - pos[0];
+            int height = pos[3] - pos[1];
+            width = width <= 0 ? 1 : width;
+            height = height <= 0 ? 1 : height;
+            Bitmap bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], width, height);
             KanjiImageView charImage = new KanjiImageView(mContext);
 
             charImage.setSize(90);

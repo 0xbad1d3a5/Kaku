@@ -310,6 +310,12 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
                 sb.append(")");
             }
 
+            if (!jmSearchResult.getEntry().getPriorities().isEmpty()){
+                sb.append(" (");
+                sb.append(jmSearchResult.getEntry().getPriorities());
+                sb.append(")");
+            }
+
             String deinfReason = jmSearchResult.getDeinfInfo().getReason();
             if (deinfReason != null && !deinfReason.isEmpty()){
                 sb.append(String.format(" %s", deinfReason));

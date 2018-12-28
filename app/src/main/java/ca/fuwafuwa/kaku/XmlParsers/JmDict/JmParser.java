@@ -10,7 +10,10 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.IDatabaseHelper;
@@ -90,6 +93,7 @@ public class JmParser implements DictParser {
         {
             EntryOptimized entryOptimized = new EntryOptimized();
             entryOptimized.setKanji(kEle.getKeb());
+            entryOptimized.setPriorities(Joiner.on(",").join(kEle.getKePri()));
             optimizedEntries.add(entryOptimized);
         }
 
@@ -101,6 +105,7 @@ public class JmParser implements DictParser {
                 EntryOptimized entryOptimized = new EntryOptimized();
                 entryOptimized.setKanji(rEle.getReb());
                 entryOptimized.setOnlyKana(true);
+                entryOptimized.setPriorities(Joiner.on(",").join(rEle.getRePri()));
                 optimizedEntries.add(entryOptimized);
             }
         }
@@ -110,6 +115,7 @@ public class JmParser implements DictParser {
             String kanji = entryOptimized.getKanji();
             List<String> eoReadings = new ArrayList<>();
             List<String> eoMeanings = new ArrayList<>();
+            Set eoPriorities = new HashSet<>(Arrays.asList(entryOptimized.getPriorities().split(",")));
             List<String> eoPos = new ArrayList<>();
 
             if (!entryOptimized.isOnlyKana())
@@ -121,10 +127,12 @@ public class JmParser implements DictParser {
                     if (!readingRestriction.isEmpty() && readingRestriction.contains(kanji))
                     {
                         eoReadings.add(rEle.getReb());
+                        eoPriorities.addAll(rEle.getRePri());
                     }
                     else if (readingRestriction.isEmpty())
                     {
                         eoReadings.add(rEle.getReb());
+                        eoPriorities.addAll(rEle.getRePri());
                     }
                 }
             }
@@ -163,9 +171,13 @@ public class JmParser implements DictParser {
                 eoPos.add(Joiner.on(",").join(sense.getPos()));
             }
 
+            eoPriorities.remove(null);
+            eoPriorities.remove("");
+
             entryOptimized.setReadings(Joiner.on(", ").join(eoReadings));
             entryOptimized.setMeanings(Joiner.on("\ufffc").join(eoMeanings));
             entryOptimized.setPos(Joiner.on("\ufffc").join(eoPos));
+            entryOptimized.setPriorities(Joiner.on(",").join(eoPriorities));
 
             if (eoMeanings.size() != eoPos.size()){
                 throw new RuntimeException();

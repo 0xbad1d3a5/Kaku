@@ -9,6 +9,7 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 
+import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
@@ -19,7 +20,7 @@ import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
 
 public class Kd2DatabaseHelper extends DatabaseHelper {
 
-    private static final String DATABASE_NAME = "KanjiDict2.db";
+    private static final String DATABASE_NAME = Constants.KANJI_DATABASE_NAME;
     private static final int DATABASE_VERSION = 1;
 
     private static Kd2DatabaseHelper instance;
