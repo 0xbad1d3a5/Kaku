@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
+import android.view.Window
 import android.widget.Toast
 import ca.fuwafuwa.kaku.Windows.InformationWindow
 import java.io.File
@@ -20,34 +21,10 @@ import java.io.FileOutputStream
 class MainActivity : AppCompatActivity() {
 
     private var mMediaProjectionManager: MediaProjectionManager? = null
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-
-        var processText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
-
-        if (processText != null){
-            InformationWindow(this).setTextResults(processText);
-            finish()
-        }
-
-        if (intent.hasExtra(MainService.KAKU_TOGGLE_IMAGE_PREVIEW)){
-
-            var prefs = getSharedPreferences(MainService.KAKU_PREF_FILE, Context.MODE_PRIVATE)
-            var mShowPreviewImage = prefs.getBoolean(MainService.KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
-            prefs.edit().putBoolean(MainService.KAKU_PREF_SHOW_PREVIEW_IMAGE, !mShowPreviewImage).apply()
-
-            stopService(Intent(this, MainService::class.java))
-        }
-
-        if (intent.hasExtra(MainService.KAKU_TOGGLE_PAGE_MODE)){
-
-            var prefs = getSharedPreferences(MainService.KAKU_PREF_FILE, Context.MODE_PRIVATE)
-            var mHorizontalText = prefs.getBoolean(MainService.KAKU_PREF_HORIZONTAL_TEXT, true);
-            prefs.edit().putBoolean(MainService.KAKU_PREF_HORIZONTAL_TEXT, !mHorizontalText).apply()
-
-            stopService(Intent(this, MainService::class.java))
-        }
 
         var checkPermissions = "Check \"Draw on Top of Other Apps\" Permission"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -61,8 +38,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-
         startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
+
+        setContentView(R.layout.activity_main)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
@@ -71,6 +49,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // In theory we shouldn't need this permission, but for some reason it crashes on older devices without this,
+        // despite the fact that starting in API 19 all apps should be able to write to their private folder, so idk
         if (!isExternalStorageWritable()){
             return
         }
@@ -82,7 +62,6 @@ class MainActivity : AppCompatActivity() {
                 .putExtra(MainService.EXTRA_RESULT_INTENT, data)
 
         startService(i)
-        this.finish()
     }
 
     private fun setupKakuDatabasesAndFiles(context: Context)
@@ -172,9 +151,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object
     {
-        private val TAG = MainService::class.java.getName()
-
-        private val REQUEST_SCREENSHOT = 100
-        private val REQUEST_DRAW_ON_TOP = 200
+        private val TAG = MainService::class.java.name
     }
 }

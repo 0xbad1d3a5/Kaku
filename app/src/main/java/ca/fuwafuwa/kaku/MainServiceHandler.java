@@ -30,7 +30,7 @@ public class MainServiceHandler extends Handler {
         else if (message.obj instanceof OcrResult){
             OcrResult result = (OcrResult) message.obj;
             Log.e(TAG, result.toString());
-            Toast.makeText(mContext, result.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, result.getMessage(), Toast.LENGTH_SHORT).show();
             (new InformationWindow(mContext)).setOcrResults(result);
         }
         else {

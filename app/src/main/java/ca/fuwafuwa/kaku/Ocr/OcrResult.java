@@ -38,6 +38,8 @@ public class OcrResult {
         return sb.toString();
     }
 
+    public String getMessage() { return String.format("OCR Time: %.2fs", mOcrTime/1000.0); }
+
     public String toString(){
         return String.format("%s\nOcrTime: %d", getText(), mOcrTime);
     }

@@ -9,3 +9,6 @@ const val KANJI_DATABASE_NAME = "DB_KanjiDict.db"
 const val TESS_FOLDER_NAME = "tessdata"
 const val TESS_DATA_NAME = "jpn.traineddata"
 const val SCREENSHOT_FOLDER_NAME = "screenshots"
+
+const val REQUEST_SCREENSHOT = 100
+const val REQUEST_DRAW_ON_TOP = 200

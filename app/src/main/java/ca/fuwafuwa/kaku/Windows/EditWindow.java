@@ -54,8 +54,8 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
             Bitmap orig = ocrResult.getBitmap();
             orig = orig.copy(orig.getConfig(), true);
 
-            int width = pos[2] - pos[0];
-            int height = pos[3] - pos[1];
+            int width = pos[2] - pos[0] - 1;
+            int height = pos[3] - pos[1] - 1;
             int xPos = pos[0];
             int yPos = pos[1];
 
@@ -72,10 +72,10 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
                 orig.setPixel(xPos + width, yRight, Color.RED);
             }
 
-            xPos = pos[0] - width * 2;
-            yPos = pos[1] - height * 2;
-            width = width + width * 4;
-            height = height + height * 4;
+            xPos = pos[0] - width * 4;
+            yPos = pos[1] - height * 4;
+            width = width + width * 8;
+            height = height + height * 8;
 
             if (xPos < 0) xPos = 0;
             if (yPos < 0) yPos = 0;

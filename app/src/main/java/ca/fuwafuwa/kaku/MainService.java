@@ -158,10 +158,10 @@ public class MainService extends Service implements Stoppable {
         SharedPreferences prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE);
 
         mShowPreviewImage = prefs.getBoolean(KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
-        Intent toggleImagePreviewIntent = new Intent(this, MainActivity.class).putExtra(KAKU_TOGGLE_IMAGE_PREVIEW, 0);
+        Intent toggleImagePreviewIntent = new Intent(this, PassthroughActivity.class).putExtra(KAKU_TOGGLE_IMAGE_PREVIEW, 0);
 
         mHorizontalText = prefs.getBoolean(KAKU_PREF_HORIZONTAL_TEXT, true);
-        Intent togglePageMode = new Intent(this, MainActivity.class).putExtra(KAKU_TOGGLE_PAGE_MODE, 0);
+        Intent togglePageMode = new Intent(this, PassthroughActivity.class).putExtra(KAKU_TOGGLE_PAGE_MODE, 0);
 
         Notification n = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
