@@ -53,12 +53,15 @@ dependencies {
     implementation 'com.rmtheis:tess-two:9.0.0'
     implementation 'com.google.guava:guava:20.0'
     implementation 'com.google.code.gson:gson:2.7'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha01'
+    implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
 
     implementation 'com.atilika.kuromoji:kuromoji-core:0.9.0'
     implementation 'com.atilika.kuromoji:kuromoji-ipadic:0.9.0'
 
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0-alpha1'
     testImplementation 'junit:junit:4.12'
 
     // Probably just delete all these was trying to get GenerateDictionary to work as a Unit Test

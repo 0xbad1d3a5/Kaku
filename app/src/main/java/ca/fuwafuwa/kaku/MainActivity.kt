@@ -1,46 +1,49 @@
 package ca.fuwafuwa.kaku
 
 import android.app.Activity
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.media.MediaPlayer
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
-import android.view.Window
+import android.view.*
 import android.widget.Toast
-import ca.fuwafuwa.kaku.Windows.InformationWindow
+import android.widget.VideoView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.ViewPager
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.FileOutputStream
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity()
+{
+    private var mSectionsPagerAdapter: FragmentStatePagerAdapter? = null
     private var mMediaProjectionManager: MediaProjectionManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
+        setContentView(R.layout.activity_main)
 
-        var checkPermissions = "Check \"Draw on Top of Other Apps\" Permission"
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)){
-                Toast.makeText(this, checkPermissions, Toast.LENGTH_LONG).show()
-                startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), REQUEST_DRAW_ON_TOP)
-            }
-        }
-        else {
-            Toast.makeText(this, "Manually $checkPermissions\nKaku Might Not Work on This Device", Toast.LENGTH_LONG).show()
-        }
+        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+        container.adapter = mSectionsPagerAdapter
+        container.offscreenPageLimit = 0
 
+        tab_indicator.setupWithViewPager(container, true)
+
+        checkDrawOnTopPermissions()
         mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
-
-        setContentView(R.layout.activity_main)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
@@ -62,6 +65,41 @@ class MainActivity : AppCompatActivity() {
                 .putExtra(MainService.EXTRA_RESULT_INTENT, data)
 
         startService(i)
+    }
+
+    inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm)
+    {
+        override fun getItem(position: Int): Fragment
+        {
+            if (position == 0){
+                return StartFragment.newInstance()
+            }
+            return InstructionFragment.newInstance(position + 1)
+        }
+
+        override fun getCount(): Int
+        {
+            return 10
+        }
+    }
+
+
+
+    private fun checkDrawOnTopPermissions()
+    {
+        var checkPermissions = "Check \"Draw on Top of Other Apps\" Permission"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            if (!Settings.canDrawOverlays(this))
+            {
+                Toast.makeText(this, checkPermissions, Toast.LENGTH_LONG).show()
+                startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), REQUEST_DRAW_ON_TOP)
+            }
+        }
+        else
+        {
+            Toast.makeText(this, "Manually $checkPermissions\nKaku Might Not Work on This Device", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setupKakuDatabasesAndFiles(context: Context)

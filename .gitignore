@@ -1,5 +1,6 @@
 # Ignore data files for Kaku
 app/src/main/assets/*
+app/src/main/res/raw/*
 
 # Created by https://www.gitignore.io/api/android
 # Edit at https://www.gitignore.io/?templates=android

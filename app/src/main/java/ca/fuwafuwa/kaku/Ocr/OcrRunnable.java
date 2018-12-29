@@ -2,29 +2,22 @@ package ca.fuwafuwa.kaku.Ocr;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Message;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
 
-import com.googlecode.leptonica.android.Pix;
-import com.googlecode.leptonica.android.WriteFile;
 import com.googlecode.tesseract.android.ResultIterator;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
-import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
-import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 
 /**
