@@ -64,7 +64,12 @@ class MainActivity : AppCompatActivity()
                 .putExtra(MainService.EXTRA_RESULT_CODE, resultCode)
                 .putExtra(MainService.EXTRA_RESULT_INTENT, data)
 
-        startService(i)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            startForegroundService(i)
+        }
+        else {
+            startService(i)
+        }
     }
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm)
@@ -82,8 +87,6 @@ class MainActivity : AppCompatActivity()
             return 10
         }
     }
-
-
 
     private fun checkDrawOnTopPermissions()
     {

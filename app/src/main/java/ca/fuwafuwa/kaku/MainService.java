@@ -82,6 +82,7 @@ public class MainService extends Service implements Stoppable {
 
     private static final int RESTART_SERVICE_FOR_IMAGE_PREVIEW = 300;
     private static final int RESTART_SERVICE_FOR_PAGE_MODE = 400;
+    private static final int SHUTDOWN_SERVICE = 500;
 
     private Intent mIntent;
     private int mResultCode;
@@ -164,12 +165,12 @@ public class MainService extends Service implements Stoppable {
         Intent togglePageMode = new Intent(this, PassthroughActivity.class).putExtra(KAKU_TOGGLE_PAGE_MODE, 0);
 
         Notification n = new NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.kaku_notification_icon)
                 .setContentTitle("Kaku is Running")
-                .setContentText(String.format("Tap Here to Close - Currently in %s", mHorizontalText ? "Horizontal Mode" : "Vertical Mode"))
-                .setContentIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, CloseMainService.class), 0))
+                .setContentText(String.format("Currently in %s mode, binarization %s", mHorizontalText ? "horizontal" : "vertical", mShowPreviewImage ? "on" : "off"))
                 .addAction(0, mShowPreviewImage ? "Binarization Off" : "Binarization On", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_IMAGE_PREVIEW, toggleImagePreviewIntent, 0))
                 .addAction(0, mHorizontalText ? "Vertical Mode" : "Horizontal Mode", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_PAGE_MODE, togglePageMode, 0))
+                .addAction(0, "Close", PendingIntent.getBroadcast(this, SHUTDOWN_SERVICE, new Intent(this, CloseMainService.class), 0))
                 .build();
 
         startForeground(1, n);

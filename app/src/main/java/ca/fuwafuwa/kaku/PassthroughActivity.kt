@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Window
@@ -57,7 +58,13 @@ class PassthroughActivity : AppCompatActivity()
                 .putExtra(MainService.EXTRA_RESULT_CODE, resultCode)
                 .putExtra(MainService.EXTRA_RESULT_INTENT, data)
 
-        startService(i)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            startForegroundService(i)
+        }
+        else {
+            startService(i)
+        }
+
         finish()
     }
 }
