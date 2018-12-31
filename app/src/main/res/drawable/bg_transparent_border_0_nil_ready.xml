@@ -18,7 +18,7 @@
                 android:radius="0dp"/>
             <stroke
                 android:width="1px"
-                android:color="@color/holo_red_dark"/>
+                android:color="@color/red_capture_window_ready"/>
             <solid android:color="@android:color/transparent"/>
         </shape>
     </item>

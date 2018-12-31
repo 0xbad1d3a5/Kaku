@@ -11,5 +11,5 @@
     <color name="blue_dark">#0064ff</color>
     <color name="blue_dark_translucent">#330064ff</color>
     <color name="blue_solid_highlight">#cce0ff</color>
-    <color name="holo_red_dark">#ffcb0001</color>
+    <color name="red_capture_window_ready">#ffd50000</color>
 </resources>

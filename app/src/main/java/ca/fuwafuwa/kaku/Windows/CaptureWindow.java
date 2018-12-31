@@ -18,7 +18,6 @@ import com.googlecode.leptonica.android.Pix;
 import com.googlecode.leptonica.android.ReadFile;
 import com.googlecode.leptonica.android.WriteFile;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -335,39 +334,45 @@ public class CaptureWindow extends Window implements WindowListener {
 
         Bitmap croppedBitmap = getCroppedBitmap(screenshot, box);
 
+        //saveBitmap(screenshot, String.format("debug_(%d,%d)_(%d,%d)", box.x, box.y, box.width, box.height));
         if (!screenshotReady){
-            saveBitmap(screenshot, "error");
-            saveBitmap(croppedBitmap, "error");
+            saveBitmap(screenshot, String.format("error_(%d,%d)_(%d,%d)", box.x, box.y, box.width, box.height));
+            saveBitmap(croppedBitmap, String.format("error_(%d,%d)_(%d,%d)", box.x, box.y, box.width, box.height));
             return null;
         }
 
         return croppedBitmap;
     }
 
-    private boolean checkScreenshotIsReady(Bitmap screenshot, BoxParams box){
+    private boolean checkScreenshotIsReady(Bitmap screenshot, BoxParams box)
+    {
+        int readyColor = ContextCompat.getColor(context, R.color.red_capture_window_ready);
+        int screenshotColor = screenshot.getPixel(box.x, box.y);
 
-        int readyColor = ContextCompat.getColor(context, R.color.holo_red_dark);
+        if (readyColor != screenshotColor && isAcceptableAlternateReadyColor(screenshotColor)){
+            readyColor = screenshotColor;
+        }
 
         for (int x = box.x; x < box.x + box.width; x++){
-            if (!isARGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y))){
+            if (!isRGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y))){
                 return false;
             }
         }
 
         for (int x = box.x; x < box.x + box.width; x++){
-            if (!isARGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y + box.height - 1))){
+            if (!isRGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y + box.height - 1))){
                 return false;
             }
         }
 
         for (int y = box.y; y < box.y + box.height; y++){
-            if (!isARGBWithinTolorance(readyColor, screenshot.getPixel(box.x, y))){
+            if (!isRGBWithinTolorance(readyColor, screenshot.getPixel(box.x, y))){
                 return false;
             }
         }
 
         for (int y = box.y; y < box.y + box.height; y++){
-            if (!isARGBWithinTolorance(readyColor, screenshot.getPixel(box.x + box.width - 1, y))){
+            if (!isRGBWithinTolorance(readyColor, screenshot.getPixel(box.x + box.width - 1, y))){
                 return false;
             }
         }
@@ -375,14 +380,37 @@ public class CaptureWindow extends Window implements WindowListener {
         return true;
     }
 
-    private boolean isARGBWithinTolorance(int color, int colorToCheck){
+    /**
+     * Looks like sometimes the screenshot just has a color that is 100% totally wrong. Let's just accept any red that's "red enough"
+     * @param screenshotColor
+     * @return
+     */
+    private boolean isAcceptableAlternateReadyColor(int screenshotColor)
+    {
+        int R = (screenshotColor >> 16) & 0xFF;
+        int G = (screenshotColor >>  8) & 0xFF;
+        int B = (screenshotColor      ) & 0xFF;
 
+        boolean isValid = true;
+
+        if (G * 10 > R){
+            isValid = false;
+        }
+
+        if (B * 10 > R){
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    private boolean isRGBWithinTolorance(int color, int colorToCheck)
+    {
         boolean isColorWithinTolorance = true;
 
-        isColorWithinTolorance &= isColorWithinTolorance(color & 0x000000FF, colorToCheck & 0x000000FF);
-        isColorWithinTolorance &= isColorWithinTolorance((color >> 8) & 0x000000FF, (colorToCheck >> 8) & 0x000000FF);
-        isColorWithinTolorance &= isColorWithinTolorance((color >> 16) & 0x000000FF, (colorToCheck >> 16) & 0x000000FF);
-        isColorWithinTolorance &= isColorWithinTolorance((color >> 24) & 0x000000FF, (colorToCheck >> 24) & 0x000000FF);
+        isColorWithinTolorance &= isColorWithinTolorance((color      ) & 0xFF, (colorToCheck      ) & 0xFF);
+        isColorWithinTolorance &= isColorWithinTolorance((color >>  8) & 0xFF, (colorToCheck >>  8) & 0xFF);
+        isColorWithinTolorance &= isColorWithinTolorance((color >> 16) & 0xFF, (colorToCheck >> 16) & 0xFF);
 
         return isColorWithinTolorance;
     }
