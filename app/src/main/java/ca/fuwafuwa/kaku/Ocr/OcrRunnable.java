@@ -78,7 +78,7 @@ public class OcrRunnable implements Runnable, Stoppable {
                     mBox = null;
                     continue;
                 }
-                //saveBitmap(mBitmap);
+                saveBitmap(mBitmap);
 
                 mCaptureWindow.showLoadingAnimation();
 

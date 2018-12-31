@@ -3,7 +3,6 @@ package ca.fuwafuwa.kaku
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
@@ -12,14 +11,10 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
-import android.view.*
 import android.widget.Toast
-import android.widget.VideoView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.FileOutputStream
@@ -123,7 +118,7 @@ class MainActivity : AppCompatActivity()
 
         var screenshotPath: String = context.getExternalFilesDir(null).absolutePath + "/$SCREENSHOT_FOLDER_NAME"
         createDirIfNotExists(screenshotPath)
-        deleteScreenshotsOlderThanOneWeek(screenshotPath)
+        deleteScreenshotsOlderThanOneDay(screenshotPath)
     }
 
     private fun shouldResetData(filesAndPaths: Map<String, String>) : Boolean
@@ -168,13 +163,13 @@ class MainActivity : AppCompatActivity()
         }
     }
 
-    private fun deleteScreenshotsOlderThanOneWeek(path: String)
+    private fun deleteScreenshotsOlderThanOneDay(path: String)
     {
         var dir = File(path)
         if (dir.exists())
         {
             var listFiles = dir.listFiles()
-            var purgeTime = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000
+            var purgeTime = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000
             for (file in listFiles)
             {
                 if (file.lastModified() < purgeTime)

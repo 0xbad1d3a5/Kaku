@@ -35,6 +35,9 @@ import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 import ca.fuwafuwa.kaku.Windows.Window;
 
+import static androidx.core.app.NotificationCompat.FLAG_FOREGROUND_SERVICE;
+import static androidx.core.app.NotificationCompat.FLAG_ONGOING_EVENT;
+
 /**
  * Created by 0xbad1d3a5 on 4/9/2016.
  */
@@ -172,6 +175,7 @@ public class MainService extends Service implements Stoppable {
                 .addAction(0, mHorizontalText ? "Vertical Mode" : "Horizontal Mode", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_PAGE_MODE, togglePageMode, 0))
                 .addAction(0, "Close", PendingIntent.getBroadcast(this, SHUTDOWN_SERVICE, new Intent(this, CloseMainService.class), 0))
                 .build();
+        n.flags = FLAG_ONGOING_EVENT | FLAG_FOREGROUND_SERVICE;
 
         startForeground(1, n);
     }
@@ -211,7 +215,7 @@ public class MainService extends Service implements Stoppable {
         return mHandler;
     }
 
-    public Image getScreenshot() throws TimeoutException, InterruptedException {
+    public Image getScreenshot() throws InterruptedException {
         long startTime = System.nanoTime();
         Image image = mImageReader.acquireLatestImage();
         while (image == null && System.nanoTime() < startTime + 2000000000){
