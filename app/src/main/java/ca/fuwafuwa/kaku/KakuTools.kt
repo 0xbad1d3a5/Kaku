@@ -3,6 +3,8 @@
 package ca.fuwafuwa.kaku
 
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.util.DisplayMetrics
 
 import com.google.common.base.Joiner
@@ -56,4 +58,16 @@ fun splitTextByChar(text: String): List<String>
     }
 
     return charList
+}
+
+fun startKakuService(context: Context, i: Intent)
+{
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+    {
+        context.startForegroundService(i)
+    }
+    else
+    {
+        context.startService(i)
+    }
 }

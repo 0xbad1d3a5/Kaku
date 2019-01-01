@@ -29,8 +29,6 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
-import java.util.concurrent.TimeoutException;
-
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 import ca.fuwafuwa.kaku.Windows.Window;
@@ -45,11 +43,40 @@ public class MainService extends Service implements Stoppable {
 
     private static final String TAG = MainService.class.getName();
 
-    public static class CloseMainService extends BroadcastReceiver {
+    public static class CloseMainService extends BroadcastReceiver
+    {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "GOT CLOSE");
             context.stopService(new Intent(context, MainService.class));
+        }
+    }
+
+    public static class ToggleImagePreviewMainService extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+            boolean imagePreview = prefs.getBoolean(Constants.KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
+            prefs.edit().putBoolean(Constants.KAKU_PREF_SHOW_PREVIEW_IMAGE, !imagePreview).apply();
+
+            Intent i = new Intent(context, MainService.class).putExtra(Constants.EXTRA_TOGGLE_IMAGE_PREVIEW, 0);
+            KakuTools.startKakuService(context, i);
+        }
+    }
+
+    public static class TogglePageModeMainService extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+            boolean pageMode = prefs.getBoolean(Constants.KAKU_PREF_HORIZONTAL_TEXT, true);
+            prefs.edit().putBoolean(Constants.KAKU_PREF_HORIZONTAL_TEXT, !pageMode).apply();
+
+            Intent i = new Intent(context, MainService.class).putExtra(Constants.EXTRA_TOGGLE_PAGE_MODE, 0);
+            KakuTools.startKakuService(context, i);
         }
     }
 
@@ -72,23 +99,10 @@ public class MainService extends Service implements Stoppable {
     }
 
     private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
-    public static final String EXTRA_RESULT_INTENT = "EXTRA_RESULT_INTENT";
-    public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
+    private static final int NOTIFICATION_ID = 1;
 
-    public static final String KAKU_PREF_FILE = "ca.fuwafuwa.kaku";
-
-    public static final String KAKU_TOGGLE_IMAGE_PREVIEW = "KAKU_TOGGLE_IMAGE_PREVIEW";
-    public static final String KAKU_TOGGLE_PAGE_MODE = "KAKU_TOGGLE_PAGE_MODE";
-
-    public static final String KAKU_PREF_SHOW_PREVIEW_IMAGE = "ShowPreviewImage";
-    public static final String KAKU_PREF_HORIZONTAL_TEXT = "HorizontalText";
-
-    private static final int RESTART_SERVICE_FOR_IMAGE_PREVIEW = 300;
-    private static final int RESTART_SERVICE_FOR_PAGE_MODE = 400;
-    private static final int SHUTDOWN_SERVICE = 500;
-
-    private Intent mIntent;
-    private int mResultCode;
+    private Intent mProjectionResultIntent;
+    private int mProjectionResultCode;
     private boolean mShowPreviewImage;
     private boolean mHorizontalText;
 
@@ -118,15 +132,27 @@ public class MainService extends Service implements Stoppable {
         Log.d(TAG, "onStartCommand");
 
         mHandler = new MainServiceHandler(this);
-        mIntent = (Intent) intent.getExtras().get(EXTRA_RESULT_INTENT);
-        mResultCode = intent.getExtras().getInt(EXTRA_RESULT_CODE);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+
+        if (intent.getExtras().containsKey(Constants.EXTRA_PROJECTION_RESULT_CODE) &&
+            intent.getExtras().containsKey(Constants.EXTRA_PROJECTION_RESULT_INTENT))
+        {
+            mProjectionResultIntent = (Intent) intent.getExtras().get(Constants.EXTRA_PROJECTION_RESULT_INTENT);
+            mProjectionResultCode = intent.getExtras().getInt(Constants.EXTRA_PROJECTION_RESULT_CODE);
+        }
 
         if (mCaptureWindow == null){
             mCaptureWindow = new CaptureWindow(this, mShowPreviewImage, mHorizontalText);
         }
         else {
+            Log.d(TAG, "onStartCommand - Reinitializing CaptureWindow");
+
+            // Note: must call getNotificaton() before reinit-ing the CaptureWindow, since it sets some global variables... probably should refactor this to be more clean
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(NOTIFICATION_ID, getNotification());
+
             mCaptureWindow.reInit();
+            mCaptureWindow.reInitOcr(mShowPreviewImage, mHorizontalText);
         }
 
         return START_NOT_STICKY;
@@ -150,34 +176,7 @@ public class MainService extends Service implements Stoppable {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "CREATING MAINSERVICE: " + System.identityHashCode(this));
-
-        String channelId;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            channelId = createNotificationChannel();
-        }
-        else {
-            channelId = "";
-        }
-
-        SharedPreferences prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE);
-
-        mShowPreviewImage = prefs.getBoolean(KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
-        Intent toggleImagePreviewIntent = new Intent(this, PassthroughActivity.class).putExtra(KAKU_TOGGLE_IMAGE_PREVIEW, 0);
-
-        mHorizontalText = prefs.getBoolean(KAKU_PREF_HORIZONTAL_TEXT, true);
-        Intent togglePageMode = new Intent(this, PassthroughActivity.class).putExtra(KAKU_TOGGLE_PAGE_MODE, 0);
-
-        Notification n = new NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.kaku_notification_icon)
-                .setContentTitle("Kaku is Running")
-                .setContentText(String.format("Currently in %s mode, binarization %s", mHorizontalText ? "horizontal" : "vertical", mShowPreviewImage ? "on" : "off"))
-                .addAction(0, mShowPreviewImage ? "Binarization Off" : "Binarization On", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_IMAGE_PREVIEW, toggleImagePreviewIntent, 0))
-                .addAction(0, mHorizontalText ? "Vertical Mode" : "Horizontal Mode", PendingIntent.getActivity(this, RESTART_SERVICE_FOR_PAGE_MODE, togglePageMode, 0))
-                .addAction(0, "Close", PendingIntent.getBroadcast(this, SHUTDOWN_SERVICE, new Intent(this, CloseMainService.class), 0))
-                .build();
-        n.flags = FLAG_ONGOING_EVENT | FLAG_FOREGROUND_SERVICE;
-
-        startForeground(1, n);
+        startForeground(NOTIFICATION_ID, getNotification());
     }
 
     @Override
@@ -204,7 +203,7 @@ public class MainService extends Service implements Stoppable {
     public void onCaptureWindowFinishedInitializing(){
         if (mMediaProjection == null){
             Log.d(TAG, "mMediaProjection is null");
-            mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mIntent);
+            mMediaProjection = mMediaProjectionManager.getMediaProjection(mProjectionResultCode, mProjectionResultIntent);
             mMediaProjectionStopCallback = new MediaProjectionStopCallback();
             mMediaProjection.registerCallback(mMediaProjectionStopCallback, mHandler);
         }
@@ -225,12 +224,39 @@ public class MainService extends Service implements Stoppable {
         return image;
     }
 
-    public Point getRealDisplaySize(){
-        return mRealDisplaySize;
+    private Notification getNotification()
+    {
+        String channelId;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            channelId = createNotificationChannel();
+        }
+        else {
+            channelId = "";
+        }
+
+        PendingIntent toggleImagePreview = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_IMAGE_PREVIEW, new Intent(this, ToggleImagePreviewMainService.class), 0);
+        PendingIntent togglePageMode = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_PAGE_MODE, new Intent(this, TogglePageModeMainService.class), 0);
+        PendingIntent closeMainService = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_SHUTDOWN, new Intent(this, CloseMainService.class), 0);
+
+        SharedPreferences prefs = getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+        mShowPreviewImage = prefs.getBoolean(Constants.KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
+        mHorizontalText = prefs.getBoolean(Constants.KAKU_PREF_HORIZONTAL_TEXT, true);
+
+        Notification n = new NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.kaku_notification_icon)
+                .setContentTitle("Kaku is Running")
+                .setContentText(String.format("Currently in %s mode, binarization %s", mHorizontalText ? "horizontal" : "vertical", mShowPreviewImage ? "on" : "off"))
+                .addAction(0, mShowPreviewImage ? "Binarization Off" : "Binarization On", toggleImagePreview)
+                .addAction(0, mHorizontalText ? "Vertical Mode" : "Horizontal Mode", togglePageMode)
+                .addAction(0, "Close", closeMainService)
+                .build();
+        n.flags = FLAG_ONGOING_EVENT | FLAG_FOREGROUND_SERVICE;
+
+        return n;
     }
 
-    private void createVirtualDisplay(){
-
+    private void createVirtualDisplay()
+    {
         // display metrics
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         DisplayMetrics metrics = getResources().getDisplayMetrics();

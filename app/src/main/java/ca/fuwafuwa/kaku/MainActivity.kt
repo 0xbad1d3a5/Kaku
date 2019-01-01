@@ -56,15 +56,10 @@ class MainActivity : AppCompatActivity()
         setupKakuDatabasesAndFiles(this)
 
         val i = Intent(this, MainService::class.java)
-                .putExtra(MainService.EXTRA_RESULT_CODE, resultCode)
-                .putExtra(MainService.EXTRA_RESULT_INTENT, data)
+                .putExtra(EXTRA_PROJECTION_RESULT_CODE, resultCode)
+                .putExtra(EXTRA_PROJECTION_RESULT_INTENT, data)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            startForegroundService(i)
-        }
-        else {
-            startService(i)
-        }
+        startKakuService(this, i)
     }
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm)

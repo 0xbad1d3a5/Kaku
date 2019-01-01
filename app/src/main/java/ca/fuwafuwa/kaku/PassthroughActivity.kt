@@ -26,20 +26,20 @@ class PassthroughActivity : AppCompatActivity()
             finish()
         }
 
-        if (intent.hasExtra(MainService.KAKU_TOGGLE_IMAGE_PREVIEW)){
+        if (intent.hasExtra(EXTRA_TOGGLE_IMAGE_PREVIEW)){
 
-            var prefs = getSharedPreferences(MainService.KAKU_PREF_FILE, Context.MODE_PRIVATE)
-            var mShowPreviewImage = prefs.getBoolean(MainService.KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
-            prefs.edit().putBoolean(MainService.KAKU_PREF_SHOW_PREVIEW_IMAGE, !mShowPreviewImage).apply()
+            var prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
+            var mShowPreviewImage = prefs.getBoolean(KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
+            prefs.edit().putBoolean(KAKU_PREF_SHOW_PREVIEW_IMAGE, !mShowPreviewImage).apply()
 
             stopService(Intent(this, MainService::class.java))
         }
 
-        if (intent.hasExtra(MainService.KAKU_TOGGLE_PAGE_MODE)){
+        if (intent.hasExtra(EXTRA_TOGGLE_PAGE_MODE)){
 
-            var prefs = getSharedPreferences(MainService.KAKU_PREF_FILE, Context.MODE_PRIVATE)
-            var mHorizontalText = prefs.getBoolean(MainService.KAKU_PREF_HORIZONTAL_TEXT, true);
-            prefs.edit().putBoolean(MainService.KAKU_PREF_HORIZONTAL_TEXT, !mHorizontalText).apply()
+            var prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
+            var mHorizontalText = prefs.getBoolean(KAKU_PREF_HORIZONTAL_TEXT, true);
+            prefs.edit().putBoolean(KAKU_PREF_HORIZONTAL_TEXT, !mHorizontalText).apply()
 
             stopService(Intent(this, MainService::class.java))
         }
@@ -55,15 +55,10 @@ class PassthroughActivity : AppCompatActivity()
         }
 
         val i = Intent(this, MainService::class.java)
-                .putExtra(MainService.EXTRA_RESULT_CODE, resultCode)
-                .putExtra(MainService.EXTRA_RESULT_INTENT, data)
+                .putExtra(EXTRA_PROJECTION_RESULT_CODE, resultCode)
+                .putExtra(EXTRA_PROJECTION_RESULT_INTENT, data)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            startForegroundService(i)
-        }
-        else {
-            startService(i)
-        }
+        startKakuService(this, i)
 
         finish()
     }

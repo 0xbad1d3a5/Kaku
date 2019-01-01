@@ -53,7 +53,6 @@ public class CaptureWindow extends Window implements WindowListener {
     private View mWindowBox;
     private ImageView mImageView;
     private Animation mFadeRepeat;
-    private Animation mFadeOut;
     private Drawable mBorderDefault;
     private Drawable mBorderReady;
     private boolean mAllowOcr;
@@ -70,13 +69,10 @@ public class CaptureWindow extends Window implements WindowListener {
     public CaptureWindow(final Context context, boolean showPreviewImage, boolean horizontalText) {
         super(context, R.layout.capture_window);
 
-        Log.d(TAG, String.format("Capture Window Created with showPreviewImage: %b | horizontalText: %b", showPreviewImage, horizontalText));
-
         this.mCommonParser = new CommonParser(context);
 
         mImageView = (ImageView) window.findViewById(R.id.capture_image);
         mFadeRepeat = AnimationUtils.loadAnimation(this.context, R.anim.fade_repeat);
-        mFadeOut = AnimationUtils.loadAnimation(this.context, R.anim.fade_out);
         mBorderDefault = this.context.getResources().getDrawable(R.drawable.bg_translucent_border_0_blue_blue, null);
         mBorderReady = this.context.getResources().getDrawable(R.drawable.bg_transparent_border_0_nil_ready, null);
         mAllowOcr = false;
@@ -88,10 +84,7 @@ public class CaptureWindow extends Window implements WindowListener {
         mProcessingOcr = false;
         mPreviewImage = null;
 
-        mOcr = new OcrRunnable(this.context, this, horizontalText);
-        Thread tessThread = new Thread(mOcr);
-        tessThread.setDaemon(true);
-        tessThread.start();
+        startOcrThread(horizontalText);
 
         windowManager.getDefaultDisplay().getRotation();
 
@@ -112,6 +105,13 @@ public class CaptureWindow extends Window implements WindowListener {
                 mWindowBox.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
+    }
+
+    public void reInitOcr(boolean showPreviewImage, boolean horizontalText)
+    {
+        mShowPreviewImage = showPreviewImage;
+        mOcr.stop();
+        startOcrThread(horizontalText);
     }
 
     @Override
@@ -221,6 +221,14 @@ public class CaptureWindow extends Window implements WindowListener {
         });
     }
 
+    private void startOcrThread(boolean horizontalText){
+        mOcr = new OcrRunnable(this.context, this, horizontalText);
+        Thread tessThread = new Thread(mOcr);
+        tessThread.setName(String.format("TessThread%d", System.nanoTime()));
+        tessThread.setDaemon(true);
+        tessThread.start();
+    }
+
     private void setPreviewImage(){
         Thread thread = new Thread(new Runnable(){
             @Override
@@ -228,13 +236,12 @@ public class CaptureWindow extends Window implements WindowListener {
             {
                 CroppedScreenshot screenshot = getCroppedScreenshot();
 
-                if (screenshot == null || screenshot.bitmap == null){
+                if (screenshot == null || screenshot.bitmap == null || screenshot.params == null){
                     mProcessingPreview = false;
                     return;
                 }
 
                 mPreviewImage = screenshot;
-                final Bitmap processedScreenshot = getProcessedScreenshot(mPreviewImage.bitmap);
 
                 ((MainService)context).getHandler().post(new Runnable()
                 {
@@ -242,7 +249,7 @@ public class CaptureWindow extends Window implements WindowListener {
                     public void run()
                     {
                         if (mShowPreviewImage){
-                            mImageView.setImageBitmap(processedScreenshot);
+                            mImageView.setImageBitmap(getProcessedScreenshot(mPreviewImage.bitmap));
                         }
                         mProcessingPreview = false;
                     }
@@ -263,14 +270,18 @@ public class CaptureWindow extends Window implements WindowListener {
         }
     }
 
-    private Bitmap getProcessedScreenshot(Bitmap bitmap){
+    private Bitmap getProcessedScreenshot(Bitmap bitmap)
+    {
         Pix pix = ReadFile.readBitmap(bitmap).clone();
+
         //pix = AdaptiveMap.pixContrastNorm(pix, 5, 5, 40, 2, 1);
         //pix = Convert.convertTo8(pix);
-        pix = GrayQuant.pixThresholdToBinary(pix, mThreshold);
         //pix = Binarize.otsuAdaptiveThreshold(pix);
+        pix = GrayQuant.pixThresholdToBinary(pix, mThreshold);
+
         Bitmap returnBitmap = WriteFile.writeBitmap(pix);
         pix.recycle();
+
         return returnBitmap;
     }
 

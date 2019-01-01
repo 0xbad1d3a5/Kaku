@@ -16,6 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver android:name=".MainService$CloseMainService" />
+        <receiver android:name=".MainService$TogglePageModeMainService" />
+        <receiver android:name=".MainService$ToggleImagePreviewMainService" />
 
         <activity
             android:name=".MainActivity"

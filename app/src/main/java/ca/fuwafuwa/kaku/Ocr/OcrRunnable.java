@@ -33,6 +33,7 @@ public class OcrRunnable implements Runnable, Stoppable {
     private boolean mRunning = true;
     private BoxParams mBox;
     private Bitmap mBitmap;
+    private boolean mHorizontalText;
     private Object mBoxLock = new Object();
 
     public OcrRunnable(Context context, CaptureWindow captureWindow, boolean horizontalText){
@@ -40,30 +41,40 @@ public class OcrRunnable implements Runnable, Stoppable {
         mCaptureWindow = captureWindow;
         mBox = null;
         mBitmap = null;
+        mHorizontalText = horizontalText;
+    }
 
+    @Override
+    public void run()
+    {
         mTessBaseAPI = new TessBaseAPI();
         String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
         Log.e(TAG, storagePath);
         mTessBaseAPI.init(storagePath, "jpn");
-        if (!horizontalText){
+
+        if (!mHorizontalText)
+        {
             mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK_VERT_TEXT);
         }
-    }
 
-    @Override
-    public void run() {
-
-        while(mRunning){
-
+        while(mRunning)
+        {
             Log.d(TAG, "THREAD STARTING NEW LOOP");
 
-            try {
+            try
+            {
+                if (mBox == null) {
+                    synchronized (mBoxLock) {
 
-                if (mBox == null){
-                    synchronized (mBoxLock){
+                        if (!mRunning){
+                            return;
+                        }
+
                         Log.d(TAG, "WAITING");
+
                         mBoxLock.wait();
-                        if (mBox == null){
+
+                        if (mBox == null) {
                             continue;
                         }
                     }
@@ -74,7 +85,6 @@ public class OcrRunnable implements Runnable, Stoppable {
                 long startTime = System.currentTimeMillis();
 
                 if (mBitmap == null){
-                    sendToastToContext("Error getting image");
                     mBox = null;
                     continue;
                 }
@@ -103,6 +113,8 @@ public class OcrRunnable implements Runnable, Stoppable {
                 e.printStackTrace();
             }
         }
+
+        Log.d(TAG, "THREAD STOPPED");
     }
 
     /**
@@ -111,6 +123,9 @@ public class OcrRunnable implements Runnable, Stoppable {
      */
     public void runTess(Bitmap bitmap, BoxParams box){
         synchronized (mBoxLock){
+            if (!mRunning){
+                return;
+            }
             mBitmap = bitmap;
             mBox = box;
             mTessBaseAPI.stop();
@@ -134,8 +149,9 @@ public class OcrRunnable implements Runnable, Stoppable {
     public void stop(){
         synchronized (mBoxLock){
             mRunning = false;
+            mBox = null;
             mTessBaseAPI.stop();
-            Log.d(TAG, "THREAD STOPPED");
+            mBoxLock.notify();
         }
     }
 
