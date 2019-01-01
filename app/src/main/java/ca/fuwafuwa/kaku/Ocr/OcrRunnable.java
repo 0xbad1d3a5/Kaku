@@ -35,6 +35,7 @@ public class OcrRunnable implements Runnable, Stoppable {
     private boolean mReady = false;
     private BoxParams mBox;
     private Bitmap mBitmap;
+    private Bitmap mOriginalBitmap;
     private Object mBoxLock = new Object();
 
     public OcrRunnable(Context context, CaptureWindow captureWindow, boolean horizontalText){
@@ -42,6 +43,7 @@ public class OcrRunnable implements Runnable, Stoppable {
         mCaptureWindow = captureWindow;
         mBox = null;
         mBitmap = null;
+        mOriginalBitmap = null;
         mHorizontalText = horizontalText;
     }
 
@@ -87,7 +89,7 @@ public class OcrRunnable implements Runnable, Stoppable {
 
                 long startTime = System.currentTimeMillis();
 
-                if (mBitmap == null){
+                if (mBitmap == null || mOriginalBitmap == null){
                     mBox = null;
                     continue;
                 }
@@ -101,7 +103,7 @@ public class OcrRunnable implements Runnable, Stoppable {
                 mTessBaseAPI.clear();
 
                 if (ocrChars.size() > 0){
-                    sendOcrResultToContext(new OcrResult(mBitmap, ocrChars, System.currentTimeMillis() - startTime));
+                    sendOcrResultToContext(new OcrResult(mOriginalBitmap, ocrChars, System.currentTimeMillis() - startTime));
                 }
                 else{
                     sendToastToContext("No Characters Recognized.");
@@ -109,6 +111,7 @@ public class OcrRunnable implements Runnable, Stoppable {
 
                 mBox = null;
                 mBitmap = null;
+                mOriginalBitmap = null;
 
                 mCaptureWindow.stopLoadingAnimation();
             }
@@ -124,12 +127,13 @@ public class OcrRunnable implements Runnable, Stoppable {
      * Unblocks the thread and starts OCR
      * @param box Coordinates and size of the area to OCR from the screen
      */
-    public void runTess(Bitmap bitmap, BoxParams box){
+    public void runTess(Bitmap bitmap, Bitmap originalBitmap, BoxParams box){
         synchronized (mBoxLock){
             if (!mRunning || !mReady){
                 return;
             }
             mBitmap = bitmap;
+            mOriginalBitmap = originalBitmap;
             mBox = box;
             mTessBaseAPI.stop();
             mBoxLock.notify();

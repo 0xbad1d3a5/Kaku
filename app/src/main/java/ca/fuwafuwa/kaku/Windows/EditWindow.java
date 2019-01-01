@@ -72,10 +72,10 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
                 orig.setPixel(xPos + width, yRight, Color.RED);
             }
 
-            xPos = pos[0] - width * 4;
-            yPos = pos[1] - height * 4;
-            width = width + width * 8;
-            height = height + height * 8;
+            xPos = pos[0] - width * 6;
+            yPos = pos[1] - height * 6;
+            width = width + width * 12;
+            height = height + height * 12;
 
             if (xPos < 0) xPos = 0;
             if (yPos < 0) yPos = 0;

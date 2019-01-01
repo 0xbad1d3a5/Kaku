@@ -316,8 +316,8 @@ public class CaptureWindow extends Window implements WindowListener {
     {
         try
         {
-            Bitmap bitmapToProcess = mShowPreviewImage ? getProcessedScreenshot(mPreviewImage.bitmap) : mPreviewImage.bitmap;
-            mOcr.runTess(bitmapToProcess, mPreviewImage.params);
+            Bitmap processedImage = mShowPreviewImage ? getProcessedScreenshot(mPreviewImage.bitmap) : mPreviewImage.bitmap;
+            mOcr.runTess(processedImage, mPreviewImage.bitmap, mPreviewImage.params);
         } catch (Exception e)
         {
             e.printStackTrace();
