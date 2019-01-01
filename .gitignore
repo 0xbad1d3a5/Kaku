@@ -11,6 +11,9 @@ app/src/main/res/raw/*
 *.ap_
 *.aab
 
+# Release files
+app/release/*
+
 # Files for the ART/Dalvik VM
 *.dex
 
