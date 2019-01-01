@@ -144,11 +144,7 @@ public class CaptureWindow extends Window implements WindowListener {
             switch (e.getAction()){
                 case MotionEvent.ACTION_MOVE:
                     Log.d(TAG, "onTouch - Move");
-                    mThreshold = (int)((e.getRawX() / getRealDisplaySize().x) * 256);
-                    if (mShowPreviewImage && mPreviewImage != null){
-                        Bitmap bitmap = getProcessedScreenshot(mPreviewImage.bitmap);
-                        mImageView.setImageBitmap(bitmap);
-                    }
+                    setPreviewImageForThreshold(e);
             }
         }
 
@@ -161,6 +157,7 @@ public class CaptureWindow extends Window implements WindowListener {
         Log.d(TAG, "onLongPress");
 
         mInLongPress = true;
+        setPreviewImageForThreshold(e);
     }
 
     @Override
@@ -221,7 +218,18 @@ public class CaptureWindow extends Window implements WindowListener {
         });
     }
 
-    private void startOcrThread(boolean horizontalText){
+    private void setPreviewImageForThreshold(MotionEvent e)
+    {
+        if (mShowPreviewImage && mPreviewImage != null){
+            mThreshold = (int)((e.getRawX() / getRealDisplaySize().x) * 256);
+            Bitmap bitmap = getProcessedScreenshot(mPreviewImage.bitmap);
+            mImageView.setImageBitmap(bitmap);
+        }
+    }
+
+
+    private void startOcrThread(boolean horizontalText)
+    {
         mOcr = new OcrRunnable(this.context, this, horizontalText);
         Thread tessThread = new Thread(mOcr);
         tessThread.setName(String.format("TessThread%d", System.nanoTime()));
@@ -229,7 +237,8 @@ public class CaptureWindow extends Window implements WindowListener {
         tessThread.start();
     }
 
-    private void setPreviewImage(){
+    private void setPreviewImage()
+    {
         Thread thread = new Thread(new Runnable(){
             @Override
             public void run()
@@ -259,7 +268,8 @@ public class CaptureWindow extends Window implements WindowListener {
         thread.start();
     }
 
-    private void setBorderStyle(MotionEvent e){
+    private void setBorderStyle(MotionEvent e)
+    {
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mWindowBox.setBackground(mBorderDefault);

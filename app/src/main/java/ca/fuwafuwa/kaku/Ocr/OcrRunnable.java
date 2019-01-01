@@ -31,9 +31,10 @@ public class OcrRunnable implements Runnable, Stoppable {
     private CaptureWindow mCaptureWindow;
     private TessBaseAPI mTessBaseAPI;
     private boolean mRunning = true;
+    private boolean mHorizontalText;
+    private boolean mReady = false;
     private BoxParams mBox;
     private Bitmap mBitmap;
-    private boolean mHorizontalText;
     private Object mBoxLock = new Object();
 
     public OcrRunnable(Context context, CaptureWindow captureWindow, boolean horizontalText){
@@ -56,6 +57,8 @@ public class OcrRunnable implements Runnable, Stoppable {
         {
             mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK_VERT_TEXT);
         }
+
+        mReady = true;
 
         while(mRunning)
         {
@@ -123,7 +126,7 @@ public class OcrRunnable implements Runnable, Stoppable {
      */
     public void runTess(Bitmap bitmap, BoxParams box){
         synchronized (mBoxLock){
-            if (!mRunning){
+            if (!mRunning || !mReady){
                 return;
             }
             mBitmap = bitmap;
