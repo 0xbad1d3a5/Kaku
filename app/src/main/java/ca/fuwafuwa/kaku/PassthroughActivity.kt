@@ -25,41 +25,5 @@ class PassthroughActivity : AppCompatActivity()
             InformationWindow(this).setTextResults(processText);
             finish()
         }
-
-        if (intent.hasExtra(EXTRA_TOGGLE_IMAGE_PREVIEW)){
-
-            var prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
-            var mShowPreviewImage = prefs.getBoolean(KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
-            prefs.edit().putBoolean(KAKU_PREF_SHOW_PREVIEW_IMAGE, !mShowPreviewImage).apply()
-
-            stopService(Intent(this, MainService::class.java))
-        }
-
-        if (intent.hasExtra(EXTRA_TOGGLE_PAGE_MODE)){
-
-            var prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
-            var mHorizontalText = prefs.getBoolean(KAKU_PREF_HORIZONTAL_TEXT, true);
-            prefs.edit().putBoolean(KAKU_PREF_HORIZONTAL_TEXT, !mHorizontalText).apply()
-
-            stopService(Intent(this, MainService::class.java))
-        }
-
-        mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
-    {
-        if (!(requestCode == REQUEST_SCREENSHOT && resultCode == Activity.RESULT_OK)) {
-            return
-        }
-
-        val i = Intent(this, MainService::class.java)
-                .putExtra(EXTRA_PROJECTION_RESULT_CODE, resultCode)
-                .putExtra(EXTRA_PROJECTION_RESULT_INTENT, data)
-
-        startKakuService(this, i)
-
-        finish()
     }
 }
