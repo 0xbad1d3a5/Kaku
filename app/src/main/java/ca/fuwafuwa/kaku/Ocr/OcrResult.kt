@@ -7,6 +7,7 @@ import ca.fuwafuwa.kaku.Windows.CaptureWindow
  * Created by 0xbad1d3a5 on 5/2/2016.
  */
 class OcrResult(val bitmap: Bitmap,
+                val boxParams: BoxParams,
                 val ocrChars: List<OcrChar>,
                 val instant: Boolean,
                 val captureWindow: CaptureWindow,

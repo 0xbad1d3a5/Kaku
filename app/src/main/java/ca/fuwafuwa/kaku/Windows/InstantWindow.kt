@@ -1,21 +1,23 @@
 package ca.fuwafuwa.kaku.Windows
 
 import android.content.Context
-import android.graphics.PixelFormat
-import android.os.Build
-import android.view.Gravity
 import android.view.MotionEvent
-import android.view.WindowManager
 
-import ca.fuwafuwa.kaku.*
+import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
 
-class InstantWindow(context: Context) : Window(context, R.layout.instant_window)
+class InstantWindow(private val context: Context, private val ocrResult: OcrResult) : Window(context, R.layout.instant_window)
 {
     init
     {
-        params.x = 100
-        params.y = 100
+        if (isBoxHorizontal())
+        {
+            calcParamsForHorizontal()
+        }
+        else {
+            calcParamsForVertical()
+        }
+
         windowManager.updateViewLayout(window, params)
     }
 
@@ -29,5 +31,34 @@ class InstantWindow(context: Context) : Window(context, R.layout.instant_window)
     {
         stop()
         return false
+    }
+
+    private fun isBoxHorizontal(): Boolean
+    {
+        return ocrResult.boxParams.width > ocrResult.boxParams.height;
+    }
+
+    private fun calcParamsForHorizontal()
+    {
+        val topRectHeight = ocrResult.boxParams.y - statusBarHeight
+        val bottomRectHeight = realDisplaySize.y - ocrResult.boxParams.y - ocrResult.boxParams.height - statusBarHeight
+
+        val windowHeight = realDisplaySize.y / 3
+        params.width = realDisplaySize.x;
+        if (topRectHeight > bottomRectHeight){
+            params.x = 0
+            params.y = topRectHeight - windowHeight
+            params.height = windowHeight
+        }
+        else {
+            params.x = 0
+            params.y = ocrResult.boxParams.y + ocrResult.boxParams.height - statusBarHeight
+            params.height = windowHeight
+        }
+    }
+
+    private fun calcParamsForVertical()
+    {
+
     }
 }

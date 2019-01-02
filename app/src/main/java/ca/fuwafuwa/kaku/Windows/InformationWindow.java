@@ -51,10 +51,26 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private List<JmSearchResult> mJmResults;
     private List<CharacterOptimized> mKd2Results;
 
-    public InformationWindow(Context context) {
-
+    public InformationWindow(Context context, OcrResult ocrResult) {
         super(context, R.layout.info_window);
+        init();
 
+        this.mOcrResult = ocrResult;
+        this.mText = ocrResult.getText();
+        mKanjiGrid.setText(this, ocrResult);
+    }
+
+    public InformationWindow(Context context, String textResult) {
+        super(context, R.layout.info_window);
+        init();
+
+        this.mText = textResult;
+        mKanjiGrid.setText(this, textResult);
+        onSquareTouch(mKanjiGrid.getKanjiViewList().get(0));
+    }
+
+    private void init()
+    {
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
         mGestureDetector = new GestureDetector(this.context, this);
         mKanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
@@ -68,18 +84,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setOcrResults(OcrResult ocrResult){
-        this.mOcrResult = ocrResult;
-        this.mText = ocrResult.getText();
-        mKanjiGrid.setText(this, ocrResult);
-    }
-
-    public void setTextResults(String textResult){
-        this.mText = textResult;
-        mKanjiGrid.setText(this, textResult);
-        onSquareTouch(mKanjiGrid.getKanjiViewList().get(0));
     }
 
     @Override

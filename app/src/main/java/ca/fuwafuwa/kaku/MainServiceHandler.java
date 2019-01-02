@@ -38,10 +38,10 @@ public class MainServiceHandler extends Handler {
 
             if (result.getInstant())
             {
-                result.getCaptureWindow().setInstantWindow(new InstantWindow(mContext));
+                result.getCaptureWindow().setInstantWindow(new InstantWindow(mContext, result));
             }
             else {
-                (new InformationWindow(mContext)).setOcrResults(result);
+                new InformationWindow(mContext, result);
             }
         }
         else {

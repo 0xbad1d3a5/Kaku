@@ -98,10 +98,10 @@ public class OcrRunnable implements Runnable, Stoppable {
                         long ocrTime = System.currentTimeMillis() - startTime;
                         if (mOcrParams.getInstantOcr())
                         {
-                            sendOcrResultToContext(new OcrResult(mOcrParams.getOriginalBitmap(), ocrChars, true, mCaptureWindow, ocrTime));
+                            sendOcrResultToContext(new OcrResult(mOcrParams.getOriginalBitmap(), mOcrParams.getBox(), ocrChars, true, mCaptureWindow, ocrTime));
                         }
                         else {
-                            sendOcrResultToContext(new OcrResult(mOcrParams.getOriginalBitmap(), ocrChars,false, mCaptureWindow, ocrTime));
+                            sendOcrResultToContext(new OcrResult(mOcrParams.getOriginalBitmap(), mOcrParams.getBox(), ocrChars,false, mCaptureWindow, ocrTime));
                         }
                     } else
                     {

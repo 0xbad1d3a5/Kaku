@@ -139,16 +139,17 @@ public class CaptureWindow extends Window implements WindowListener {
         });
     }
 
-    public void reInitOcr(boolean showPreviewImage, boolean horizontalText)
+    public void reInitOcr(boolean showPreviewImage, boolean horizontalText, boolean instantMode)
     {
         mShowPreviewImage = showPreviewImage;
+        mInstantMode = instantMode;
         mOcr.stop();
         startOcrThread(horizontalText);
     }
 
     @Override
-    public boolean onDoubleTap(MotionEvent e) {
-
+    public boolean onDoubleTap(MotionEvent e)
+    {
         Log.d(TAG, "onDoubleTap");
 
         mLastDoubleTapTime = System.currentTimeMillis();
@@ -165,8 +166,8 @@ public class CaptureWindow extends Window implements WindowListener {
     }
 
     @Override
-    public boolean onTouch(MotionEvent e) {
-
+    public boolean onTouch(MotionEvent e)
+    {
         removeInstantWindow();
 
         if (!mInLongPress && !mProcessingOcr){
@@ -187,8 +188,8 @@ public class CaptureWindow extends Window implements WindowListener {
     }
 
     @Override
-    public void onLongPress(MotionEvent e) {
-
+    public void onLongPress(MotionEvent e)
+    {
         Log.d(TAG, "onLongPress");
 
         mInLongPress = true;
@@ -196,9 +197,11 @@ public class CaptureWindow extends Window implements WindowListener {
     }
 
     @Override
-    public boolean onResize(MotionEvent e) {
-
+    public boolean onResize(MotionEvent e)
+    {
         Log.d(TAG, "onResize");
+
+        removeInstantWindow();
 
         mOcr.cancel();
         mImageView.setImageResource(0);

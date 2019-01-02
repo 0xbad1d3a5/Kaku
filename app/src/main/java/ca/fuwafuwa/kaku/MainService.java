@@ -80,6 +80,20 @@ public class MainService extends Service implements Stoppable {
         }
     }
 
+    public static class ToggleInstantModeMainService extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+            boolean pageMode = prefs.getBoolean(Constants.KAKU_PREF_INSTANT_MODE, true);
+            prefs.edit().putBoolean(Constants.KAKU_PREF_INSTANT_MODE, !pageMode).apply();
+
+            Intent i = new Intent(context, MainService.class).putExtra(Constants.EXTRA_TOGGLE_INSTANT_MODE, 0);
+            KakuTools.startKakuService(context, i);
+        }
+    }
+
     private class MediaProjectionStopCallback extends MediaProjection.Callback{
         @Override
         public void onStop(){
@@ -105,6 +119,7 @@ public class MainService extends Service implements Stoppable {
     private int mProjectionResultCode;
     private boolean mShowPreviewImage;
     private boolean mHorizontalText;
+    private boolean mInstantMode;
 
     private WindowManager mWindowManager;
     private MediaProjectionManager mMediaProjectionManager;
@@ -142,7 +157,7 @@ public class MainService extends Service implements Stoppable {
         }
 
         if (mCaptureWindow == null){
-            mCaptureWindow = new CaptureWindow(this, mShowPreviewImage, mHorizontalText, true);
+            mCaptureWindow = new CaptureWindow(this, mShowPreviewImage, mHorizontalText, mInstantMode);
         }
         else {
             Log.d(TAG, "onStartCommand - Reinitializing CaptureWindow");
@@ -152,7 +167,7 @@ public class MainService extends Service implements Stoppable {
             notificationManager.notify(NOTIFICATION_ID, getNotification());
 
             mCaptureWindow.reInit();
-            mCaptureWindow.reInitOcr(mShowPreviewImage, mHorizontalText);
+            mCaptureWindow.reInitOcr(mShowPreviewImage, mHorizontalText, mInstantMode);
         }
 
         return START_NOT_STICKY;
@@ -236,17 +251,20 @@ public class MainService extends Service implements Stoppable {
 
         PendingIntent toggleImagePreview = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_IMAGE_PREVIEW, new Intent(this, ToggleImagePreviewMainService.class), 0);
         PendingIntent togglePageMode = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_PAGE_MODE, new Intent(this, TogglePageModeMainService.class), 0);
+        PendingIntent toggleInstantMode = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_INSTANT_MODE, new Intent(this, ToggleInstantModeMainService.class), 0);
         PendingIntent closeMainService = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_SHUTDOWN, new Intent(this, CloseMainService.class), 0);
 
         SharedPreferences prefs = getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
         mShowPreviewImage = prefs.getBoolean(Constants.KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
         mHorizontalText = prefs.getBoolean(Constants.KAKU_PREF_HORIZONTAL_TEXT, true);
+        mInstantMode = prefs.getBoolean(Constants.KAKU_PREF_INSTANT_MODE, true);
 
         Notification n = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.kaku_notification_icon)
                 .setContentTitle("Kaku is Running")
-                .setContentText(String.format("Currently in %s mode, binarization %s", mHorizontalText ? "horizontal" : "vertical", mShowPreviewImage ? "on" : "off"))
+                .setContentText(String.format("Currently in %s mode, binarization %s, instant %s", mHorizontalText ? "horizontal" : "vertical", mShowPreviewImage ? "on" : "off", mInstantMode ? "on" : "off"))
                 .addAction(0, mShowPreviewImage ? "Binarization Off" : "Binarization On", toggleImagePreview)
+                .addAction(0, mInstantMode ? "Instant On" : "Instant Off", toggleInstantMode)
                 .addAction(0, mHorizontalText ? "Vertical Mode" : "Horizontal Mode", togglePageMode)
                 .addAction(0, "Close", closeMainService)
                 .build();

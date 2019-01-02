@@ -279,8 +279,8 @@ public abstract class Window implements Stoppable, WindowListener {
      * @deprecated Try to get rid of this
      * @return System status bar height in pixels
      */
-    protected int getStatusBarHeight() {
-
+    protected int getStatusBarHeight()
+    {
         if (mRealDisplaySize.y == mHeightView.getHeight()){
             return 0;
         }

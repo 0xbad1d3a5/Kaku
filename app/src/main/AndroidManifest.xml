@@ -15,8 +15,10 @@
         android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <receiver android:name=".MainService$CloseMainService" />
         <receiver android:name=".MainService$TogglePageModeMainService" />
+        <receiver android:name=".MainService$ToggleInstantModeMainService" />
         <receiver android:name=".MainService$ToggleImagePreviewMainService" />
 
         <activity
@@ -25,18 +27,16 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".PassthroughActivity"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
