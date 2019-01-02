@@ -82,8 +82,8 @@ class InstructionFragment : Fragment()
             4 -> return "Perform OCR with a double tap"
             5 -> return "Tap a character in the dictionary window to lookup the meaning"
             6 -> return "Slide down to swap characters if OCR was wrong but almost had it"
-            7 -> return "Slide to the upper-left to perform a manual substitution"
-            8 -> return "Slide to the upper-right to delete a character"
+            7 -> return "Slide top-left to edit - Gboard handwriting keyboard recommended"
+            8 -> return "Slide top-right to delete a character"
             9 -> return "Select text in any app then tap Kaku for the dictionary"
         }
 

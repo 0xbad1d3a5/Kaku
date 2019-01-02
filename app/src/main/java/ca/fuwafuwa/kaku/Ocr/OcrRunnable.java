@@ -3,7 +3,6 @@ package ca.fuwafuwa.kaku.Ocr;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Message;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
 
@@ -19,6 +18,7 @@ import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
+import ca.fuwafuwa.kaku.Windows.InstantWindow;
 
 /**
  * Created by 0xbad1d3a5 on 4/16/2016.
@@ -30,20 +30,16 @@ public class OcrRunnable implements Runnable, Stoppable {
     private MainService mContext;
     private CaptureWindow mCaptureWindow;
     private TessBaseAPI mTessBaseAPI;
-    private boolean mRunning = true;
+    private boolean mThreadRunning = true;
+    private boolean mTessReady = false;
     private boolean mHorizontalText;
-    private boolean mReady = false;
-    private BoxParams mBox;
-    private Bitmap mBitmap;
-    private Bitmap mOriginalBitmap;
-    private Object mBoxLock = new Object();
+    private OcrParams mOcrParams;
+    private Object mOcrLock = new Object();
 
     public OcrRunnable(Context context, CaptureWindow captureWindow, boolean horizontalText){
         mContext = (MainService) context;
         mCaptureWindow = captureWindow;
-        mBox = null;
-        mBitmap = null;
-        mOriginalBitmap = null;
+        mOcrParams = null;
         mHorizontalText = horizontalText;
     }
 
@@ -60,60 +56,62 @@ public class OcrRunnable implements Runnable, Stoppable {
             mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK_VERT_TEXT);
         }
 
-        mReady = true;
+        mTessReady = true;
 
-        while(mRunning)
+        while(mThreadRunning)
         {
             Log.d(TAG, "THREAD STARTING NEW LOOP");
 
             try
             {
-                if (mBox == null) {
-                    synchronized (mBoxLock) {
-
-                        if (!mRunning){
-                            return;
-                        }
-
-                        Log.d(TAG, "WAITING");
-
-                        mBoxLock.wait();
-
-                        if (mBox == null) {
-                            continue;
-                        }
+                synchronized (mOcrLock)
+                {
+                    if (!mThreadRunning){
+                        break;
                     }
+
+                    Log.d(TAG, "WAITING");
+                    mOcrLock.wait();
+                    Log.d(TAG, "THREAD STOPPED WAITING");
+
+                    if (mOcrParams == null)
+                    {
+                        Log.d(TAG, "OcrRunnable - OcrParams null");
+                        continue;
+                    }
+
+                    Log.d(TAG, "Processing OCR with params " + mOcrParams.toString());
+
+                    long startTime = System.currentTimeMillis();
+
+                    saveBitmap(mOcrParams.getBitmap());
+
+                    mCaptureWindow.showLoadingAnimation();
+
+                    mTessBaseAPI.setImage(mOcrParams.getBitmap());
+                    mTessBaseAPI.getHOCRText(0);
+                    List<OcrChar> ocrChars = processOcrIterator(mTessBaseAPI.getResultIterator());
+                    mTessBaseAPI.clear();
+
+                    if (ocrChars.size() > 0)
+                    {
+                        long ocrTime = System.currentTimeMillis() - startTime;
+                        if (mOcrParams.getInstantOcr())
+                        {
+                            sendOcrResultToContext(new OcrResult(mOcrParams.getOriginalBitmap(), ocrChars, true, mCaptureWindow, ocrTime));
+                        }
+                        else {
+                            sendOcrResultToContext(new OcrResult(mOcrParams.getOriginalBitmap(), ocrChars,false, mCaptureWindow, ocrTime));
+                        }
+                    } else
+                    {
+                        sendToastToContext("No Characters Recognized.");
+                    }
+
+                    mCaptureWindow.stopLoadingAnimation(mOcrParams.getInstantOcr());
+
+                    mOcrParams = null;
                 }
-
-                Log.d(TAG, "THREAD STOPPED WAITING");
-
-                long startTime = System.currentTimeMillis();
-
-                if (mBitmap == null || mOriginalBitmap == null){
-                    mBox = null;
-                    continue;
-                }
-                saveBitmap(mBitmap);
-
-                mCaptureWindow.showLoadingAnimation();
-
-                mTessBaseAPI.setImage(mBitmap);
-                mTessBaseAPI.getHOCRText(0);
-                List<OcrChar> ocrChars = processOcrIterator(mTessBaseAPI.getResultIterator());
-                mTessBaseAPI.clear();
-
-                if (ocrChars.size() > 0){
-                    sendOcrResultToContext(new OcrResult(mOriginalBitmap, ocrChars, System.currentTimeMillis() - startTime));
-                }
-                else{
-                    sendToastToContext("No Characters Recognized.");
-                }
-
-                mBox = null;
-                mBitmap = null;
-                mOriginalBitmap = null;
-
-                mCaptureWindow.stopLoadingAnimation();
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -125,26 +123,33 @@ public class OcrRunnable implements Runnable, Stoppable {
 
     /**
      * Unblocks the thread and starts OCR
-     * @param box Coordinates and size of the area to OCR from the screen
      */
-    public void runTess(Bitmap bitmap, Bitmap originalBitmap, BoxParams box){
-        synchronized (mBoxLock){
-            if (!mRunning || !mReady){
+    public void runTess(OcrParams ocrParams)
+    {
+        synchronized (mOcrLock)
+        {
+            if (!mThreadRunning || !mTessReady)
+            {
                 return;
             }
-            mBitmap = bitmap;
-            mOriginalBitmap = originalBitmap;
-            mBox = box;
+
+            mOcrParams = ocrParams;
             mTessBaseAPI.stop();
-            mBoxLock.notify();
+            mOcrLock.notify();
+
             Log.d(TAG, "NOTIFIED");
         }
+    }
+
+    public boolean isReadyForOcr(){
+        return mOcrParams == null;
     }
 
     /**
      * Cancels OCR recognition in progress if Tesseract has been started
      */
-    public void cancel(){
+    public void cancel()
+    {
         mTessBaseAPI.stop();
         Log.d(TAG, "CANCELED");
     }
@@ -153,12 +158,14 @@ public class OcrRunnable implements Runnable, Stoppable {
      * Cancels any OCR recognition in progress and stops any further OCR attempts
      */
     @Override
-    public void stop(){
-        synchronized (mBoxLock){
-            mRunning = false;
-            mBox = null;
+    public void stop()
+    {
+        synchronized (mOcrLock)
+        {
+            mThreadRunning = false;
+            mOcrParams = null;
             mTessBaseAPI.stop();
-            mBoxLock.notify();
+            mOcrLock.notify();
         }
     }
 

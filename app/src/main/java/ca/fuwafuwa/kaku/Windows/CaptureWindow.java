@@ -21,11 +21,13 @@ import com.googlecode.leptonica.android.WriteFile;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.BoxParams;
+import ca.fuwafuwa.kaku.Ocr.OcrParams;
 import ca.fuwafuwa.kaku.Ocr.OcrRunnable;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
@@ -36,14 +38,49 @@ import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
  */
 public class CaptureWindow extends Window implements WindowListener {
 
-    private class CroppedScreenshot {
-
-        public final Bitmap bitmap;
+    private class ScreenshotForOcr
+    {
+        public final Bitmap crop;
+        public final Bitmap orig;
         public final BoxParams params;
 
-        public CroppedScreenshot(Bitmap bitmap, BoxParams params){
-            this.bitmap = bitmap;
+        private Bitmap mCropProcessed;
+        private int mSetThreshold;
+
+        public ScreenshotForOcr(Bitmap crop, Bitmap orig, BoxParams params, int defaultThreshold){
+            this.crop = crop;
+            this.orig = orig;
             this.params = params;
+            this.mSetThreshold = defaultThreshold;
+            this.mCropProcessed = null;
+        }
+
+        public Bitmap getCachedScreenshot()
+        {
+            if (mCropProcessed == null)
+            {
+                mCropProcessed = getProcessedScreenshot(mSetThreshold);
+            }
+
+            return mCropProcessed;
+        }
+
+        public Bitmap getProcessedScreenshot(int threshold)
+        {
+            Pix pix = ReadFile.readBitmap(crop).clone();
+
+            //pix = AdaptiveMap.pixContrastNorm(pix, 5, 5, 40, 2, 1);
+            //pix = Convert.convertTo8(pix);
+            //pix = Binarize.otsuAdaptiveThreshold(pix);
+            pix = GrayQuant.pixThresholdToBinary(pix, threshold);
+            Bitmap returnBitmap = WriteFile.writeBitmap(pix);
+
+            pix.recycle();
+
+            mCropProcessed = returnBitmap;
+            mSetThreshold = threshold;
+
+            return returnBitmap;
         }
     }
 
@@ -55,34 +92,37 @@ public class CaptureWindow extends Window implements WindowListener {
     private Animation mFadeRepeat;
     private Drawable mBorderDefault;
     private Drawable mBorderReady;
-    private boolean mAllowOcr;
 
+    private InstantWindow mInstantWindow;
     private boolean mShowPreviewImage;
+    private boolean mInstantMode;
     private int mThreshold;
+    private long mLastDoubleTapTime;
     private boolean mInLongPress;
     private boolean mProcessingPreview;
     private boolean mProcessingOcr;
-    private CroppedScreenshot mPreviewImage;
+    private ScreenshotForOcr mScreenshotForOcr;
 
     private CommonParser mCommonParser;
 
-    public CaptureWindow(final Context context, boolean showPreviewImage, boolean horizontalText) {
+    public CaptureWindow(final Context context, boolean showPreviewImage, boolean horizontalText, boolean instantMode) {
         super(context, R.layout.capture_window);
 
         this.mCommonParser = new CommonParser(context);
 
-        mImageView = (ImageView) window.findViewById(R.id.capture_image);
+        mImageView = window.findViewById(R.id.capture_image);
         mFadeRepeat = AnimationUtils.loadAnimation(this.context, R.anim.fade_repeat);
         mBorderDefault = this.context.getResources().getDrawable(R.drawable.bg_translucent_border_0_blue_blue, null);
         mBorderReady = this.context.getResources().getDrawable(R.drawable.bg_transparent_border_0_nil_ready, null);
-        mAllowOcr = false;
 
         mShowPreviewImage = showPreviewImage;
+        mInstantMode = instantMode;
         mThreshold = 128;
+        mLastDoubleTapTime = System.currentTimeMillis();
         mInLongPress = false;
         mProcessingPreview = false;
         mProcessingOcr = false;
-        mPreviewImage = null;
+        mScreenshotForOcr = null;
 
         startOcrThread(horizontalText);
 
@@ -90,14 +130,6 @@ public class CaptureWindow extends Window implements WindowListener {
 
         // Need to wait for the view to finish updating before we try to determine it's location
         mWindowBox = window.findViewById(R.id.capture_box);
-        mWindowBox.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (mAllowOcr){
-                    performOcr();
-                }
-            }
-        });
         mWindowBox.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -119,8 +151,8 @@ public class CaptureWindow extends Window implements WindowListener {
 
         Log.d(TAG, "onDoubleTap");
 
-        mProcessingOcr = true;
-        performOcr();
+        mLastDoubleTapTime = System.currentTimeMillis();
+        performOcr(false);
 
 //        try {
 //            mCommonParser.parseJmDict();
@@ -135,17 +167,20 @@ public class CaptureWindow extends Window implements WindowListener {
     @Override
     public boolean onTouch(MotionEvent e) {
 
+        removeInstantWindow();
+
         if (!mInLongPress && !mProcessingOcr){
             mImageView.setImageResource(0);
             setBorderStyle(e);
         }
 
-        if (mInLongPress && mShowPreviewImage){
-            switch (e.getAction()){
-                case MotionEvent.ACTION_MOVE:
-                    Log.d(TAG, "onTouch - Move");
+        switch (e.getAction()){
+            case MotionEvent.ACTION_MOVE:
+                Log.d(TAG, "onTouch - Move");
+                mOcr.cancel();
+                if (mInLongPress && mShowPreviewImage){
                     setPreviewImageForThreshold(e);
-            }
+                }
         }
 
         return super.onTouch(e);
@@ -165,6 +200,7 @@ public class CaptureWindow extends Window implements WindowListener {
 
         Log.d(TAG, "onResize");
 
+        mOcr.cancel();
         mImageView.setImageResource(0);
         setBorderStyle(e);
         return super.onResize(e);
@@ -179,7 +215,7 @@ public class CaptureWindow extends Window implements WindowListener {
             Log.d(TAG, "onUp - SetPreviewImage");
             setBorderStyle(e);
             mProcessingPreview = true;
-            setPreviewImage();
+            setCroppedScreenshot();
         }
 
         mInLongPress = false;
@@ -197,6 +233,8 @@ public class CaptureWindow extends Window implements WindowListener {
         ((MainService)context).getHandler().post(new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "showLoadingAnimation");
+
                 mWindowBox.setBackground(mBorderDefault);
                 mImageView.setImageAlpha(0);
                 mWindowBox.setAnimation(mFadeRepeat);
@@ -205,24 +243,44 @@ public class CaptureWindow extends Window implements WindowListener {
         });
     }
 
-    public void stopLoadingAnimation(){
+    public void stopLoadingAnimation(final boolean instant){
         ((MainService)context).getHandler().post(new Runnable() {
             @Override
             public void run() {
                 mProcessingOcr = false;
                 mWindowBox.setBackground(mBorderReady);
                 mWindowBox.clearAnimation();
-                mImageView.setImageAlpha(255);
-                mImageView.setImageResource(0);
+                Log.d(TAG, "stopLoadingAnimation - instant: " + instant);
+                if (instant)
+                {
+                    mImageView.setImageAlpha(255);
+                }
+                else {
+                    mImageView.setImageAlpha(255);
+                    mImageView.setImageResource(0);
+                }
             }
         });
     }
 
+    public void setInstantWindow(InstantWindow instantWindow)
+    {
+        mInstantWindow = instantWindow;
+    }
+
+    public void removeInstantWindow()
+    {
+        if (mInstantWindow != null){
+            mInstantWindow.stop();
+            mInstantWindow = null;
+        }
+    }
+
     private void setPreviewImageForThreshold(MotionEvent e)
     {
-        if (mShowPreviewImage && mPreviewImage != null){
+        if (mShowPreviewImage && mScreenshotForOcr != null){
             mThreshold = (int)((e.getRawX() / getRealDisplaySize().x) * 256);
-            Bitmap bitmap = getProcessedScreenshot(mPreviewImage.bitmap);
+            Bitmap bitmap = mScreenshotForOcr.getProcessedScreenshot(mThreshold);
             mImageView.setImageBitmap(bitmap);
         }
     }
@@ -237,20 +295,20 @@ public class CaptureWindow extends Window implements WindowListener {
         tessThread.start();
     }
 
-    private void setPreviewImage()
+    private void setCroppedScreenshot()
     {
         Thread thread = new Thread(new Runnable(){
             @Override
             public void run()
             {
-                CroppedScreenshot screenshot = getCroppedScreenshot();
+                ScreenshotForOcr ocrScreenshot = getScreenshotForOcr();
 
-                if (screenshot == null || screenshot.bitmap == null || screenshot.params == null){
+                if (ocrScreenshot == null || ocrScreenshot.crop == null || ocrScreenshot.orig == null || ocrScreenshot.params == null){
                     mProcessingPreview = false;
                     return;
                 }
 
-                mPreviewImage = screenshot;
+                mScreenshotForOcr = ocrScreenshot;
 
                 ((MainService)context).getHandler().post(new Runnable()
                 {
@@ -258,7 +316,10 @@ public class CaptureWindow extends Window implements WindowListener {
                     public void run()
                     {
                         if (mShowPreviewImage){
-                            mImageView.setImageBitmap(getProcessedScreenshot(mPreviewImage.bitmap));
+                            mImageView.setImageBitmap(mScreenshotForOcr.getCachedScreenshot());
+                        }
+                        if (mInstantMode && System.currentTimeMillis() > mLastDoubleTapTime + 500){
+                            performOcr(true);
                         }
                         mProcessingPreview = false;
                     }
@@ -280,22 +341,7 @@ public class CaptureWindow extends Window implements WindowListener {
         }
     }
 
-    private Bitmap getProcessedScreenshot(Bitmap bitmap)
-    {
-        Pix pix = ReadFile.readBitmap(bitmap).clone();
-
-        //pix = AdaptiveMap.pixContrastNorm(pix, 5, 5, 40, 2, 1);
-        //pix = Convert.convertTo8(pix);
-        //pix = Binarize.otsuAdaptiveThreshold(pix);
-        pix = GrayQuant.pixThresholdToBinary(pix, mThreshold);
-
-        Bitmap returnBitmap = WriteFile.writeBitmap(pix);
-        pix.recycle();
-
-        return returnBitmap;
-    }
-
-    private CroppedScreenshot getCroppedScreenshot()
+    private ScreenshotForOcr getScreenshotForOcr()
     {
         int[] viewPos = new int[2];
         mWindowBox.getLocationOnScreen(viewPos);
@@ -303,7 +349,7 @@ public class CaptureWindow extends Window implements WindowListener {
 
         try
         {
-            return new CroppedScreenshot(getReadyScreenshot(box), box);
+            return getReadyScreenshot(box);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -312,21 +358,27 @@ public class CaptureWindow extends Window implements WindowListener {
         return null;
     }
 
-    private void performOcr()
+    private void performOcr(boolean instant)
     {
+        mProcessingOcr = true;
+
         try
         {
-            Bitmap processedImage = mShowPreviewImage ? getProcessedScreenshot(mPreviewImage.bitmap) : mPreviewImage.bitmap;
-            mOcr.runTess(processedImage, mPreviewImage.bitmap, mPreviewImage.params);
+            if (!instant){
+                while (!mOcr.isReadyForOcr()){
+                    mOcr.cancel();
+                    Thread.sleep(10);
+                }
+            }
+            Bitmap processedImage = mShowPreviewImage ? mScreenshotForOcr.getCachedScreenshot() : mScreenshotForOcr.crop;
+            mOcr.runTess(new OcrParams(processedImage, mScreenshotForOcr.crop, mScreenshotForOcr.params, instant));
         } catch (Exception e)
         {
             e.printStackTrace();
         }
-
-        mAllowOcr = false;
     }
 
-    private Bitmap getReadyScreenshot(BoxParams box) throws Exception
+    private ScreenshotForOcr getReadyScreenshot(BoxParams box) throws Exception
     {
         Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height));
 
@@ -338,6 +390,7 @@ public class CaptureWindow extends Window implements WindowListener {
 
             Image rawScreenshot = ((MainService)context).getScreenshot();
             if (rawScreenshot == null){
+                Log.d(TAG, "getReadyScreenshot - rawScreenshot null");
                 return null;
             }
 
@@ -362,7 +415,7 @@ public class CaptureWindow extends Window implements WindowListener {
             return null;
         }
 
-        return croppedBitmap;
+        return new ScreenshotForOcr(croppedBitmap, screenshot, box, mThreshold);
     }
 
     private boolean checkScreenshotIsReady(Bitmap screenshot, BoxParams box)

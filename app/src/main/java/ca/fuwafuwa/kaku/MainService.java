@@ -142,7 +142,7 @@ public class MainService extends Service implements Stoppable {
         }
 
         if (mCaptureWindow == null){
-            mCaptureWindow = new CaptureWindow(this, mShowPreviewImage, mHorizontalText);
+            mCaptureWindow = new CaptureWindow(this, mShowPreviewImage, mHorizontalText, true);
         }
         else {
             Log.d(TAG, "onStartCommand - Reinitializing CaptureWindow");
