@@ -2,31 +2,25 @@ package ca.fuwafuwa.kaku.Windows
 
 import android.content.Context
 import android.graphics.Color
-import android.text.Layout
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-
 import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
 import ca.fuwafuwa.kaku.Windows.Views.SquareGridView
 import ca.fuwafuwa.kaku.dpToPx
-import kotlin.math.max
 
-class InstantWindow(private val ccontext: Context, private val ocrResult: OcrResult) : Window(ccontext, R.layout.instant_window)
+class InstantKanjiWindow(private val ccontext: Context, private val ocrResult: OcrResult) : Window(ccontext, R.layout.instant_kanji_window), SquareGridView.SquareViewListener
 {
     private val isBoxHorizontal: Boolean
         get()
         {
             return ocrResult.boxParams.width > ocrResult.boxParams.height;
         }
-
-    private val instantKanjiWindow = InstantKanjiWindow(context, ocrResult)
 
     init
     {
@@ -43,22 +37,39 @@ class InstantWindow(private val ccontext: Context, private val ocrResult: OcrRes
             windowManager.updateViewLayout(window, params)
         })
 
-        var text = window.findViewById<TextView>(R.id.instant_window_text)
-        text.text = ocrResult.text
-        text.setTextColor(Color.BLACK)
+        val mKanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
+        mKanjiGrid.setText(this, ocrResult)
     }
 
-    override fun onDown(e: MotionEvent?): Boolean
+    override fun onSquareScrollStart(kanjiView: KanjiCharacterView?, e: MotionEvent?)
     {
-        //InformationWindow(context, ocrResult)
-        stop()
-        return super.onDown(e)
     }
 
-    override fun stop()
+    override fun onSquareScroll(kanjiView: KanjiCharacterView?, oe: MotionEvent?, e: MotionEvent?)
     {
-        instantKanjiWindow.stop()
-        super.stop()
+    }
+
+    override fun onSquareScrollEnd(kanjiView: KanjiCharacterView?, e: MotionEvent?)
+    {
+    }
+
+    override fun onSquareTouch(kanjiView: KanjiCharacterView?)
+    {
+    }
+
+    override fun onTouch(e: MotionEvent?): Boolean
+    {
+        return false
+    }
+
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean
+    {
+        return false
+    }
+
+    override fun onResize(e: MotionEvent?): Boolean
+    {
+        return false
     }
 
     private fun calcParamsForHorizontal()
@@ -67,7 +78,8 @@ class InstantWindow(private val ccontext: Context, private val ocrResult: OcrRes
         val bottomRectHeight = realDisplaySize.y - ocrResult.boxParams.y - ocrResult.boxParams.height - (realDisplaySize.y - heightViewHeight - statusBarHeight)
 
         val boxMidPoint = ocrResult.boxParams.x + (ocrResult.boxParams.width / 2)
-        var maxWidth = dpToPx(context, 400)
+        val maxHeight = dpToPx(context, 60)
+        var maxWidth = dpToPx(context, 300)
         var xPos = 0
 
         if (realDisplaySize.x > maxWidth)
@@ -86,15 +98,15 @@ class InstantWindow(private val ccontext: Context, private val ocrResult: OcrRes
         maxWidth = minOf(realDisplaySize.x, maxWidth)
 
         params.width = maxWidth
-        if (topRectHeight > bottomRectHeight){
+        if (topRectHeight < bottomRectHeight){
             params.x = xPos
-            params.y = 0
-            params.height = topRectHeight
+            params.y = ocrResult.boxParams.y - (maxHeight + statusBarHeight)
+            params.height = maxHeight
         }
         else {
             params.x = xPos
             params.y = ocrResult.boxParams.y + ocrResult.boxParams.height - statusBarHeight
-            params.height = bottomRectHeight
+            params.height = maxHeight
         }
     }
 
@@ -104,7 +116,7 @@ class InstantWindow(private val ccontext: Context, private val ocrResult: OcrRes
         val rightRectWidth = realDisplaySize.x - (ocrResult.boxParams.x + ocrResult.boxParams.width)
 
         var yPos = ocrResult.boxParams.y - statusBarHeight
-        var maxHeight = dpToPx(context, 600)
+        var maxHeight = dpToPx(context, 300)
 
         maxHeight = minOf(maxHeight, realDisplaySize.y)
 
@@ -113,9 +125,9 @@ class InstantWindow(private val ccontext: Context, private val ocrResult: OcrRes
         }
 
         params.height = maxHeight
-        if (leftRectWidth > rightRectWidth)
+        if (leftRectWidth < rightRectWidth)
         {
-            var maxWidth = dpToPx(context, 400)
+            var maxWidth = dpToPx(context, 60)
             var xPos = ocrResult.boxParams.x - maxWidth
 
             if (xPos < 0)
@@ -128,7 +140,7 @@ class InstantWindow(private val ccontext: Context, private val ocrResult: OcrRes
             params.width = minOf(leftRectWidth, maxWidth)
         }
         else {
-            var maxWidth = dpToPx(context, 400)
+            var maxWidth = dpToPx(context, 60)
             var xPos = ocrResult.boxParams.x + ocrResult.boxParams.width
 
             params.x = xPos

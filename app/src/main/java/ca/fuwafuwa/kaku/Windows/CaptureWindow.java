@@ -321,8 +321,13 @@ public class CaptureWindow extends Window implements WindowListener {
                         if (mShowPreviewImage){
                             mImageView.setImageBitmap(mScreenshotForOcr.getCachedScreenshot());
                         }
-                        if (mInstantMode && System.currentTimeMillis() > mLastDoubleTapTime + 500){
-                            performOcr(true);
+                        if (mInstantMode && System.currentTimeMillis() > mLastDoubleTapTime + 500)
+                        {
+                            int sizeForInstant = minSize * 2;
+                            if (sizeForInstant >= mScreenshotForOcr.params.width || sizeForInstant >= mScreenshotForOcr.params.height)
+                            {
+                                performOcr(true);
+                            }
                         }
                         mProcessingPreview = false;
                     }

@@ -9,6 +9,7 @@ import java.time.Instant;
 
 import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.Windows.InformationWindow;
+import ca.fuwafuwa.kaku.Windows.InstantKanjiWindow;
 import ca.fuwafuwa.kaku.Windows.InstantWindow;
 
 /**

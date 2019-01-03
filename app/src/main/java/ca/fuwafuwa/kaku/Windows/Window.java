@@ -1,7 +1,6 @@
 package ca.fuwafuwa.kaku.Windows;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
@@ -35,6 +34,8 @@ public abstract class Window implements Stoppable, WindowListener {
         void performAction();
     }
 
+    protected final int minSize;
+
     protected Context context;
     protected WindowManager windowManager;
     protected View window;
@@ -43,7 +44,6 @@ public abstract class Window implements Stoppable, WindowListener {
     private Point mRealDisplaySize;
     private int mDX;
     private int mDY;
-    private int mMinSize;
     private View mHeightView;
     private int mHeightViewHeight;
     private List<ViewTreeObserver.OnGlobalLayoutListener> mOnHeightKnownListeners;
@@ -61,7 +61,7 @@ public abstract class Window implements Stoppable, WindowListener {
         window = inflater.inflate(R.layout.window, null);
         mRealDisplaySize = getRealDisplaySizeFromContext();
         params = getDefaultParams();
-        mMinSize = KakuTools.dpToPx(context, 20);
+        minSize = KakuTools.dpToPx(context, 20);
         mOnHeightKnownListeners = new ArrayList<>();
 
         WindowView mWindowView = window.findViewById(R.id.window_view);
@@ -367,11 +367,11 @@ public abstract class Window implements Stoppable, WindowListener {
         if (params.height > mRealDisplaySize.y){
             params.height = mRealDisplaySize.y;
         }
-        if (params.width < mMinSize){
-            params.width = mMinSize;
+        if (params.width < minSize){
+            params.width = minSize;
         }
-        if (params.height < mMinSize){
-            params.height = mMinSize;
+        if (params.height < minSize){
+            params.height = minSize;
         }
     }
 }
