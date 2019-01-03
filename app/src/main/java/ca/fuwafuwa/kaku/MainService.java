@@ -261,12 +261,12 @@ public class MainService extends Service implements Stoppable {
 
         Notification n = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.kaku_notification_icon)
-                .setContentTitle("Kaku is Running")
-                .setContentText(String.format("Currently in %s mode, binarization %s, instant %s", mHorizontalText ? "horizontal" : "vertical", mShowPreviewImage ? "on" : "off", mInstantMode ? "on" : "off"))
-                .addAction(0, mShowPreviewImage ? "Binarization Off" : "Binarization On", toggleImagePreview)
-                .addAction(0, mInstantMode ? "Instant On" : "Instant Off", toggleInstantMode)
-                .addAction(0, mHorizontalText ? "Vertical Mode" : "Horizontal Mode", togglePageMode)
-                .addAction(0, "Close", closeMainService)
+                .setContentTitle(String.format("Kaku is reading text %s", mHorizontalText ? "horizontally" : "vertically"))
+                .setContentText(String.format("Black and white filter %s, instant mode %s", mShowPreviewImage ? "on" : "off", mInstantMode ? "on" : "off"))
+                .setContentIntent(closeMainService)
+                .addAction(0, "Text Direction", togglePageMode)
+                .addAction(0, "Filter Image", toggleImagePreview)
+                .addAction(0, "Instant Mode", toggleInstantMode)
                 .build();
         n.flags = FLAG_ONGOING_EVENT | FLAG_FOREGROUND_SERVICE;
 

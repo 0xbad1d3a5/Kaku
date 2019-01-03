@@ -37,12 +37,12 @@ public class KanjiGridView extends SquareGridView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public void setText(InformationWindow infoWin, OcrResult ocrResult){
+    public void setText(SquareGridView.SquareViewListener squareViewCallback, OcrResult ocrResult){
 
         mKanjiCount = 0;
         for (OcrChar ocrChar : ocrResult.getOcrChars()){
             KanjiCharacterView kanjiView = new KanjiCharacterView(mContext);
-            kanjiView.setKanjiViewCallback(infoWin);
+            kanjiView.setKanjiViewCallback(squareViewCallback);
             kanjiView.setText(ocrChar.getBestChoice());
             kanjiView.setOcrChar(ocrChar);
             kanjiView.setCharPos(mKanjiCount);

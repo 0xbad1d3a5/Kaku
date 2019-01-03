@@ -1,6 +1,7 @@
 package ca.fuwafuwa.kaku.Windows;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
@@ -10,8 +11,12 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.KakuTools;
@@ -26,6 +31,10 @@ public abstract class Window implements Stoppable, WindowListener {
 
     private static final String TAG = Window.class.getName();
 
+    public interface OnHeightKnown {
+        void performAction();
+    }
+
     protected Context context;
     protected WindowManager windowManager;
     protected View window;
@@ -36,6 +45,8 @@ public abstract class Window implements Stoppable, WindowListener {
     private int mDY;
     private int mMinSize;
     private View mHeightView;
+    private int mHeightViewHeight;
+    private List<ViewTreeObserver.OnGlobalLayoutListener> mOnHeightKnownListeners;
 
     private boolean mWindowClosed = false;
     private long mParamUpdateTimer = System.currentTimeMillis();
@@ -51,30 +62,41 @@ public abstract class Window implements Stoppable, WindowListener {
         mRealDisplaySize = getRealDisplaySizeFromContext();
         params = getDefaultParams();
         mMinSize = KakuTools.dpToPx(context, 20);
+        mOnHeightKnownListeners = new ArrayList<>();
 
-        WindowView mWindowView = (WindowView) window.findViewById(R.id.window_view);
-        ResizeView mResizeView = (ResizeView) window.findViewById(R.id.resize_view);
+        WindowView mWindowView = window.findViewById(R.id.window_view);
+        ResizeView mResizeView = window.findViewById(R.id.resize_view);
         mWindowView.setWindowListener(this);
         mResizeView.setWindowListener(this);
         GestureDetectorCompat detectorCompat = new GestureDetectorCompat(context, this);
         detectorCompat.setOnDoubleTapListener(this);
         mWindowView.setDetector(detectorCompat);
 
-        RelativeLayout relativeLayout = (RelativeLayout) window.findViewById(R.id.content_view);
+        RelativeLayout relativeLayout = window.findViewById(R.id.content_view);
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
 
         windowManager.addView(window, params);
 
-        // Hacky way to check if we are fullscreen
-        WindowManager.LayoutParams p = new WindowManager.LayoutParams();
-        p.width = 1;
-        p.height = WindowManager.LayoutParams.MATCH_PARENT;
-        p.type = Build.VERSION.SDK_INT > 25 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
-        p.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        p.format = PixelFormat.TRANSPARENT;
-        p.gravity = Gravity.END | Gravity.TOP;
+        // Hacky way to check if we are fullscreen by inserting a dummy view and seeing if
+        // realDisplaySize matches this view's height
+        WindowManager.LayoutParams heightViewParams = new WindowManager.LayoutParams();
+        heightViewParams.width = 1;
+        heightViewParams.height = WindowManager.LayoutParams.MATCH_PARENT;
+        heightViewParams.type = Build.VERSION.SDK_INT > 25 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
+        heightViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        heightViewParams.format = PixelFormat.TRANSPARENT;
+        heightViewParams.gravity = Gravity.END | Gravity.TOP;
         mHeightView = new View(context);
-        windowManager.addView(mHeightView, p);
+        mHeightView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
+        {
+            @Override
+            public void onGlobalLayout()
+            {
+                mHeightViewHeight = mHeightView.getMeasuredHeight();
+            }
+        });
+
+        windowManager.addView(mHeightView, heightViewParams);
     }
 
     public void reInit(){
@@ -108,6 +130,10 @@ public abstract class Window implements Stoppable, WindowListener {
 
             if (mWindowClosed){
                 return;
+            }
+
+            for (ViewTreeObserver.OnGlobalLayoutListener listener : mOnHeightKnownListeners){
+                mHeightView.getViewTreeObserver().removeOnGlobalLayoutListener(listener);
             }
 
             mWindowClosed = true;
@@ -255,6 +281,25 @@ public abstract class Window implements Stoppable, WindowListener {
     }
 
     /**
+     * Some Windows requires the drawable view and status bar height to be known so they can position themselves appropriately
+     * Set handler here if that is the case for that window
+     */
+    public void setOnHeightKnownAction(final OnHeightKnown onHeightKnown)
+    {
+        ViewTreeObserver.OnGlobalLayoutListener listener = new ViewTreeObserver.OnGlobalLayoutListener()
+        {
+            @Override
+            public void onGlobalLayout()
+            {
+                onHeightKnown.performAction();
+            }
+        };
+
+        mHeightView.getViewTreeObserver().addOnGlobalLayoutListener(listener);
+        mOnHeightKnownListeners.add(listener);
+    }
+
+    /**
      * @return Default LayoutParams for Window
      */
     protected WindowManager.LayoutParams getDefaultParams(){
@@ -276,12 +321,11 @@ public abstract class Window implements Stoppable, WindowListener {
     protected Point getRealDisplaySize(){ return new Point(mRealDisplaySize); }
 
     /**
-     * @deprecated Try to get rid of this
-     * @return System status bar height in pixels
+     * @return System status bar height in pixels. Note that the View MUST have been drawn for this to have any meaning!
      */
     protected int getStatusBarHeight()
     {
-        if (mRealDisplaySize.y == mHeightView.getHeight()){
+        if (mRealDisplaySize.y == mHeightViewHeight){
             return 0;
         }
 
@@ -294,8 +338,15 @@ public abstract class Window implements Stoppable, WindowListener {
     }
 
     /**
+     * @return The height of portions of the screen the view can be draw on. Note that the View MUST have been drawn for this to have any meaning!
+     */
+    protected int getHeightViewHeight(){
+        return mHeightViewHeight;
+    }
+
+    /**
      * Fixes window so that it stays inside the screen even if the user is trying to drag it off screen
-     * Also makes sure that the window size is not smaller than a specified value (currently hard coded)
+     * Also makes sure that the window size is not smaller than a specified value
      */
     private void fixBoxBounds(){
         if (params.x < 0){
