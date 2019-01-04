@@ -76,6 +76,12 @@ public class KanjiGridView extends SquareGridView {
         postInvalidate();
     }
 
+    public void clearText()
+    {
+        removeAllViews();
+        postInvalidate();
+    }
+
     public void correctTextForOcr(InformationWindow infoWin){
 
         List<OcrChar> ocrChars = recomputeOcrChars();

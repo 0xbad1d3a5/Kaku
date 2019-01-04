@@ -21,7 +21,6 @@ import com.googlecode.leptonica.android.WriteFile;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.time.Instant;
 
 import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.KakuTools;
@@ -105,8 +104,10 @@ public class CaptureWindow extends Window implements WindowListener {
 
     private CommonParser mCommonParser;
 
-    public CaptureWindow(final Context context, boolean showPreviewImage, boolean horizontalText, boolean instantMode) {
+    public CaptureWindow(final Context context, boolean showPreviewImage, boolean horizontalText, boolean instantMode)
+    {
         super(context, R.layout.capture_window);
+        show();
 
         this.mCommonParser = new CommonParser(context);
 
@@ -168,7 +169,7 @@ public class CaptureWindow extends Window implements WindowListener {
     @Override
     public boolean onTouch(MotionEvent e)
     {
-        removeInstantWindow();
+        hideInstantWindows();
 
         if (!mInLongPress && !mProcessingOcr){
             mImageView.setImageResource(0);
@@ -201,7 +202,7 @@ public class CaptureWindow extends Window implements WindowListener {
     {
         Log.d(TAG, "onResize");
 
-        removeInstantWindow();
+        hideInstantWindows();
 
         mOcr.cancel();
         mImageView.setImageResource(0);
@@ -271,11 +272,10 @@ public class CaptureWindow extends Window implements WindowListener {
         mInstantWindow = instantWindow;
     }
 
-    public void removeInstantWindow()
+    public void hideInstantWindows()
     {
         if (mInstantWindow != null){
-            mInstantWindow.stop();
-            mInstantWindow = null;
+            mInstantWindow.hideInstantWindows();
         }
     }
 

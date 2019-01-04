@@ -184,6 +184,7 @@ public class MainService extends Service implements Stoppable {
             mRotation = rotation;
             createVirtualDisplay();
             mCaptureWindow.reInit();
+            mHandler.onOrientationChanged();
         }
     }
 

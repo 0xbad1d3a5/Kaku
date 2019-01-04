@@ -48,7 +48,6 @@ public class OcrRunnable implements Runnable, Stoppable {
     {
         mTessBaseAPI = new TessBaseAPI();
         String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
-        Log.e(TAG, storagePath);
         mTessBaseAPI.init(storagePath, "jpn");
 
         if (!mHorizontalText)
@@ -164,7 +163,9 @@ public class OcrRunnable implements Runnable, Stoppable {
         {
             mThreadRunning = false;
             mOcrParams = null;
-            mTessBaseAPI.stop();
+            if (mTessBaseAPI != null){
+                mTessBaseAPI.stop();
+            }
             mOcrLock.notify();
         }
     }

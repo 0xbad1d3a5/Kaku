@@ -51,8 +51,10 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private List<JmSearchResult> mJmResults;
     private List<CharacterOptimized> mKd2Results;
 
-    public InformationWindow(Context context, OcrResult ocrResult) {
+    public InformationWindow(Context context, OcrResult ocrResult)
+    {
         super(context, R.layout.info_window);
+        show();
         init();
 
         this.mOcrResult = ocrResult;

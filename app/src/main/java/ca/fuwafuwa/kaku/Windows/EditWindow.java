@@ -30,8 +30,10 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
     private InputDoneListener mCallback;
     private KanjiCharacterView mKanjiView;
 
-    public EditWindow(Context context) {
+    public EditWindow(Context context)
+    {
         super(context, R.layout.edit_window);
+        show();
 
         ((ChoiceEditText) window.findViewById(R.id.edit_text)).setInputDoneCallback(this);
         ((ChoiceEditText) window.findViewById(R.id.edit_text)).requestFocus();

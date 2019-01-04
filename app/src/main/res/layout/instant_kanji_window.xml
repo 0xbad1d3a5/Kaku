@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/instant_kanji_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/instant_window_layout"
     android:padding="5dp">
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/bg_solid_border_corners_0_white_black_round">
-        <TextView
-            android:id="@+id/instant_window_text"
+        <ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
+            android:id="@+id/kanji_grid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="TEST"/>
+            android:animateLayoutChanges="true"
+            android:layout_margin="5dp" />
     </FrameLayout>
 
 </FrameLayout>

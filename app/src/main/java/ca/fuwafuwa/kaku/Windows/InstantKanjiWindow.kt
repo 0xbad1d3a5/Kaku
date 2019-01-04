@@ -1,12 +1,8 @@
 package ca.fuwafuwa.kaku.Windows
 
 import android.content.Context
-import android.graphics.Color
 import android.view.MotionEvent
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
 import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView
@@ -14,7 +10,9 @@ import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
 import ca.fuwafuwa.kaku.Windows.Views.SquareGridView
 import ca.fuwafuwa.kaku.dpToPx
 
-class InstantKanjiWindow(private val ccontext: Context, private val ocrResult: OcrResult) : Window(ccontext, R.layout.instant_kanji_window), SquareGridView.SquareViewListener
+
+class InstantKanjiWindow(private val ccontext: Context,
+                         private val instantWindow: InstantWindow) : Window(ccontext, R.layout.instant_kanji_window), SquareGridView.SquareViewListener
 {
     private val isBoxHorizontal: Boolean
         get()
@@ -22,23 +20,35 @@ class InstantKanjiWindow(private val ccontext: Context, private val ocrResult: O
             return ocrResult.boxParams.width > ocrResult.boxParams.height;
         }
 
-    init
+    private lateinit var ocrResult: OcrResult
+
+    fun setResult(result: OcrResult)
     {
-        setOnHeightKnownAction(fun()
+        ocrResult = result
+    }
+
+    override fun show()
+    {
+        synchronized(this)
         {
-            if (isBoxHorizontal)
+            if (!isVisible)
             {
-                calcParamsForHorizontal()
-            } else
-            {
-                calcParamsForVertical()
+                val mKanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
+                mKanjiGrid.clearText()
+                mKanjiGrid.setText(this, ocrResult)
+
+                if (isBoxHorizontal)
+                {
+                    calcParamsForHorizontal()
+                } else
+                {
+                    calcParamsForVertical()
+                }
+
+                windowManager.addView(window, params)
+                isVisible = true
             }
-
-            windowManager.updateViewLayout(window, params)
-        })
-
-        val mKanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
-        mKanjiGrid.setText(this, ocrResult)
+        }
     }
 
     override fun onSquareScrollStart(kanjiView: KanjiCharacterView?, e: MotionEvent?)
@@ -75,10 +85,10 @@ class InstantKanjiWindow(private val ccontext: Context, private val ocrResult: O
     private fun calcParamsForHorizontal()
     {
         val topRectHeight = ocrResult.boxParams.y - statusBarHeight
-        val bottomRectHeight = realDisplaySize.y - ocrResult.boxParams.y - ocrResult.boxParams.height - (realDisplaySize.y - heightViewHeight - statusBarHeight)
+        val bottomRectHeight = realDisplaySize.y - ocrResult.boxParams.y - ocrResult.boxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
 
         val boxMidPoint = ocrResult.boxParams.x + (ocrResult.boxParams.width / 2)
-        val maxHeight = dpToPx(context, 60)
+        val minHeight = dpToPx(context, 60)
         var maxWidth = dpToPx(context, 300)
         var xPos = 0
 
@@ -98,37 +108,65 @@ class InstantKanjiWindow(private val ccontext: Context, private val ocrResult: O
         maxWidth = minOf(realDisplaySize.x, maxWidth)
 
         params.width = maxWidth
-        if (topRectHeight < bottomRectHeight){
+
+        val drawOnTop = fun()
+        {
             params.x = xPos
-            params.y = ocrResult.boxParams.y - (maxHeight + statusBarHeight)
-            params.height = maxHeight
+            params.y = ocrResult.boxParams.y - (minHeight + statusBarHeight)
+            params.height = minHeight
         }
-        else {
+
+        val drawOnBottom = fun()
+        {
             params.x = xPos
             params.y = ocrResult.boxParams.y + ocrResult.boxParams.height - statusBarHeight
-            params.height = maxHeight
+            params.height = minHeight
+        }
+
+        if (topRectHeight < bottomRectHeight)
+        {
+            if (topRectHeight > minHeight)
+            {
+                drawOnTop()
+            }
+            else {
+                drawOnBottom()
+                instantWindow.changeLayoutForKanjiWindow(minHeight)
+            }
+        }
+        else {
+            if (bottomRectHeight > minHeight)
+            {
+                drawOnBottom()
+            }
+            else {
+                drawOnTop()
+                instantWindow.changeLayoutForKanjiWindow(minHeight)
+            }
         }
     }
 
     private fun calcParamsForVertical()
     {
         val leftRectWidth = ocrResult.boxParams.x
-        val rightRectWidth = realDisplaySize.x - (ocrResult.boxParams.x + ocrResult.boxParams.width)
+        val rightRectWidth = viewWidth - (ocrResult.boxParams.x + ocrResult.boxParams.width)
 
         var yPos = ocrResult.boxParams.y - statusBarHeight
         var maxHeight = dpToPx(context, 300)
+        var minWidth = dpToPx(context, 60)
 
         maxHeight = minOf(maxHeight, realDisplaySize.y)
 
-        if (yPos + maxHeight > realDisplaySize.y){
-            yPos = heightViewHeight - maxHeight
+        if (yPos + maxHeight > realDisplaySize.y)
+        {
+            yPos = viewHeight - maxHeight
         }
 
         params.height = maxHeight
-        if (leftRectWidth < rightRectWidth)
+
+        val drawOnLeftSide = fun()
         {
-            var maxWidth = dpToPx(context, 60)
-            var xPos = ocrResult.boxParams.x - maxWidth
+            var xPos = ocrResult.boxParams.x - minWidth
 
             if (xPos < 0)
             {
@@ -137,15 +175,38 @@ class InstantKanjiWindow(private val ccontext: Context, private val ocrResult: O
 
             params.x = xPos
             params.y = yPos
-            params.width = minOf(leftRectWidth, maxWidth)
+            params.width = minOf(leftRectWidth, minWidth)
         }
-        else {
-            var maxWidth = dpToPx(context, 60)
+
+        val drawOnRightSide = fun()
+        {
             var xPos = ocrResult.boxParams.x + ocrResult.boxParams.width
 
             params.x = xPos
             params.y = yPos
-            params.width = minOf(rightRectWidth, maxWidth)
+            params.width = minOf(rightRectWidth, minWidth)
+        }
+
+        if (leftRectWidth < rightRectWidth)
+        {
+            if (leftRectWidth > minWidth)
+            {
+                drawOnLeftSide()
+            }
+            else {
+                drawOnRightSide()
+                instantWindow.changeLayoutForKanjiWindow(minWidth)
+            }
+        }
+        else {
+            if (rightRectWidth > minWidth)
+            {
+                drawOnRightSide()
+            }
+            else {
+                drawOnLeftSide()
+                instantWindow.changeLayoutForKanjiWindow(minWidth)
+            }
         }
     }
 }

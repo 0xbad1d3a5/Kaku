@@ -40,12 +40,14 @@ public abstract class Window implements Stoppable, WindowListener {
     protected WindowManager windowManager;
     protected View window;
     protected WindowManager.LayoutParams params;
+    protected boolean isVisible;
 
     private Point mRealDisplaySize;
     private int mDX;
     private int mDY;
-    private View mHeightView;
-    private int mHeightViewHeight;
+    private View mDummyViewForSize;
+    private int mViewHeight;
+    private int mViewWidth;
     private List<ViewTreeObserver.OnGlobalLayoutListener> mOnHeightKnownListeners;
 
     private boolean mWindowClosed = false;
@@ -75,35 +77,36 @@ public abstract class Window implements Stoppable, WindowListener {
         RelativeLayout relativeLayout = window.findViewById(R.id.content_view);
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
 
-        windowManager.addView(window, params);
-
         // Hacky way to check if we are fullscreen by inserting a dummy view and seeing if
         // realDisplaySize matches this view's height
         WindowManager.LayoutParams heightViewParams = new WindowManager.LayoutParams();
-        heightViewParams.width = 1;
+        heightViewParams.width = WindowManager.LayoutParams.MATCH_PARENT;
         heightViewParams.height = WindowManager.LayoutParams.MATCH_PARENT;
         heightViewParams.type = Build.VERSION.SDK_INT > 25 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
-        heightViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        heightViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         heightViewParams.format = PixelFormat.TRANSPARENT;
         heightViewParams.gravity = Gravity.END | Gravity.TOP;
-        mHeightView = new View(context);
-        mHeightView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
+        mDummyViewForSize = new View(context);
+        mDummyViewForSize.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
         {
             @Override
             public void onGlobalLayout()
             {
-                mHeightViewHeight = mHeightView.getMeasuredHeight();
+                mViewHeight = mDummyViewForSize.getMeasuredHeight();
+                mViewWidth = mDummyViewForSize.getMeasuredWidth();
             }
         });
 
-        windowManager.addView(mHeightView, heightViewParams);
+        windowManager.addView(mDummyViewForSize, heightViewParams);
     }
 
     public void reInit(){
         mRealDisplaySize = getRealDisplaySizeFromContext();
         Log.d(TAG, "Display Size: " + mRealDisplaySize);
         fixBoxBounds();
-        windowManager.updateViewLayout(window, params);
+        if (isVisible){
+            windowManager.updateViewLayout(window, params);
+        }
     }
 
     private Point getRealDisplaySizeFromContext(){
@@ -122,22 +125,46 @@ public abstract class Window implements Stoppable, WindowListener {
      * cause a crash.
      */
     @Override
-    public void stop() {
-
+    public void stop()
+    {
         Log.d(TAG, "WINDOW CLOSING");
 
-        synchronized (this){
+        synchronized (this)
+        {
+            if (mWindowClosed) return;
 
-            if (mWindowClosed){
-                return;
-            }
-
-            for (ViewTreeObserver.OnGlobalLayoutListener listener : mOnHeightKnownListeners){
-                mHeightView.getViewTreeObserver().removeOnGlobalLayoutListener(listener);
+            for (ViewTreeObserver.OnGlobalLayoutListener listener : mOnHeightKnownListeners)
+            {
+                mDummyViewForSize.getViewTreeObserver().removeOnGlobalLayoutListener(listener);
             }
 
             mWindowClosed = true;
             windowManager.removeView(window);
+        }
+    }
+
+    public void show()
+    {
+        synchronized (this)
+        {
+            if (!isVisible)
+            {
+                windowManager.addView(window, params);
+                windowManager.updateViewLayout(window, params);
+                isVisible = true;
+            }
+        }
+    }
+
+    public void hide()
+    {
+        synchronized (this)
+        {
+            if (isVisible)
+            {
+                windowManager.removeView(window);
+                isVisible = false;
+            }
         }
     }
 
@@ -295,7 +322,7 @@ public abstract class Window implements Stoppable, WindowListener {
             }
         };
 
-        mHeightView.getViewTreeObserver().addOnGlobalLayoutListener(listener);
+        mDummyViewForSize.getViewTreeObserver().addOnGlobalLayoutListener(listener);
         mOnHeightKnownListeners.add(listener);
     }
 
@@ -325,7 +352,7 @@ public abstract class Window implements Stoppable, WindowListener {
      */
     protected int getStatusBarHeight()
     {
-        if (mRealDisplaySize.y == mHeightViewHeight){
+        if (mRealDisplaySize.y == mViewHeight){
             return 0;
         }
 
@@ -340,8 +367,15 @@ public abstract class Window implements Stoppable, WindowListener {
     /**
      * @return The height of portions of the screen the view can be draw on. Note that the View MUST have been drawn for this to have any meaning!
      */
-    protected int getHeightViewHeight(){
-        return mHeightViewHeight;
+    protected int getViewHeight(){
+        return mViewHeight;
+    }
+
+    /**
+     * @return The width of portions of the screen the view can be draw on. Note that the View MUST have been drawn for this to have any meaning!
+     */
+    protected int getViewWidth(){
+        return mViewWidth;
     }
 
     /**
