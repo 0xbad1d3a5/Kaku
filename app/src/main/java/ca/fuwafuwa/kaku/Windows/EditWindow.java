@@ -7,7 +7,9 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Ocr.OcrChar;
@@ -29,18 +31,66 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
 
     private InputDoneListener mCallback;
     private KanjiCharacterView mKanjiView;
+    private ChoiceEditText mChoiceEditText;
 
-    public EditWindow(Context context)
+    public EditWindow(Context context, WindowCoordinator windowCoordinator)
     {
-        super(context, R.layout.edit_window);
-        show();
+        super(context, windowCoordinator, R.layout.edit_window);
 
-        ((ChoiceEditText) window.findViewById(R.id.edit_text)).setInputDoneCallback(this);
-        ((ChoiceEditText) window.findViewById(R.id.edit_text)).requestFocus();
+        mChoiceEditText = window.findViewById(R.id.edit_text);
+        mChoiceEditText.setInputDoneCallback(this);
     }
 
-    public void setInfo(OcrResult ocrResult, KanjiCharacterView kanjiView){
+    @Override
+    public boolean onTouch(MotionEvent e)
+    {
+        return false;
+    }
 
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean onResize(MotionEvent e)
+    {
+        return false;
+    }
+
+    @Override
+    public void show()
+    {
+        super.show();
+        mChoiceEditText.setText("");
+        mChoiceEditText.showKeyboard();
+    }
+
+    @Override
+    public void onEditTextInputDone(String input)
+    {
+        if (input != null && !input.trim().isEmpty())
+        {
+            mKanjiView.setText(input);
+
+            if (mCallback != null)
+            {
+                mCallback.onInputDone();
+                mCallback = null;
+            }
+        }
+
+        hide();
+    }
+
+    public void setInputDoneCallback(InputDoneListener callback)
+    {
+        mCallback = callback;
+    }
+
+    public void setInfo(OcrResult ocrResult, KanjiCharacterView kanjiView)
+    {
         mKanjiView = kanjiView;
 
         OcrChar ocrChar = kanjiView.getOcrChar();
@@ -92,10 +142,6 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
         }
     }
 
-    public void setInputDoneCallback(InputDoneListener callback){
-        mCallback = callback;
-    }
-
     /**
      * We need to override here because we need cannot have the FLAG_NOT_FOCUSABLE flag set in {@link Window#getDefaultParams()}
      */
@@ -110,29 +156,5 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
         params.x = 0;
         params.y = 0;
         return params;
-    }
-
-    @Override
-    public boolean onTouch(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public boolean onResize(MotionEvent e){
-        return false;
-    }
-
-    @Override
-    public void onEditTextInputDone(String input) {
-        if (input != null && !input.trim().isEmpty()){
-            mKanjiView.setText(input);
-            mCallback.onInputDone();
-        }
-        stop();
     }
 }

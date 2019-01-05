@@ -10,7 +10,7 @@ import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.dpToPx
 
-class InstantWindow(private val ccontext: Context) : Window(ccontext, R.layout.instant_window)
+class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.instant_window)
 {
     enum class LayoutPosition {
         TOP,
@@ -25,7 +25,7 @@ class InstantWindow(private val ccontext: Context) : Window(ccontext, R.layout.i
             return ocrResult.boxParams.width > ocrResult.boxParams.height;
         }
 
-    private val instantKanjiWindow = InstantKanjiWindow(context, this)
+    private val instantKanjiWindow = InstantKanjiWindow(context, windowCoordinator, this)
 
     private val paddingSize = dpToPx(context, 5)
 
@@ -41,13 +41,14 @@ class InstantWindow(private val ccontext: Context) : Window(ccontext, R.layout.i
     override fun onDown(e: MotionEvent?): Boolean
     {
         //InformationWindow(context, ocrResult)
-        hideInstantWindows()
+        hide()
         return super.onDown(e)
     }
 
     override fun show()
     {
-        synchronized(this) {
+        synchronized(this)
+        {
             if (!isVisible)
             {
                 var text = window.findViewById<TextView>(R.id.instant_window_text)
@@ -66,26 +67,16 @@ class InstantWindow(private val ccontext: Context) : Window(ccontext, R.layout.i
                 windowManager.addView(window, params)
                 isVisible = true
             }
+
+            instantKanjiWindow.setResult(ocrResult)
+            instantKanjiWindow.show()
         }
     }
 
-    fun onOrientationChanged()
-    {
-        reInit()
-        instantKanjiWindow.reInit()
-    }
-
-    fun showInstantWindows()
-    {
-        show()
-        instantKanjiWindow.setResult(ocrResult)
-        instantKanjiWindow.show()
-    }
-
-    fun hideInstantWindows()
+    override fun hide()
     {
         instantKanjiWindow.hide()
-        hide()
+        super.hide()
     }
 
     override fun stop()

@@ -18,6 +18,7 @@ import android.widget.TextSwitcher;
 import java.sql.SQLException;
 import java.util.List;
 
+import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.LangUtils;
@@ -51,24 +52,11 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private List<JmSearchResult> mJmResults;
     private List<CharacterOptimized> mKd2Results;
 
-    public InformationWindow(Context context, OcrResult ocrResult)
+    public InformationWindow(Context context, WindowCoordinator windowCoordinator)
     {
-        super(context, R.layout.info_window);
+        super(context, windowCoordinator, R.layout.info_window);
+        init();
         show();
-        init();
-
-        this.mOcrResult = ocrResult;
-        this.mText = ocrResult.getText();
-        mKanjiGrid.setText(this, ocrResult);
-    }
-
-    public InformationWindow(Context context, String textResult) {
-        super(context, R.layout.info_window);
-        init();
-
-        this.mText = textResult;
-        mKanjiGrid.setText(this, textResult);
-        onSquareTouch(mKanjiGrid.getKanjiViewList().get(0));
     }
 
     private void init()
@@ -86,6 +74,21 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setResult(OcrResult ocrResult)
+    {
+        this.mOcrResult = ocrResult;
+        this.mText = ocrResult.getText();
+        mKanjiGrid.removeAllViews();
+        mKanjiGrid.setText(this, ocrResult);
+    }
+
+    public void setResult(String textResult)
+    {
+        this.mText = textResult;
+        mKanjiGrid.setText(this, textResult);
+        onSquareTouch(mKanjiGrid.getKanjiViewList().get(0));
     }
 
     @Override
@@ -131,9 +134,10 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
                 break;
             case EDIT:
                 kanjiView.setEdited(true);
-                EditWindow editWindow = new EditWindow(context);
+                EditWindow editWindow = (EditWindow) windowCoordinator.getWindow(Constants.WINDOW_EDIT);
                 editWindow.setInfo(mOcrResult, kanjiView);
                 editWindow.setInputDoneCallback(this);
+                editWindow.show();
                 break;
             case NONE:
                 updateInternalText();
@@ -190,15 +194,32 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     @Override
-    public void stop() {
+    public void show()
+    {
+        TextSwitcher tv = mLinearLayout.findViewById(R.id.dict_results);
+        tv.setText("");
+
+        window.setVisibility(View.VISIBLE);
+        window.setY(0);
+        super.show();
+    }
+
+    @Override
+    public void hide()
+    {
         window.animate().translationY(-getRealDisplaySize().y).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 window.setVisibility(View.INVISIBLE);
-                InformationWindow.super.stop();
+                InformationWindow.super.hide();
             }
         });
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
     }
 
     @Override
@@ -213,7 +234,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
 
     @Override
     public boolean onSingleTapUp(MotionEvent motionEvent) {
-        stop();
+        hide();
         return true;
     }
 
@@ -246,7 +267,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         Log.d(TAG, String.format("Distance moved: %f", distanceMoved));
 
         if ((v1 / mMaxFlingVelocity) < FLICK_THRESHOLD){
-            stop();
+            hide();
             return true;
         }
 
@@ -353,7 +374,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
             sb.setLength(sb.length() - 2);
         }
 
-        TextSwitcher tv = (TextSwitcher) mLinearLayout.findViewById(R.id.dict_results);
+        TextSwitcher tv = mLinearLayout.findViewById(R.id.dict_results);
         tv.setText(sb.toString());
     }
 

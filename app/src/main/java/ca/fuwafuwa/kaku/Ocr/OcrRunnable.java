@@ -32,15 +32,13 @@ public class OcrRunnable implements Runnable, Stoppable {
     private TessBaseAPI mTessBaseAPI;
     private boolean mThreadRunning = true;
     private boolean mTessReady = false;
-    private boolean mHorizontalText;
     private OcrParams mOcrParams;
     private Object mOcrLock = new Object();
 
-    public OcrRunnable(Context context, CaptureWindow captureWindow, boolean horizontalText){
+    public OcrRunnable(Context context, CaptureWindow captureWindow){
         mContext = (MainService) context;
         mCaptureWindow = captureWindow;
         mOcrParams = null;
-        mHorizontalText = horizontalText;
     }
 
     @Override
@@ -49,11 +47,6 @@ public class OcrRunnable implements Runnable, Stoppable {
         mTessBaseAPI = new TessBaseAPI();
         String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
         mTessBaseAPI.init(storagePath, "jpn");
-
-        if (!mHorizontalText)
-        {
-            mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK_VERT_TEXT);
-        }
 
         mTessReady = true;
 
@@ -82,6 +75,16 @@ public class OcrRunnable implements Runnable, Stoppable {
                     Log.d(TAG, "Processing OCR with params " + mOcrParams.toString());
 
                     long startTime = System.currentTimeMillis();
+
+                    switch (mOcrParams.getTextDirection())
+                    {
+                        case HORIZONTAL:
+                            mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK);
+                            break;
+                        case VERTICAL:
+                            mTessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_BLOCK_VERT_TEXT);
+                            break;
+                    }
 
                     saveBitmap(mOcrParams.getBitmap());
 

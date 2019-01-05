@@ -5,14 +5,16 @@ import android.view.MotionEvent
 import android.view.View
 import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
+import ca.fuwafuwa.kaku.WINDOW_INSTANT
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
 import ca.fuwafuwa.kaku.Windows.Views.SquareGridView
 import ca.fuwafuwa.kaku.dpToPx
 
 
-class InstantKanjiWindow(private val ccontext: Context,
-                         private val instantWindow: InstantWindow) : Window(ccontext, R.layout.instant_kanji_window), SquareGridView.SquareViewListener
+class InstantKanjiWindow(context: Context,
+                         windowCoordinator: WindowCoordinator,
+                         val instantWindow: InstantWindow) : Window(context, windowCoordinator, R.layout.instant_kanji_window), SquareGridView.SquareViewListener
 {
     private val isBoxHorizontal: Boolean
         get()

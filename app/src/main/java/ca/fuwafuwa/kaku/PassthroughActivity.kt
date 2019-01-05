@@ -22,7 +22,7 @@ class PassthroughActivity : AppCompatActivity()
         var processText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
 
         if (processText != null){
-            InformationWindow(this, processText);
+            InformationWindow(this, null).setResult(processText)
             finish()
         }
     }

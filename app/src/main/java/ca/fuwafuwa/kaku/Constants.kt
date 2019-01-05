@@ -11,15 +11,20 @@ const val TESS_DATA_NAME = "jpn.traineddata"
 const val SCREENSHOT_FOLDER_NAME = "screenshots"
 
 const val KAKU_PREF_FILE = "ca.fuwafuwa.kaku"
-const val KAKU_PREF_SHOW_PREVIEW_IMAGE = "ShowPreviewImage"
-const val KAKU_PREF_HORIZONTAL_TEXT = "HorizontalText"
+const val KAKU_PREF_IMAGE_FILTER = "ImageFilter"
+const val KAKU_PREF_TEXT_DIRECTION = "TextDirection"
 const val KAKU_PREF_INSTANT_MODE = "InstantMode"
 
 const val EXTRA_PROJECTION_RESULT_CODE = "ca.fuwafuwa.kaku.PROJECTION_RESULT_CODE"
 const val EXTRA_PROJECTION_RESULT_INTENT = "ca.fuwafuwa.kaku.PROJECTION_RESULT_INTENT"
-const val EXTRA_TOGGLE_IMAGE_PREVIEW = "ca.fuwafuwa.kaku.TOGGLE_IMAGE_PREVIEW"
-const val EXTRA_TOGGLE_PAGE_MODE = "ca.fuwafuwa.kaku.TOGGLE_PAGE_MODE"
-const val EXTRA_TOGGLE_INSTANT_MODE = "ca.fuwafuwa.kaku.TOGGLE_INSTANT_MODE"
+
+const val WINDOW_CAPTURE = "WINDOW_CAPTURE"
+const val WINDOW_INFO = "WINDOW_INFO"
+const val WINDOW_EDIT = "WINDOW_EDIT"
+const val WINDOW_INSTANT = "WINDOW_INSTANT"
+
+const val KAKU_CHANNEL_ID = "kaku_notification_channel_id"
+const val KAKU_CHANNEL_NAME = "Show Kaku Notification"
 
 const val REQUEST_SCREENSHOT = 100
 const val REQUEST_DRAW_ON_TOP = 200

@@ -41,6 +41,7 @@ public abstract class Window implements Stoppable, WindowListener {
     protected View window;
     protected WindowManager.LayoutParams params;
     protected boolean isVisible;
+    protected WindowCoordinator windowCoordinator;
 
     private Point mRealDisplaySize;
     private int mDX;
@@ -53,9 +54,10 @@ public abstract class Window implements Stoppable, WindowListener {
     private boolean mWindowClosed = false;
     private long mParamUpdateTimer = System.currentTimeMillis();
 
-    public Window(Context context, int contentView){
+    public Window(Context context, WindowCoordinator windowCoordinator, int contentView){
 
         this.context = context;
+        this.windowCoordinator = windowCoordinator;
 
         LayoutInflater inflater = (LayoutInflater) this.context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -78,7 +80,7 @@ public abstract class Window implements Stoppable, WindowListener {
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
 
         // Hacky way to check if we are fullscreen by inserting a dummy view and seeing if
-        // realDisplaySize matches this view's height
+        // realDisplaySize matches this view's height. Also determines the drawable view size.
         WindowManager.LayoutParams heightViewParams = new WindowManager.LayoutParams();
         heightViewParams.width = WindowManager.LayoutParams.MATCH_PARENT;
         heightViewParams.height = WindowManager.LayoutParams.MATCH_PARENT;
@@ -100,12 +102,17 @@ public abstract class Window implements Stoppable, WindowListener {
         windowManager.addView(mDummyViewForSize, heightViewParams);
     }
 
-    public void reInit(){
+    public void reInit()
+    {
         mRealDisplaySize = getRealDisplaySizeFromContext();
         Log.d(TAG, "Display Size: " + mRealDisplaySize);
         fixBoxBounds();
-        if (isVisible){
-            windowManager.updateViewLayout(window, params);
+
+        synchronized (this)
+        {
+            if (isVisible){
+                windowManager.updateViewLayout(window, params);
+            }
         }
     }
 

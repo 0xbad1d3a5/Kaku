@@ -7,18 +7,37 @@ import android.content.Intent
 import android.os.Build
 import android.util.DisplayMetrics
 
-import com.google.common.base.Joiner
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
 import java.util.ArrayList
 
 private const val TAG = "KakuTools"
 private val gson = GsonBuilder().setPrettyPrinting().disableHtmlEscaping().excludeFieldsWithoutExposeAnnotation().create()
+
+enum class TextDirection(val value: Int) {
+    AUTO(0),
+    HORIZONTAL(1),
+    VERTICAL(2);
+
+    companion object {
+        private val values = values();
+        fun getByValue(value: Int) = values.firstOrNull { it.value == value }
+    }
+}
+
+data class Prefs(val textDirectionSetting: TextDirection,
+                 val imageFilterSetting: Boolean,
+                 val instantModeSetting: Boolean);
+
+fun getPrefs(context: Context): Prefs
+{
+    val prefs = context.getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
+
+    return Prefs(TextDirection.valueOf(
+            prefs.getString(KAKU_PREF_TEXT_DIRECTION, TextDirection.AUTO.toString())),
+            prefs.getBoolean(KAKU_PREF_IMAGE_FILTER, true),
+            prefs.getBoolean(KAKU_PREF_INSTANT_MODE, true))
+}
 
 fun toJson(obj: Any): String
 {

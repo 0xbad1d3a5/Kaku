@@ -29,9 +29,15 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import java.util.HashMap;
+
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 import ca.fuwafuwa.kaku.Windows.Window;
+import ca.fuwafuwa.kaku.Windows.WindowCoordinator;
+import kotlin.Function;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 import static androidx.core.app.NotificationCompat.FLAG_FOREGROUND_SERVICE;
 import static androidx.core.app.NotificationCompat.FLAG_ONGOING_EVENT;
@@ -58,11 +64,10 @@ public class MainService extends Service implements Stoppable {
         public void onReceive(Context context, Intent intent)
         {
             SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
-            boolean imagePreview = prefs.getBoolean(Constants.KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
-            prefs.edit().putBoolean(Constants.KAKU_PREF_SHOW_PREVIEW_IMAGE, !imagePreview).apply();
+            boolean imagePreview = prefs.getBoolean(Constants.KAKU_PREF_IMAGE_FILTER, true);
+            prefs.edit().putBoolean(Constants.KAKU_PREF_IMAGE_FILTER, !imagePreview).apply();
 
-            Intent i = new Intent(context, MainService.class).putExtra(Constants.EXTRA_TOGGLE_IMAGE_PREVIEW, 0);
-            KakuTools.startKakuService(context, i);
+            KakuTools.startKakuService(context, new Intent(context, MainService.class));
         }
     }
 
@@ -72,11 +77,11 @@ public class MainService extends Service implements Stoppable {
         public void onReceive(Context context, Intent intent)
         {
             SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
-            boolean pageMode = prefs.getBoolean(Constants.KAKU_PREF_HORIZONTAL_TEXT, true);
-            prefs.edit().putBoolean(Constants.KAKU_PREF_HORIZONTAL_TEXT, !pageMode).apply();
+            TextDirection textDirection = TextDirection.valueOf(prefs.getString(Constants.KAKU_PREF_TEXT_DIRECTION, TextDirection.AUTO.toString()));
+            textDirection = TextDirection.Companion.getByValue((textDirection.ordinal() + 1) % 3);
+            prefs.edit().putString(Constants.KAKU_PREF_TEXT_DIRECTION, textDirection.toString()).apply();
 
-            Intent i = new Intent(context, MainService.class).putExtra(Constants.EXTRA_TOGGLE_PAGE_MODE, 0);
-            KakuTools.startKakuService(context, i);
+            KakuTools.startKakuService(context, new Intent(context, MainService.class));
         }
     }
 
@@ -89,8 +94,7 @@ public class MainService extends Service implements Stoppable {
             boolean pageMode = prefs.getBoolean(Constants.KAKU_PREF_INSTANT_MODE, true);
             prefs.edit().putBoolean(Constants.KAKU_PREF_INSTANT_MODE, !pageMode).apply();
 
-            Intent i = new Intent(context, MainService.class).putExtra(Constants.EXTRA_TOGGLE_INSTANT_MODE, 0);
-            KakuTools.startKakuService(context, i);
+            KakuTools.startKakuService(context, new Intent(context, MainService.class));
         }
     }
 
@@ -117,9 +121,6 @@ public class MainService extends Service implements Stoppable {
 
     private Intent mProjectionResultIntent;
     private int mProjectionResultCode;
-    private boolean mShowPreviewImage;
-    private boolean mHorizontalText;
-    private boolean mInstantMode;
 
     private WindowManager mWindowManager;
     private MediaProjectionManager mMediaProjectionManager;
@@ -133,7 +134,7 @@ public class MainService extends Service implements Stoppable {
     private Point mRealDisplaySize = new Point();
 
     private MediaProjectionStopCallback mMediaProjectionStopCallback;
-    private CaptureWindow mCaptureWindow;
+    private WindowCoordinator mWindowCoordinator;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -142,63 +143,61 @@ public class MainService extends Service implements Stoppable {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
+    public void onCreate()
+    {
+        super.onCreate();
 
+        Log.d(TAG, "CREATING MAINSERVICE: " + System.identityHashCode(this));
+
+        mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        mWindowCoordinator = new WindowCoordinator(this);
+        mHandler = new MainServiceHandler(this, mWindowCoordinator);
+
+        startForeground(NOTIFICATION_ID, getNotification());
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
         Log.d(TAG, "onStartCommand");
 
-        mHandler = new MainServiceHandler(this);
-        mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-
-        if (intent.getExtras().containsKey(Constants.EXTRA_PROJECTION_RESULT_CODE) &&
+        if (intent.getExtras() != null &&
+            intent.getExtras().containsKey(Constants.EXTRA_PROJECTION_RESULT_CODE) &&
             intent.getExtras().containsKey(Constants.EXTRA_PROJECTION_RESULT_INTENT))
         {
             mProjectionResultIntent = (Intent) intent.getExtras().get(Constants.EXTRA_PROJECTION_RESULT_INTENT);
             mProjectionResultCode = intent.getExtras().getInt(Constants.EXTRA_PROJECTION_RESULT_CODE);
         }
 
-        if (mCaptureWindow == null){
-            mCaptureWindow = new CaptureWindow(this, mShowPreviewImage, mHorizontalText, mInstantMode);
-        }
-        else {
-            Log.d(TAG, "onStartCommand - Reinitializing CaptureWindow");
+        // re-init CaptureWindow as prefs may have changed
+        mWindowCoordinator.getWindow(Constants.WINDOW_CAPTURE).reInit();
 
-            // Note: must call getNotificaton() before reinit-ing the CaptureWindow, since it sets some global variables... probably should refactor this to be more clean
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, getNotification());
-
-            mCaptureWindow.reInit();
-            mCaptureWindow.reInitOcr(mShowPreviewImage, mHorizontalText, mInstantMode);
-        }
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFICATION_ID, getNotification());
 
         return START_NOT_STICKY;
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig){
+    public void onConfigurationChanged(Configuration newConfig)
+    {
         super.onConfigurationChanged(newConfig);
 
         final int rotation = mDisplay.getRotation();
 
-        if (rotation != mRotation){
+        if (rotation != mRotation)
+        {
             Log.d(TAG, "Orientation changed");
             mRotation = rotation;
             createVirtualDisplay();
-            mCaptureWindow.reInit();
-            mHandler.onOrientationChanged();
+            mWindowCoordinator.reinitAllWindows();
         }
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Log.d(TAG, "CREATING MAINSERVICE: " + System.identityHashCode(this));
-        startForeground(NOTIFICATION_ID, getNotification());
     }
 
     @Override
     public void onDestroy() {
         Log.d(TAG, "DESTORYING MAINSERVICE: " + System.identityHashCode(this));
-        mCaptureWindow.stop();
+        mWindowCoordinator.stopAllWindows();
         stop();
         super.onDestroy();
     }
@@ -255,18 +254,29 @@ public class MainService extends Service implements Stoppable {
         PendingIntent toggleInstantMode = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_INSTANT_MODE, new Intent(this, ToggleInstantModeMainService.class), 0);
         PendingIntent closeMainService = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_SHUTDOWN, new Intent(this, CloseMainService.class), 0);
 
-        SharedPreferences prefs = getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
-        mShowPreviewImage = prefs.getBoolean(Constants.KAKU_PREF_SHOW_PREVIEW_IMAGE, true);
-        mHorizontalText = prefs.getBoolean(Constants.KAKU_PREF_HORIZONTAL_TEXT, true);
-        mInstantMode = prefs.getBoolean(Constants.KAKU_PREF_INSTANT_MODE, true);
+        Prefs prefs = KakuTools.getPrefs(this);
+
+        String contentTitle = "Kaku";
+        switch (prefs.getTextDirectionSetting())
+        {
+            case AUTO:
+                contentTitle = "Kaku is determining text direction automatically";
+                break;
+            case VERTICAL:
+                contentTitle = "Kaku is reading text vertically";
+                break;
+            case HORIZONTAL:
+                contentTitle = "Kaku is reading text horizontally";
+                break;
+        }
 
         Notification n = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.kaku_notification_icon)
-                .setContentTitle(String.format("Kaku is reading text %s", mHorizontalText ? "horizontally" : "vertically"))
-                .setContentText(String.format("Black and white filter %s, instant mode %s", mShowPreviewImage ? "on" : "off", mInstantMode ? "on" : "off"))
+                .setContentTitle(contentTitle)
+                .setContentText(String.format("Black and white filter %s, instant mode %s", prefs.getImageFilterSetting() ? "on" : "off", prefs.getInstantModeSetting() ? "on" : "off"))
                 .setContentIntent(closeMainService)
                 .addAction(0, "Text Direction", togglePageMode)
-                .addAction(0, "Filter Image", toggleImagePreview)
+                .addAction(0, "Image Filter", toggleImagePreview)
                 .addAction(0, "Instant Mode", toggleInstantMode)
                 .build();
         n.flags = FLAG_ONGOING_EVENT | FLAG_FOREGROUND_SERVICE;
@@ -295,14 +305,15 @@ public class MainService extends Service implements Stoppable {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private String createNotificationChannel(){
-        String channelId = "kaku_service";
-        String channelName = "Kaku Background Service";
-        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
-        channel.setLightColor(Color.BLUE);
-        channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        NotificationManager service = getSystemService(Context.NOTIFICATION_SERVICE) instanceof NotificationManager ? (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE) : null;
+    private String createNotificationChannel()
+    {
+        String channelId = Constants.KAKU_CHANNEL_ID;
+        String channelName = Constants.KAKU_CHANNEL_NAME;
+
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+        NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         service.createNotificationChannel(channel);
+
         return channelId;
     }
 }
