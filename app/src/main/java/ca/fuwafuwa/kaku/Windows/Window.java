@@ -40,7 +40,7 @@ public abstract class Window implements Stoppable, WindowListener {
     protected WindowManager windowManager;
     protected View window;
     protected WindowManager.LayoutParams params;
-    protected boolean isVisible;
+    protected boolean addedToWindowManager;
     protected WindowCoordinator windowCoordinator;
 
     private Point mRealDisplaySize;
@@ -104,13 +104,15 @@ public abstract class Window implements Stoppable, WindowListener {
 
     public void reInit()
     {
+        Log.d(TAG, String.format("Window.reInit() for %s called, %b", this.getClass(), addedToWindowManager));
+
         mRealDisplaySize = getRealDisplaySizeFromContext();
         Log.d(TAG, "Display Size: " + mRealDisplaySize);
         fixBoxBounds();
 
         synchronized (this)
         {
-            if (isVisible){
+            if (addedToWindowManager){
                 windowManager.updateViewLayout(window, params);
             }
         }
@@ -154,23 +156,28 @@ public abstract class Window implements Stoppable, WindowListener {
     {
         synchronized (this)
         {
-            if (!isVisible)
+            Log.d(TAG, String.format("Window.show() for %s called, %b", this.getClass(), addedToWindowManager));
+
+            if (!addedToWindowManager)
             {
                 windowManager.addView(window, params);
-                windowManager.updateViewLayout(window, params);
-                isVisible = true;
+                addedToWindowManager = true;
             }
+
+            windowManager.updateViewLayout(window, params);
         }
     }
 
     public void hide()
     {
+        Log.d(TAG, String.format("Window.hide() for %s called, %b", this.getClass(), addedToWindowManager));
+
         synchronized (this)
         {
-            if (isVisible)
+            if (addedToWindowManager)
             {
                 windowManager.removeView(window);
-                isVisible = false;
+                addedToWindowManager = false;
             }
         }
     }

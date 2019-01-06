@@ -36,7 +36,7 @@ fun getPrefs(context: Context): Prefs
     return Prefs(TextDirection.valueOf(
             prefs.getString(KAKU_PREF_TEXT_DIRECTION, TextDirection.AUTO.toString())),
             prefs.getBoolean(KAKU_PREF_IMAGE_FILTER, true),
-            prefs.getBoolean(KAKU_PREF_INSTANT_MODE, true))
+            prefs.getBoolean(KAKU_PREF_INSTANT_MODE, false))
 }
 
 fun toJson(obj: Any): String

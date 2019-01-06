@@ -37,8 +37,8 @@ import ca.fuwafuwa.kaku.XmlParsers.CommonParser;
 /**
  * Created by 0xbad1d3a5 on 4/13/2016.
  */
-public class CaptureWindow extends Window implements WindowListener {
-
+public class CaptureWindow extends Window implements WindowListener
+{
     private class ScreenshotForOcr
     {
         public final Bitmap crop;
@@ -47,6 +47,7 @@ public class CaptureWindow extends Window implements WindowListener {
 
         private Bitmap mCropProcessed;
         private int mSetThreshold;
+
 
         public ScreenshotForOcr(Bitmap crop, Bitmap orig, BoxParams params, int defaultThreshold){
             this.crop = crop;
@@ -68,20 +69,26 @@ public class CaptureWindow extends Window implements WindowListener {
 
         public Bitmap getProcessedScreenshot(int threshold)
         {
-            Pix pix = ReadFile.readBitmap(crop).clone();
+            Pix pix = ReadFile.readBitmap(crop);
+            Pix pixT = GrayQuant.pixThresholdToBinary(pix, threshold);
 
-            //pix = AdaptiveMap.pixContrastNorm(pix, 5, 5, 40, 2, 1);
-            //pix = Convert.convertTo8(pix);
-            //pix = Binarize.otsuAdaptiveThreshold(pix);
-            pix = GrayQuant.pixThresholdToBinary(pix, threshold);
-            Bitmap returnBitmap = WriteFile.writeBitmap(pix);
+            Bitmap binarizedBitmap = WriteFile.writeBitmap(pixT);
 
             pix.recycle();
+            pixT.recycle();
 
-            mCropProcessed = returnBitmap;
+            if (mCropProcessed != null) mCropProcessed.recycle();
+            mCropProcessed = binarizedBitmap;
             mSetThreshold = threshold;
 
-            return returnBitmap;
+            return binarizedBitmap;
+        }
+
+        public void recycle()
+        {
+            if (mCropProcessed != null) mCropProcessed.recycle();
+            crop.recycle();
+            orig.recycle();
         }
     }
 
@@ -299,20 +306,21 @@ public class CaptureWindow extends Window implements WindowListener {
             @Override
             public void run()
             {
-                ScreenshotForOcr ocrScreenshot = getScreenshotForOcr();
+                final ScreenshotForOcr ocrScreenshot = getScreenshotForOcr();
 
-                if (ocrScreenshot == null || ocrScreenshot.crop == null || ocrScreenshot.orig == null || ocrScreenshot.params == null){
+                if (ocrScreenshot == null || ocrScreenshot.crop == null || ocrScreenshot.orig == null || ocrScreenshot.params == null)
+                {
                     mProcessingPreview = false;
                     return;
                 }
-
-                mScreenshotForOcr = ocrScreenshot;
 
                 ((MainService)context).getHandler().post(new Runnable()
                 {
                     @Override
                     public void run()
                     {
+                        mScreenshotForOcr = ocrScreenshot;
+
                         if (mPrefs.getImageFilterSetting())
                         {
                             mImageView.setImageBitmap(mScreenshotForOcr.getCachedScreenshot());
@@ -369,8 +377,10 @@ public class CaptureWindow extends Window implements WindowListener {
 
         try
         {
-            if (!instant){
-                while (!mOcr.isReadyForOcr()){
+            if (!instant)
+            {
+                while (!mOcr.isReadyForOcr())
+                {
                     mOcr.cancel();
                     Thread.sleep(10);
                 }

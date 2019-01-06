@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.TextSwitcher;
 
@@ -63,8 +65,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     {
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
         mGestureDetector = new GestureDetector(this.context, this);
-        mKanjiGrid = (KanjiGridView) window.findViewById(R.id.kanji_grid);
-        mLinearLayout = (LinearLayout) window.findViewById(R.id.info_text);
+        mKanjiGrid = window.findViewById(R.id.kanji_grid);
+        mLinearLayout = window.findViewById(R.id.info_text);
         mJmResults = null;
         mKd2Results = null;
 
@@ -162,6 +164,14 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         mKd2Results = null;
     }
 
+    /**
+     * InformationWindow does not need to reInit as its getDefaultParams() are all relative. Re-initing will cause bugs.
+     */
+    @Override
+    public void reInit()
+    {
+    }
+
     @Override
     protected WindowManager.LayoutParams getDefaultParams() {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
@@ -209,17 +219,14 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     {
         window.animate().translationY(-getRealDisplaySize().y).setListener(new AnimatorListenerAdapter() {
             @Override
-            public void onAnimationEnd(Animator animation) {
+            public void onAnimationEnd(Animator animation)
+            {
                 super.onAnimationEnd(animation);
                 window.setVisibility(View.INVISIBLE);
+
                 InformationWindow.super.hide();
             }
         });
-    }
-
-    @Override
-    public void stop() {
-        super.stop();
     }
 
     @Override

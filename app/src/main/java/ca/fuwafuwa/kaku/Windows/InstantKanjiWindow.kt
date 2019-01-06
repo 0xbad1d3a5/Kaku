@@ -5,7 +5,6 @@ import android.view.MotionEvent
 import android.view.View
 import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
-import ca.fuwafuwa.kaku.WINDOW_INSTANT
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
 import ca.fuwafuwa.kaku.Windows.Views.SquareGridView
@@ -33,7 +32,7 @@ class InstantKanjiWindow(context: Context,
     {
         synchronized(this)
         {
-            if (!isVisible)
+            if (!addedToWindowManager)
             {
                 val mKanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
                 mKanjiGrid.clearText()
@@ -48,7 +47,7 @@ class InstantKanjiWindow(context: Context,
                 }
 
                 windowManager.addView(window, params)
-                isVisible = true
+                addedToWindowManager = true
             }
         }
     }

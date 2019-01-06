@@ -49,7 +49,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     {
         synchronized(this)
         {
-            if (!isVisible)
+            if (!addedToWindowManager)
             {
                 var text = window.findViewById<TextView>(R.id.instant_window_text)
                 text.text = ocrResult.text
@@ -65,7 +65,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                 setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
 
                 windowManager.addView(window, params)
-                isVisible = true
+                addedToWindowManager = true
             }
 
             instantKanjiWindow.setResult(ocrResult)
@@ -190,7 +190,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     private fun calcParamsForVertical()
     {
         val leftRectWidth = ocrResult.boxParams.x
-        val rightRectWidth = realDisplaySize.x - (ocrResult.boxParams.x + ocrResult.boxParams.width)
+        val rightRectWidth = viewWidth - (ocrResult.boxParams.x + ocrResult.boxParams.width)
 
         var yPos = ocrResult.boxParams.y - statusBarHeight
         var maxHeight = dpToPx(context, 600)

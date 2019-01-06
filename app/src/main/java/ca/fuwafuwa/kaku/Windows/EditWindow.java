@@ -84,6 +84,14 @@ public class EditWindow extends Window implements ChoiceEditText.InputDoneListen
         hide();
     }
 
+    /**
+     * EditWindow does not need to reInit as its getDefaultParams() are all relative. Re-initing will cause bugs.
+     */
+    @Override
+    public void reInit()
+    {
+    }
+
     public void setInputDoneCallback(InputDoneListener callback)
     {
         mCallback = callback;
