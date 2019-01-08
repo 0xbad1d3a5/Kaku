@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import androidx.core.content.ContextCompat;
@@ -234,7 +235,8 @@ public class CaptureWindow extends Window implements WindowListener
 
         Log.d(TAG, String.format("onUp - mImageFilterSetting: %b | mInLongPress: %b | mProcessingPreview: %b | mProcessingOcr: %b", mPrefs.getImageFilterSetting(), mInLongPress, mProcessingPreview, mProcessingOcr));
 
-        if (!mInLongPress && !mProcessingPreview && !mProcessingOcr){
+        if (!mInLongPress && !mProcessingPreview && !mProcessingOcr)
+        {
             Log.d(TAG, "onUp - SetPreviewImage");
             setBorderStyle(e);
             mProcessingPreview = true;
@@ -323,7 +325,8 @@ public class CaptureWindow extends Window implements WindowListener
 
                         if (mPrefs.getImageFilterSetting())
                         {
-                            mImageView.setImageBitmap(mScreenshotForOcr.getCachedScreenshot());
+                            Bitmap screen = mScreenshotForOcr.getCachedScreenshot();
+                            mImageView.setImageBitmap(calculateFuriganaPosition(screen));
                         }
 
                         if (mPrefs.getInstantModeSetting() && System.currentTimeMillis() > mLastDoubleTapTime + mLastDoubleTapIgnoreDelay)
@@ -340,6 +343,117 @@ public class CaptureWindow extends Window implements WindowListener
             }
         });
         thread.start();
+    }
+
+    private Bitmap calculateFuriganaPosition(Bitmap bitmap)
+    {
+        Bitmap screen = bitmap.copy(bitmap.getConfig(), true);
+
+        int screenHeight = screen.getHeight();
+        float screenHeightHalf = screenHeight / 2;
+        int screenWidth = screen.getWidth();
+
+        int[] histogram = new int[screenWidth];
+        float[] histogramBoost = new float[screenWidth];
+
+        for (int x = 0; x < screenWidth; x++)
+        {
+            for (int y = 0; y < screenHeight; y++)
+            {
+                int pixel = screen.getPixel(x, y);
+                int R = (pixel >> 16) & 0xff;
+                int G = (pixel >>  8) & 0xff;
+                int B = (pixel      ) & 0xff;
+                if (!(R < 10 && G < 10 && B < 10))
+                {
+                    histogram[x]++;
+                    histogramBoost[x] += (float)y / screenHeight < 0.5 ? ((screenHeightHalf - y) / screenHeightHalf) : -((y - screenHeightHalf) / screenHeightHalf);
+                }
+            }
+        }
+
+        // Calculate boost
+        float boostTotal = 0;
+        float boostAvg = 0;
+        float boostMax = 0;
+        // Find highest boost value
+        for (int x = 0; x < screenWidth; x++)
+        {
+            if (histogramBoost[x] > boostMax) boostMax = histogramBoost[x];
+        }
+        // Stretch boost by itself (higher boosts will be even higher), and normalize all boost values by boostMax
+        for (int x = 0; x < screenWidth; x++)
+        {
+            histogramBoost[x] = (histogramBoost[x] * histogramBoost[x]) / boostMax;
+        }
+        // Find highest boost value
+        for (int x = 0; x < screenWidth; x++)
+        {
+            if (histogramBoost[x] > boostMax) boostMax = histogramBoost[x];
+        }
+        // Normalize all boost values by boostMax again
+        for (int x = 0; x < screenWidth; x++)
+        {
+            histogramBoost[x] = histogramBoost[x] / boostMax;
+            boostTotal += histogramBoost[x];
+        }
+        boostAvg = boostTotal / screenWidth;
+
+        // Calculate histogram average excluding white columns
+        int averageTotal = 0;
+        int averageNonZero = 0;
+        for (int i = 0; i < histogram.length; i++)
+        {
+            if (histogram[i] != 0)
+            {
+                averageTotal += histogram[i];
+                averageNonZero++;
+            }
+        }
+        int avg = averageTotal / averageNonZero;
+        int avgLine = screenHeight - (screenHeight - avg);
+        int maxBoostTimes = screenHeight - avg;
+        avgLine = avgLine >= screenHeight ? screenHeight - 1 : avgLine;
+
+        // Draw histogram
+        for (int x = 0; x < screenWidth; x++)
+        {
+            if (histogram[x] == 0)
+            {
+                continue;
+            }
+
+            int y;
+            for (y = screenHeight - 1; y >= screenHeight - (screenHeight - histogram[x]) ; y--)
+            {
+                screen.setPixel(x, y, Color.RED);
+            }
+
+            if (histogramBoost[x] > 0)
+            {
+                int timesToBoost = (int)(histogramBoost[x] * screenHeight);
+                for (int i = 0; i < timesToBoost; i++)
+                {
+                    if (y > 0)
+                    {
+                        screen.setPixel(x, y, Color.BLUE);
+                        y--;
+                    }
+                }
+            }
+        }
+
+        // Draw average histogram line
+        int avgLineM = avgLine - 1 < 0 ? 0 : avgLine - 1;
+        int avgLineP = avgLine + 1 > screenHeight - 1 ? screenHeight - 1 : avgLine + 1;
+        for (int x = 0; x < screenWidth; x++)
+        {
+            screen.setPixel(x, avgLineM, Color.GREEN);
+            screen.setPixel(x, avgLine, Color.GREEN);
+            screen.setPixel(x, avgLineP, Color.GREEN);
+        }
+
+        return screen;
     }
 
     private void setBorderStyle(MotionEvent e)

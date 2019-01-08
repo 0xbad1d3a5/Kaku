@@ -86,6 +86,10 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         mKanjiGrid.setText(this, ocrResult);
     }
 
+    /**
+     * TODO: DO NOT FORGET ABOUT PASSTHROUGHACTIVITY - This window needs to actually close!
+     * @param textResult
+     */
     public void setResult(String textResult)
     {
         this.mText = textResult;
@@ -210,8 +214,9 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         tv.setText("");
 
         window.setVisibility(View.VISIBLE);
-        window.setY(0);
+        params.y = 0; // onScroll changes this value
         super.show();
+        window.setY(0); // translationY changes this value
     }
 
     @Override
@@ -221,7 +226,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                super.onAnimationEnd(animation);
                 window.setVisibility(View.INVISIBLE);
 
                 InformationWindow.super.hide();
@@ -230,23 +234,27 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     @Override
-    public boolean onResize(MotionEvent e){
+    public boolean onResize(MotionEvent e)
+    {
         return false;
     }
 
     @Override
-    public boolean onDown(MotionEvent motionEvent) {
+    public boolean onDown(MotionEvent motionEvent)
+    {
         return true;
     }
 
     @Override
-    public boolean onSingleTapUp(MotionEvent motionEvent) {
+    public boolean onSingleTapUp(MotionEvent motionEvent)
+    {
         hide();
         return true;
     }
 
     @Override
-    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1)
+    {
 
         if (motionEvent == null || motionEvent1 == null){
             return false;
@@ -262,7 +270,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     @Override
-    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1)
+    {
 
         if (motionEvent == null || motionEvent1 == null){
             return false;
@@ -273,7 +282,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         Log.d(TAG, String.format("Fling strength: %f", v1 / mMaxFlingVelocity));
         Log.d(TAG, String.format("Distance moved: %f", distanceMoved));
 
-        if ((v1 / mMaxFlingVelocity) < FLICK_THRESHOLD){
+        if ((v1 / mMaxFlingVelocity) < FLICK_THRESHOLD)
+        {
             hide();
             return true;
         }
