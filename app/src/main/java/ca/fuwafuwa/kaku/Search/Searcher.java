@@ -17,7 +17,8 @@ import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
  */
 public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskDone {
 
-    public interface SearchDictDone {
+    public interface SearchDictDone
+    {
         void jmResultsCallback(List<JmSearchResult> results, SearchInfo search);
         void kd2ResultsCallback(List<CharacterOptimized> results, SearchInfo search);
     }
@@ -27,15 +28,23 @@ public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskD
     private SearchDictDone mSearchDictDone;
     private Context mContext;
 
-    public Searcher(Context context) throws SQLException {
+    public Searcher(Context context) throws SQLException
+    {
         mContext = context;
     }
 
-    public void registerCallback(SearchDictDone dictDone){
+    public void registerCallback(SearchDictDone dictDone)
+    {
         this.mSearchDictDone = dictDone;
     }
 
-    public void search(SearchInfo searchInfo){
+    public void unregisterCallback()
+    {
+        this.mSearchDictDone = null;
+    }
+
+    public void search(SearchInfo searchInfo)
+    {
         try {
             // Stick to serial execution for now until drawing ugliness with Kd2 usually drawing first on InfoWindow is figured out
             // Parallel doesn't make it that much faster anyways since Kd2 is usually super-fast, biggest delay on JmDict

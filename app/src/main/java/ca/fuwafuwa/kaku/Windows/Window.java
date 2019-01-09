@@ -68,13 +68,13 @@ public abstract class Window implements Stoppable, WindowListener {
         minSize = KakuTools.dpToPx(context, 20);
         mOnHeightKnownListeners = new ArrayList<>();
 
-        WindowView mWindowView = window.findViewById(R.id.window_view);
-        ResizeView mResizeView = window.findViewById(R.id.resize_view);
-        mWindowView.setWindowListener(this);
-        mResizeView.setWindowListener(this);
+        WindowView windowView = window.findViewById(R.id.window_view);
+        ResizeView resizeView = window.findViewById(R.id.resize_view);
+        windowView.setWindowListener(this);
+        resizeView.setWindowListener(this);
         GestureDetectorCompat detectorCompat = new GestureDetectorCompat(context, this);
         detectorCompat.setOnDoubleTapListener(this);
-        mWindowView.setDetector(detectorCompat);
+        windowView.setDetector(detectorCompat);
 
         RelativeLayout relativeLayout = window.findViewById(R.id.content_view);
         relativeLayout.addView(inflater.inflate(contentView, relativeLayout, false));
@@ -148,6 +148,7 @@ public abstract class Window implements Stoppable, WindowListener {
             }
 
             mWindowClosed = true;
+            windowManager.removeView(mDummyViewForSize);
             windowManager.removeView(window);
         }
     }

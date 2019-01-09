@@ -55,7 +55,7 @@ public class KanjiGridView extends SquareGridView {
         postInvalidate();
     }
 
-    public void setText(InformationWindow infoWin, String text){
+    public void setText(SquareGridView.SquareViewListener squareViewCallback, String text){
 
         List<String> charList = KakuTools.splitTextByChar(text);
         int charListLength = charList.size();
@@ -64,7 +64,7 @@ public class KanjiGridView extends SquareGridView {
         for (int i = 0; i < charListLength; i++)
         {
             KanjiCharacterView kanjiView = new KanjiCharacterView(mContext);
-            kanjiView.setKanjiViewCallback(infoWin);
+            kanjiView.setKanjiViewCallback(squareViewCallback);
             kanjiView.setText(charList.get(i));
             kanjiView.setCharPos(mKanjiCount);
 
@@ -160,6 +160,14 @@ public class KanjiGridView extends SquareGridView {
         }
 
         return kanjiViewList;
+    }
+
+    public void recycle()
+    {
+        for (KanjiCharacterView kcv : getKanjiViewList())
+        {
+            kcv.recycle();
+        }
     }
 
     private List<OcrChar> recomputeOcrChars(){

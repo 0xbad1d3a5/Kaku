@@ -53,6 +53,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private String mText;
     private List<JmSearchResult> mJmResults;
     private List<CharacterOptimized> mKd2Results;
+    private boolean mNeedsToClose;
 
     public InformationWindow(Context context, WindowCoordinator windowCoordinator)
     {
@@ -95,6 +96,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         this.mText = textResult;
         mKanjiGrid.setText(this, textResult);
         onSquareTouch(mKanjiGrid.getKanjiViewList().get(0));
+        mNeedsToClose = true;
     }
 
     @Override
@@ -228,9 +230,32 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
             {
                 window.setVisibility(View.INVISIBLE);
 
-                InformationWindow.super.hide();
+                if (!mNeedsToClose)
+                {
+                    InformationWindow.super.hide();
+                }
+                else
+                {
+                    InformationWindow.super.stop();
+                }
             }
         });
+    }
+
+    @Override
+    public void stop()
+    {
+        mKanjiGrid.recycle();
+        mSearcher.unregisterCallback();
+        mGestureDetector = null;
+        mKanjiGrid  = null;
+        mLinearLayout = null;
+        mSearcher = null;
+        mOcrResult = null;
+        mText = null;
+        mJmResults = null;
+        mKd2Results = null;
+        super.stop();
     }
 
     @Override

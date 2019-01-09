@@ -11,36 +11,44 @@ import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener;
 /**
  * Created by 0xbad1d3a5 on 4/13/2016.
  */
-public class WindowView extends RelativeLayout {
-
+public class WindowView extends RelativeLayout
+{
     private WindowListener mWindowListener;
     private GestureDetectorCompat mDetector;
 
-    public WindowView(Context context) {
+    public WindowView(Context context)
+    {
         super(context);
     }
 
-    public WindowView(Context context, AttributeSet attrs) {
+    public WindowView(Context context, AttributeSet attrs)
+    {
         super(context, attrs);
     }
 
-    public WindowView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public WindowView(Context context, AttributeSet attrs, int defStyleAttr)
+    {
         super(context, attrs, defStyleAttr);
     }
 
-    public void setWindowListener(WindowListener windowListener){
-        this.mWindowListener = windowListener;
+    public void setWindowListener(WindowListener windowListener)
+    {
+        mWindowListener = windowListener;
     }
 
-    public void setDetector(GestureDetectorCompat detector){
-        this.mDetector = detector;
+    public void setDetector(GestureDetectorCompat detector)
+    {
+        mDetector = detector;
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent e){
-        if (mDetector.onTouchEvent(e)){
+    public boolean onTouchEvent(MotionEvent e)
+    {
+        if (mDetector.onTouchEvent(e))
+        {
             return true;
         }
+
         return mWindowListener.onTouch(e);
     }
 }

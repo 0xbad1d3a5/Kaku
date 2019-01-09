@@ -72,11 +72,17 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     }
 
     public void setKanjiViewCallback(SquareGridView.SquareViewListener callback){
-        this.mCallback = callback;
+        mCallback = callback;
+    }
+
+    public void recycle()
+    {
+        mCallback = null;
+        mGestureDetector = null;
     }
 
     public void setOcrChar(OcrChar ocrChar){
-        this.mOcrChar = ocrChar;
+        mOcrChar = ocrChar;
     }
 
     public OcrChar getOcrChar(){
@@ -107,8 +113,8 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
         return mEdited;
     }
 
-    public void setEdited(boolean mEdited) {
-        this.mEdited = mEdited;
+    public void setEdited(boolean edited) {
+        mEdited = edited;
     }
 
     public void removeBackground(){

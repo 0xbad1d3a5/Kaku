@@ -327,6 +327,7 @@ public class CaptureWindow extends Window implements WindowListener
                         {
                             Bitmap screen = mScreenshotForOcr.getCachedScreenshot();
                             mImageView.setImageBitmap(calculateFuriganaPosition(screen));
+                            //mImageView.setImageBitmap(screen);
                         }
 
                         if (mPrefs.getInstantModeSetting() && System.currentTimeMillis() > mLastDoubleTapTime + mLastDoubleTapIgnoreDelay)
@@ -410,7 +411,7 @@ public class CaptureWindow extends Window implements WindowListener
                 averageNonZero++;
             }
         }
-        int avg = averageTotal / averageNonZero;
+        int avg = averageNonZero == 0 ? screenHeight : averageTotal / averageNonZero;
         int avgLine = screenHeight - (screenHeight - avg);
         int maxBoostTimes = screenHeight - avg;
         avgLine = avgLine >= screenHeight ? screenHeight - 1 : avgLine;
@@ -426,7 +427,7 @@ public class CaptureWindow extends Window implements WindowListener
             int y;
             for (y = screenHeight - 1; y >= screenHeight - (screenHeight - histogram[x]) ; y--)
             {
-                screen.setPixel(x, y, Color.RED);
+                screen.setPixel(x, y, screen.getPixel(x, y) & 0xFFFFC8C8);
             }
 
             if (histogramBoost[x] > 0)
@@ -436,9 +437,18 @@ public class CaptureWindow extends Window implements WindowListener
                 {
                     if (y > 0)
                     {
-                        screen.setPixel(x, y, Color.BLUE);
+                        screen.setPixel(x, y, screen.getPixel(x, y) & 0xFFC8C8FF);
                         y--;
                     }
+                }
+            }
+
+            if (histogram[x] != screenHeight)
+            {
+                while (y > 0)
+                {
+                    screen.setPixel(x, y, screen.getPixel(x, y) & 0xFFC8C8C8);
+                    y--;
                 }
             }
         }
