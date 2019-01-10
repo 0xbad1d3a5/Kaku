@@ -18,6 +18,7 @@ import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
 public class ChoiceIconView extends ImageView {
 
     private Context mContext;
+    private int mStatusBarHeight;
 
     public ChoiceIconView(Context context) {
         super(context);
@@ -43,17 +44,18 @@ public class ChoiceIconView extends ImageView {
         setLayoutParams(new RelativeLayout.LayoutParams(KakuTools.dpToPx(context, 35), KakuTools.dpToPx(context, 35)));
     }
 
-    public void onKanjiViewScrollStart(int statusBarHeight, KanjiCharacterView kanjiView, MotionEvent e){
-
-        int[] pos = kanjiView.getOrigPosRaw();
+    public void onKanjiViewScrollStart(int statusBarHeight, KanjiCharacterView kanjiView, MotionEvent e)
+    {
+        mStatusBarHeight = statusBarHeight;
+        int[] pos = kanjiView.getPosInWindow();
         setX(pos[0]);
-        setY(pos[1] - statusBarHeight);
+        setY(pos[1]);
         setVisibility(View.VISIBLE);
     }
 
-    public void onKanjiViewScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
-
-        switch (getChoiceType(kanjiView, e2)){
+    public void onKanjiViewScroll(MotionEvent e1, MotionEvent e2)
+    {
+        switch (getChoiceType(e2)){
             case EDIT:
                 setImageResource(R.drawable.icon_edit);
                 break;
@@ -66,18 +68,19 @@ public class ChoiceIconView extends ImageView {
         }
     }
 
-    public ChoiceType onKanjiViewScrollEnd(KanjiCharacterView kanjiView, MotionEvent e){
+    public ChoiceType onKanjiViewScrollEnd(MotionEvent e){
 
         setVisibility(INVISIBLE);
-        return getChoiceType(kanjiView, e);
+        return getChoiceType(e);
     }
 
-    private ChoiceType getChoiceType(KanjiCharacterView kanjiView, MotionEvent e){
+    private ChoiceType getChoiceType(MotionEvent e){
 
-        int[] pos = kanjiView.getOrigPosRaw();
+        int[] pos = new int[2];
+        getLocationInWindow(pos);
 
-        if (e.getRawY() < pos[1]){
-            int mid =  pos[0] + kanjiView.getWidth() / 2;
+        if (e.getRawY() < pos[1] + mStatusBarHeight){
+            int mid =  pos[0] + getWidth() / 2;
             if (e.getRawX() < mid){
                 return ChoiceType.EDIT;
             }

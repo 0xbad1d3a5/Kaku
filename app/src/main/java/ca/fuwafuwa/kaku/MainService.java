@@ -170,7 +170,7 @@ public class MainService extends Service implements Stoppable {
         }
 
         // re-init CaptureWindow as prefs may have changed
-        mWindowCoordinator.getWindow(Constants.WINDOW_CAPTURE).reInit();
+        mWindowCoordinator.getWindow(Constants.WINDOW_CAPTURE).reInit(new Window.ReinitOptions());
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, getNotification());
@@ -212,7 +212,7 @@ public class MainService extends Service implements Stoppable {
     /**
      * This function is here as a bug fix against {@link #onConfigurationChanged(Configuration)} not
      * triggering when the app is first started and immediately switches to another orientation. In
-     * such a case onConfigurationChanged will not trigger and {@link Window#reInit()} will not
+     * such a case onConfigurationChanged will not trigger and {@link Window#reInit(ca.fuwafuwa.kaku.Windows.Window.ReinitOptions)} will not
      * update the LayoutParams.
      */
     public void onCaptureWindowFinishedInitializing(){
@@ -273,12 +273,12 @@ public class MainService extends Service implements Stoppable {
         Notification n = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.kaku_notification_icon)
                 .setContentTitle(contentTitle)
-                .setContentText(String.format("Black and white filter %s, instant mode %s", prefs.getImageFilterSetting() ? "on" : "off", prefs.getInstantModeSetting() ? "on" : "off"))
-                //.setContentText(String.format("Black and white filter %s", prefs.getImageFilterSetting() ? "on" : "off"))
+                //.setContentText(String.format("Black and white filter %s, instant mode %s", prefs.getImageFilterSetting() ? "on" : "off", prefs.getInstantModeSetting() ? "on" : "off"))
+                .setContentText(String.format("Black and white filter %s", prefs.getImageFilterSetting() ? "on" : "off"))
                 .setContentIntent(closeMainService)
                 .addAction(0, "Text Direction", togglePageMode)
                 .addAction(0, "Image Filter", toggleImagePreview)
-                .addAction(0, "Instant Mode", toggleInstantMode)
+                //.addAction(0, "Instant Mode", toggleInstantMode)
                 .build();
         n.flags = FLAG_ONGOING_EVENT | FLAG_FOREGROUND_SERVICE;
 

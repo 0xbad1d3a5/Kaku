@@ -155,10 +155,10 @@ public class CaptureWindow extends Window implements WindowListener
     }
 
     @Override
-    public void reInit()
+    public void reInit(ReinitOptions options)
     {
         mPrefs = KakuTools.getPrefs(context);
-        super.reInit();
+        super.reInit(options);
     }
 
     @Override
@@ -326,8 +326,8 @@ public class CaptureWindow extends Window implements WindowListener
                         if (mPrefs.getImageFilterSetting())
                         {
                             Bitmap screen = mScreenshotForOcr.getCachedScreenshot();
-                            mImageView.setImageBitmap(calculateFuriganaPosition(screen));
-                            //mImageView.setImageBitmap(screen);
+                            //mImageView.setImageBitmap(calculateFuriganaPosition(screen));
+                            mImageView.setImageBitmap(screen);
                         }
 
                         if (mPrefs.getInstantModeSetting() && System.currentTimeMillis() > mLastDoubleTapTime + mLastDoubleTapIgnoreDelay)

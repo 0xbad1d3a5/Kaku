@@ -31,7 +31,7 @@ class WindowCoordinator(private val context: Context)
 
     fun reinitAllWindows()
     {
-        windows.forEach { it.value.reInit() }
+        windows.forEach { it.value.reInit(Window.ReinitOptions()) }
     }
 
     fun stopAllWindows()

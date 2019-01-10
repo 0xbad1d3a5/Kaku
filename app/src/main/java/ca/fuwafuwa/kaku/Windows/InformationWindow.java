@@ -100,8 +100,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     @Override
-    public void onSquareScrollStart(KanjiCharacterView kanjiView, MotionEvent e) {
-
+    public void onSquareScrollStart(KanjiCharacterView kanjiView, MotionEvent e)
+    {
         Log.d(TAG, "onSquareScrollStart");
 
         ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
@@ -112,12 +112,10 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     @Override
-    public void onSquareScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2){
-
-        Log.d(TAG, "onSquareScroll");
-
+    public void onSquareScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2)
+    {
         ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
-        civ.onKanjiViewScroll(kanjiView, e1, e2);
+        civ.onKanjiViewScroll(e1, e2);
 
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScroll(kanjiView, e1, e2);
@@ -129,7 +127,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         Log.d(TAG, "onSquareScrollEnd");
 
         ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
-        ChoiceType editChoice = civ.onKanjiViewScrollEnd(kanjiView, e);
+        ChoiceType editChoice = civ.onKanjiViewScrollEnd(e);
 
         ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
         cgv.onKanjiViewScrollEnd(kanjiView, e);
@@ -171,11 +169,13 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     /**
-     * InformationWindow does not need to reInit as its getDefaultParams() are all relative. Re-initing will cause bugs.
+     * InformationWindow does not need to reInit layout as its getDefaultParams() are all relative. Re-initing will cause bugs.
      */
     @Override
-    public void reInit()
+    public void reInit(ReinitOptions options)
     {
+        options.reinitViewLayout = false;
+        super.reInit(options);
     }
 
     @Override

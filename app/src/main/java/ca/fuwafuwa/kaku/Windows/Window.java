@@ -34,6 +34,11 @@ public abstract class Window implements Stoppable, WindowListener {
         void performAction();
     }
 
+    public static class ReinitOptions
+    {
+        public boolean reinitViewLayout = true;
+    }
+
     protected final int minSize;
 
     protected Context context;
@@ -102,23 +107,27 @@ public abstract class Window implements Stoppable, WindowListener {
         windowManager.addView(mDummyViewForSize, heightViewParams);
     }
 
-    public void reInit()
+    public void reInit(ReinitOptions options)
     {
-        Log.d(TAG, String.format("Window.reInit() for %s called, %b", this.getClass(), addedToWindowManager));
-
-        mRealDisplaySize = getRealDisplaySizeFromContext();
-        Log.d(TAG, "Display Size: " + mRealDisplaySize);
-        fixBoxBounds();
+        Log.d(TAG, String.format("Window.reInit() for %s called", this.getClass()));
 
         synchronized (this)
         {
-            if (addedToWindowManager){
-                windowManager.updateViewLayout(window, params);
+            mRealDisplaySize = getRealDisplaySizeFromContext();
+
+            if (options.reinitViewLayout)
+            {
+                fixBoxBounds();
+
+                if (addedToWindowManager){
+                    windowManager.updateViewLayout(window, params);
+                }
             }
         }
     }
 
-    private Point getRealDisplaySizeFromContext(){
+    private Point getRealDisplaySizeFromContext()
+    {
         Point displaySize = new Point();
         ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getRealSize(displaySize);
         return displaySize;
@@ -149,7 +158,7 @@ public abstract class Window implements Stoppable, WindowListener {
 
             mWindowClosed = true;
             windowManager.removeView(mDummyViewForSize);
-            windowManager.removeView(window);
+            if (addedToWindowManager) windowManager.removeView(window);
         }
     }
 
@@ -360,22 +369,30 @@ public abstract class Window implements Stoppable, WindowListener {
     /**
      * @return Real screen display size
      */
-    protected Point getRealDisplaySize(){ return new Point(mRealDisplaySize); }
+    protected Point getRealDisplaySize()
+    {
+        return new Point(mRealDisplaySize);
+    }
 
     /**
      * @return System status bar height in pixels. Note that the View MUST have been drawn for this to have any meaning!
      */
     protected int getStatusBarHeight()
     {
-        if (mRealDisplaySize.y == mViewHeight){
+        Log.d(TAG, String.format("Window - getStatusBarHeight %d vs %d", mRealDisplaySize.y, mViewHeight));
+
+        if (mRealDisplaySize.y == mViewHeight)
+        {
             return 0;
         }
 
         int result = 0;
         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
+        if (resourceId > 0)
+        {
             result = context.getResources().getDimensionPixelSize(resourceId);
         }
+
         return result;
     }
 

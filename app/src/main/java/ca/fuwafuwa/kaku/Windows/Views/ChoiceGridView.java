@@ -126,7 +126,7 @@ public class ChoiceGridView extends SquareGridView {
 
     private boolean checkForSelection(KanjiCharacterView kanjiView, MotionEvent e){
 
-        int[] pos = kanjiView.getOrigPosRaw();
+        int[] pos = kanjiView.getPosInWindow();
 
         if (pos[0] < e.getRawX() && e.getRawX() < pos[0] + kanjiView.getWidth() &&
                 pos[1] < e.getRawY() && e.getRawY() < pos[1] + kanjiView.getHeight()){
