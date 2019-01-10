@@ -2,7 +2,6 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -13,7 +12,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
-import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.TextSwitcher;
 
@@ -53,7 +51,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private String mText;
     private List<JmSearchResult> mJmResults;
     private List<CharacterOptimized> mKd2Results;
-    private boolean mNeedsToClose;
+    private boolean mTextOnlyLookup;
 
     public InformationWindow(Context context, WindowCoordinator windowCoordinator)
     {
@@ -96,7 +94,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         this.mText = textResult;
         mKanjiGrid.setText(this, textResult);
         onSquareTouch(mKanjiGrid.getKanjiViewList().get(0));
-        mNeedsToClose = true;
+        mTextOnlyLookup = true;
     }
 
     @Override
@@ -154,7 +152,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     @Override
     public void onSquareTouch(KanjiCharacterView kanjiView) {
 
-        Log.d(TAG, "onSquareScrollTouch");
+        Log.d(TAG, "onSquareTouch");
 
         Log.d(TAG, kanjiView.getText().toString());
 
@@ -230,7 +228,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
             {
                 window.setVisibility(View.INVISIBLE);
 
-                if (!mNeedsToClose)
+                if (!mTextOnlyLookup)
                 {
                     InformationWindow.super.hide();
                 }

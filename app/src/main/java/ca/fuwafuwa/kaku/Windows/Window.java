@@ -164,10 +164,10 @@ public abstract class Window implements Stoppable, WindowListener {
 
     public void show()
     {
+        Log.d(TAG, String.format("Window.show() for %s called, %b", this.getClass(), addedToWindowManager));
+
         synchronized (this)
         {
-            Log.d(TAG, String.format("Window.show() for %s called, %b", this.getClass(), addedToWindowManager));
-
             if (!addedToWindowManager)
             {
                 windowManager.addView(window, params);

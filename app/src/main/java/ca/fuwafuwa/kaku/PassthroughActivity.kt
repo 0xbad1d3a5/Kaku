@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Window
 import ca.fuwafuwa.kaku.Windows.InformationWindow
+import ca.fuwafuwa.kaku.Windows.WindowCoordinator
 
 class PassthroughActivity : AppCompatActivity()
 {
@@ -22,7 +23,7 @@ class PassthroughActivity : AppCompatActivity()
         var processText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
 
         if (processText != null){
-            InformationWindow(this, null).setResult(processText)
+            InformationWindow(applicationContext, WindowCoordinator(applicationContext)).setResult(processText)
             finish()
         }
     }

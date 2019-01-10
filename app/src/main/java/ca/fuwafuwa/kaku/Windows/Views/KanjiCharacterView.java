@@ -188,12 +188,17 @@ public class KanjiCharacterView extends TextView implements GestureDetector.OnGe
     {
         mGestureDetector.onTouchEvent(e);
 
-        if (e.getAction() == MotionEvent.ACTION_UP){
+        if (e.getAction() == MotionEvent.ACTION_UP)
+        {
             setX(mOrigPos.x);
             setY(mOrigPos.y);
             setVisibility(View.VISIBLE);
-            mCallback.onSquareScrollEnd(this, e);
-            mScrollStartEvent = null;
+
+            if (mScrollStartEvent != null)
+            {
+                mCallback.onSquareScrollEnd(this, e);
+                mScrollStartEvent = null;
+            }
         }
 
         return true;
