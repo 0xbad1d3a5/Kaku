@@ -29,15 +29,7 @@ public class CommonParser {
 
     public void parseJmDict() throws Exception {
         Log.d(TAG, "INITIALIZING DICTIONARY");
-        ParserRunnable dictRunnable = new ParserRunnable(mContext, JmDatabaseHelper.class, JmParser.class, "JmDictOriginal.xml");
-        Thread dictThread = new Thread(dictRunnable);
-        dictThread.setDaemon(true);
-        dictThread.start();
-    }
-
-    public void parseKanjiDict2() throws Exception {
-        Log.d(TAG, "INITIALIZING DICTIONARY");
-        ParserRunnable dictRunnable = new ParserRunnable(mContext, Kd2DatabaseHelper.class, Kd2Parser.class, "kanjidic2.xml");
+        ParserRunnable dictRunnable = new ParserRunnable(mContext);
         Thread dictThread = new Thread(dictRunnable);
         dictThread.setDaemon(true);
         dictThread.start();

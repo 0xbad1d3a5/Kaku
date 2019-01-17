@@ -3,6 +3,9 @@ package ca.fuwafuwa.kaku.Search
 import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
+import ca.fuwafuwa.kaku.DB_ENAMEDICT_NAME
+import ca.fuwafuwa.kaku.DB_JMDICT_NAME
+import ca.fuwafuwa.kaku.DB_KANJIDICT_NAME
 
 import com.j256.ormlite.dao.Dao
 
@@ -115,12 +118,26 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
         return results
     }
 
-    private fun rankResults(results: List<JmSearchResult>) : List<JmSearchResult> {
-        return results.sortedWith(compareBy({ 0 - it.entry.kanji.length }, { getPriority(it) }))
+    private fun rankResults(results: List<JmSearchResult>) : List<JmSearchResult>
+    {
+        return results.sortedWith(compareBy(
+                { getDictPriority(it) },
+                { 0 - it.entry.kanji.length },
+                { getPriority(it) }))
     }
 
-    private fun getPriority(result: JmSearchResult) : Int {
+    private fun getDictPriority(result: JmSearchResult) : Int
+    {
+        return when
+        {
+            result.entry.dictionary == DB_JMDICT_NAME -> Int.MAX_VALUE - 2
+            result.entry.dictionary == DB_KANJIDICT_NAME -> Int.MAX_VALUE - 1
+            else -> Int.MAX_VALUE
+        }
+    }
 
+    private fun getPriority(result: JmSearchResult) : Int
+    {
         val priorities = result.entry.priorities.split(",")
         var lowestPriority = Int.MAX_VALUE
 

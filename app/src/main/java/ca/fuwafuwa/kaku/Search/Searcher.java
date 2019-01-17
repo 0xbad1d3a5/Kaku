@@ -15,12 +15,11 @@ import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 /**
  * Created by 0xbad1d3a5 on 8/28/2016.
  */
-public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskDone {
+public class Searcher implements JmTask.SearchJmTaskDone {
 
     public interface SearchDictDone
     {
         void jmResultsCallback(List<JmSearchResult> results, SearchInfo search);
-        void kd2ResultsCallback(List<CharacterOptimized> results, SearchInfo search);
     }
 
     private static final String TAG = Searcher.class.getName();
@@ -49,7 +48,7 @@ public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskD
             // Stick to serial execution for now until drawing ugliness with Kd2 usually drawing first on InfoWindow is figured out
             // Parallel doesn't make it that much faster anyways since Kd2 is usually super-fast, biggest delay on JmDict
             new JmTask(searchInfo, this, mContext).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-            new Kd2Task(searchInfo, this, mContext).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+            //new Kd2Task(searchInfo, this, mContext).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -59,11 +58,5 @@ public class Searcher implements JmTask.SearchJmTaskDone, Kd2Task.SearchKd2TaskD
     public void jmTaskCallback(@NotNull List<JmSearchResult> results, @NotNull SearchInfo searchInfo)
     {
         mSearchDictDone.jmResultsCallback(results, searchInfo);
-    }
-
-    @Override
-    public void kd2TaskCallback(@NotNull List<? extends CharacterOptimized> results, @NotNull SearchInfo searchInfo)
-    {
-        mSearchDictDone.kd2ResultsCallback((List<CharacterOptimized>)results, searchInfo);
     }
 }

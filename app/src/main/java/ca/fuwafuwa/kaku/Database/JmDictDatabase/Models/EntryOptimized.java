@@ -34,6 +34,10 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
     @DatabaseField(dataType = DataType.LONG_STRING)
     private String priorities;
 
+    @Expose
+    @DatabaseField(dataType = DataType.LONG_STRING)
+    private String dictionary;
+
     private boolean onlyKana = false;
 
     public EntryOptimized(){
@@ -47,7 +51,12 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
         this.kanji = kanji;
     }
 
-    public String getReadings() {
+    public String getReadings()
+    {
+        if (readings == null)
+        {
+            return "";
+        }
         return readings;
     }
 
@@ -65,6 +74,10 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
 
     public String getPos()
     {
+        if (pos == null)
+        {
+            return "";
+        }
         return pos;
     }
 
@@ -83,12 +96,26 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
 
     public String getPriorities()
     {
+        if (priorities == null)
+        {
+            return "";
+        }
         return priorities;
     }
 
     public void setPriorities(String priorities)
     {
         this.priorities = priorities;
+    }
+
+    public String getDictionary()
+    {
+        return dictionary;
+    }
+
+    public void setDictionary(String dictionary)
+    {
+        this.dictionary = dictionary;
     }
 
     // Sort by kanji length for results

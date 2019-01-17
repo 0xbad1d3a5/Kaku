@@ -49,8 +49,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private Searcher mSearcher;
     private OcrResult mOcrResult;
     private String mText;
-    private List<JmSearchResult> mJmResults;
-    private List<CharacterOptimized> mKd2Results;
     private boolean mTextOnlyLookup;
 
     public InformationWindow(Context context, WindowCoordinator windowCoordinator)
@@ -66,8 +64,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         mGestureDetector = new GestureDetector(this.context, this);
         mKanjiGrid = window.findViewById(R.id.kanji_grid);
         mLinearLayout = window.findViewById(R.id.info_text);
-        mJmResults = null;
-        mKd2Results = null;
 
         try {
             mSearcher = new Searcher(context);
@@ -162,8 +158,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         }
 
         mSearcher.search(new SearchInfo(mText, kanjiView.getCharPos(), kanjiView));
-        mJmResults = null;
-        mKd2Results = null;
     }
 
     /**
@@ -251,8 +245,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         mSearcher = null;
         mOcrResult = null;
         mText = null;
-        mJmResults = null;
-        mKd2Results = null;
         super.stop();
     }
 
@@ -317,9 +309,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     @Override
     public void jmResultsCallback(List<JmSearchResult> results, SearchInfo search) {
 
-        mJmResults = results;
-
-        displayResults();
+        displayResults(results);
 
         // Highlights words in the window as long as they match
         int start = mKanjiGrid.getKanjiViewList().indexOf(search.getKanjiCharacterView());
@@ -338,14 +328,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     @Override
-    public void kd2ResultsCallback(List<CharacterOptimized> results, SearchInfo search) {
-
-        mKd2Results = results;
-
-        displayResults();
-    }
-
-    @Override
     public void onInputDone() {
         if (mOcrResult == null){
             mKanjiGrid.correctTextForText(this);
@@ -356,31 +338,24 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         updateInternalText();
     }
 
-    private void displayResults(){
-
-        // Protect against potential race-condition if either cached value gets nulled
-        List<JmSearchResult> jmResults = mJmResults;
-        List<CharacterOptimized> kd2Results = mKd2Results;
-        if (jmResults == null || kd2Results == null){
-            return;
-        }
-
+    private void displayResults(List<JmSearchResult> jmResults)
+    {
         StringBuilder sb = new StringBuilder();
 
-        for (JmSearchResult jmSearchResult : jmResults){
-
+        for (JmSearchResult jmSearchResult : jmResults)
+        {
             sb.append(jmSearchResult.getEntry().getKanji());
 
             if (!jmSearchResult.getEntry().getReadings().isEmpty()){
-                sb.append(" (");
+                if (Constants.DB_JMDICT_NAME.equals(jmSearchResult.getEntry().getDictionary()))
+                {
+                    sb.append(" (");
+                }
+                else {
+                    sb.append(" ");
+                }
                 sb.append(jmSearchResult.getEntry().getReadings());
-                sb.append(")");
-            }
-
-            if (!jmSearchResult.getEntry().getPriorities().isEmpty()){
-                sb.append(" (");
-                sb.append(jmSearchResult.getEntry().getPriorities());
-                sb.append(")");
+                if (Constants.DB_JMDICT_NAME.equals(jmSearchResult.getEntry().getDictionary())) sb.append(")");
             }
 
             String deinfReason = jmSearchResult.getDeinfInfo().getReason();
@@ -393,24 +368,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
             sb.append("\n\n");
         }
 
-        for (CharacterOptimized co : kd2Results){
-            sb.append(co.getKanji());
-            if (!co.getOnyomi().isEmpty()){
-                sb.append(" (");
-                sb.append(co.getOnyomi());
-                sb.append(") ");
-            }
-            if (!co.getKunyomi().isEmpty()){
-                sb.append(" [");
-                sb.append(co.getKunyomi());
-                sb.append("] ");
-            }
-            sb.append("\n");
-            sb.append(co.getMeaning());
-            sb.append("\n\n");
-        }
-
-        if (sb.length() > 2){
+        if (sb.length() > 2)
+        {
             sb.setLength(sb.length() - 2);
         }
 
@@ -431,7 +390,7 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
             }
             sb.append(LangUtils.Companion.ConvertIntToCircledNum(i + 1));
             sb.append(" ");
-            if (!pos[i].isEmpty()){
+            if (Constants.DB_JMDICT_NAME.equals(entry.getDictionary()) && !pos[i].isEmpty()){
                 sb.append(String.format("(%s) ", pos[i]));
             }
             sb.append(meanings[i]);

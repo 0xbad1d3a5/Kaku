@@ -98,7 +98,6 @@ class MainActivity : AppCompatActivity()
     private fun setupKakuDatabasesAndFiles(context: Context)
     {
         val filesAndPaths = hashMapOf(JMDICT_DATABASE_NAME to context.getExternalFilesDir(null).absolutePath,
-                KANJI_DATABASE_NAME to context.getExternalFilesDir(null).absolutePath,
                 TESS_DATA_NAME to "${context.getExternalFilesDir(null).absolutePath}/$TESS_FOLDER_NAME")
 
         if (shouldResetData(filesAndPaths))

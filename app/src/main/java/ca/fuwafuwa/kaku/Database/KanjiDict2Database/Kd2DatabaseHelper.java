@@ -11,6 +11,7 @@ import java.sql.SQLException;
 
 import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
 
@@ -20,7 +21,7 @@ import ca.fuwafuwa.kaku.Exceptions.NotImplementedException;
 
 public class Kd2DatabaseHelper extends DatabaseHelper {
 
-    private static final String DATABASE_NAME = Constants.KANJI_DATABASE_NAME;
+    private static final String DATABASE_NAME = Constants.JMDICT_DATABASE_NAME;
     private static final int DATABASE_VERSION = 1;
 
     private static Kd2DatabaseHelper instance;
@@ -42,7 +43,7 @@ public class Kd2DatabaseHelper extends DatabaseHelper {
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
-            TableUtils.createTable(connectionSource, CharacterOptimized.class);
+            TableUtils.createTable(connectionSource, EntryOptimized.class);
         }
         catch (SQLException e){
             e.printStackTrace();
@@ -56,7 +57,7 @@ public class Kd2DatabaseHelper extends DatabaseHelper {
 
     @Override
     public void deleteDatabase() {
-        mContext.deleteDatabase(String.format("%s/%s", mContext.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME));
+        //mContext.deleteDatabase(String.format("%s/%s", mContext.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME));
     }
 
     @Override

@@ -23,6 +23,8 @@ class InstantKanjiWindow(context: Context,
 
     private lateinit var ocrResult: OcrResult
 
+    private val kanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
+
     fun setResult(result: OcrResult)
     {
         ocrResult = result
@@ -34,9 +36,8 @@ class InstantKanjiWindow(context: Context,
         {
             if (!addedToWindowManager)
             {
-                val mKanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
-                mKanjiGrid.clearText()
-                mKanjiGrid.setText(this, ocrResult)
+                kanjiGrid.clearText()
+                kanjiGrid.setText(this, ocrResult)
 
                 if (isBoxHorizontal)
                 {
@@ -64,8 +65,9 @@ class InstantKanjiWindow(context: Context,
     {
     }
 
-    override fun onSquareTouch(kanjiView: KanjiCharacterView?)
+    override fun onSquareTouch(kanjiView: KanjiCharacterView)
     {
+        instantWindow.search(kanjiView)
     }
 
     override fun onTouch(e: MotionEvent?): Boolean
@@ -81,6 +83,11 @@ class InstantKanjiWindow(context: Context,
     override fun onResize(e: MotionEvent?): Boolean
     {
         return false
+    }
+
+    fun getKanjiView() : KanjiGridView
+    {
+        return kanjiGrid
     }
 
     private fun calcParamsForHorizontal()

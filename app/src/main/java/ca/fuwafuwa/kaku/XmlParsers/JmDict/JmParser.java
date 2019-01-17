@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.IDatabaseHelper;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.Entry;
@@ -175,9 +176,10 @@ public class JmParser implements DictParser {
             eoPriorities.remove("");
 
             entryOptimized.setReadings(Joiner.on(", ").join(eoReadings));
-            entryOptimized.setMeanings(Joiner.on("\ufffc").join(eoMeanings));
-            entryOptimized.setPos(Joiner.on("\ufffc").join(eoPos));
+            entryOptimized.setMeanings(Joiner.on(Constants.DB_SPLIT_CHAR).join(eoMeanings));
+            entryOptimized.setPos(Joiner.on(Constants.DB_SPLIT_CHAR).join(eoPos));
             entryOptimized.setPriorities(Joiner.on(",").join(eoPriorities));
+            entryOptimized.setDictionary(Constants.DB_JMDICT_NAME);
 
             if (eoMeanings.size() != eoPos.size()){
                 throw new RuntimeException();

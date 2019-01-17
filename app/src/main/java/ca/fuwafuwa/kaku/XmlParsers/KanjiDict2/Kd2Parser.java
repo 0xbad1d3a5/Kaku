@@ -15,8 +15,10 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
+import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Database.DatabaseHelper;
 import ca.fuwafuwa.kaku.Database.IDatabaseHelper;
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
 import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
 import ca.fuwafuwa.kaku.XmlParsers.Interfaces.DictParser;
 import ca.fuwafuwa.kaku.XmlParsers.KanjiDict2.Kd2DTO.Kd2Character;
@@ -99,15 +101,16 @@ public class Kd2Parser implements DictParser {
 
         List<Kd2RmGroup> kd2RmGroups = character.getReading_meaning().getRmGroups();
 
-        for (Kd2RmGroup rmGroup : kd2RmGroups){
-            CharacterOptimized co = new CharacterOptimized();
+        for (Kd2RmGroup rmGroup : kd2RmGroups)
+        {
+            EntryOptimized eo = new EntryOptimized();
 
-            co.setKanji(character.getLiteral());
-            co.setOnyomi(parseKd2CharacterOptimizedOnyomi(rmGroup));
-            co.setKunyomi(parseKd2CharacterOptimizedKunyomi(rmGroup));
-            co.setMeaning(parseKd2CharacterOptimizedMeaning(rmGroup));
+            eo.setKanji(character.getLiteral());
+            eo.setReadings(String.format("(%s) [%s]", parseKd2CharacterOptimizedOnyomi(rmGroup), parseKd2CharacterOptimizedKunyomi(rmGroup)));
+            eo.setMeanings(parseKd2CharacterOptimizedMeaning(rmGroup));
+            eo.setDictionary(Constants.DB_KANJIDICT_NAME);
 
-            mDbHelper.getDbDao(CharacterOptimized.class).create(co);
+            mDbHelper.getDbDao(EntryOptimized.class).create(eo);
         }
     }
 
@@ -165,6 +168,6 @@ public class Kd2Parser implements DictParser {
             }
         });
 
-        return Joiner.on(", ").join(stringMeanings);
+        return Joiner.on(Constants.DB_SPLIT_CHAR).join(stringMeanings);
     }
 }

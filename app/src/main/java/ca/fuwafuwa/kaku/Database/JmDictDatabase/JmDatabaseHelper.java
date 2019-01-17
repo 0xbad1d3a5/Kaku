@@ -84,7 +84,6 @@ public class JmDatabaseHelper extends DatabaseHelper {
     }
 
     public <T> Dao<T, Integer> getDbDao(Class clazz) throws SQLException {
-        Log.d(TAG, "JmDatabaseHelper getDbDao");
         return getDao(clazz);
     }
 }

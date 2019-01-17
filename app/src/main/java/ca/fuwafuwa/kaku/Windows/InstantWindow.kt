@@ -5,12 +5,20 @@ import android.graphics.Color
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import android.widget.TextView
+import ca.fuwafuwa.kaku.DB_JMDICT_NAME
+import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized
+import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized
+import ca.fuwafuwa.kaku.LangUtils
 
 import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
+import ca.fuwafuwa.kaku.Search.JmSearchResult
+import ca.fuwafuwa.kaku.Search.SearchInfo
+import ca.fuwafuwa.kaku.Search.Searcher
+import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView
 import ca.fuwafuwa.kaku.dpToPx
 
-class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.instant_window)
+class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.instant_window), Searcher.SearchDictDone, EditWindow.InputDoneListener
 {
     enum class LayoutPosition {
         TOP,
@@ -33,9 +41,11 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
     private lateinit var ocrResult: OcrResult
 
-    fun setResult(result: OcrResult)
+    private var searcher: Searcher = Searcher(context)
+
+    init
     {
-        ocrResult = result
+        searcher.registerCallback(this)
     }
 
     override fun onDown(e: MotionEvent?): Boolean
@@ -83,6 +93,34 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     {
         instantKanjiWindow.stop()
         super.stop()
+    }
+
+    override fun jmResultsCallback(results: MutableList<JmSearchResult>, search: SearchInfo)
+    {
+        displayResults(results)
+    }
+
+    override fun onInputDone()
+    {
+    }
+
+    fun search(kanjiView: KanjiCharacterView)
+    {
+        val kanjiViewList = instantKanjiWindow.getKanjiView().kanjiViewList
+        for (k in kanjiViewList)
+        {
+            k.removeBackground()
+        }
+
+        searcher.search(SearchInfo(kanjiViewList.joinToString(
+                separator = "",
+                transform = fun(kcv: KanjiCharacterView): CharSequence { return kcv.text }
+        ), kanjiView.charPos, kanjiView))
+    }
+
+    fun setResult(result: OcrResult)
+    {
+        ocrResult = result
     }
 
     fun changeLayoutForKanjiWindow(minSize: Int)
@@ -140,6 +178,77 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         }
 
         windowManager.updateViewLayout(window, params)
+    }
+
+    private fun displayResults(jmResults: List<JmSearchResult>)
+    {
+        val sb = StringBuilder()
+
+        for ((entry, deinfInfo) in jmResults)
+        {
+            sb.append(entry.kanji)
+
+            if (!entry.readings.isEmpty())
+            {
+                if (DB_JMDICT_NAME == entry.dictionary)
+                {
+                    sb.append(" (")
+                } else
+                {
+                    sb.append(" ")
+                }
+                sb.append(entry.readings)
+                if (DB_JMDICT_NAME == entry.dictionary) sb.append(")")
+            }
+
+            val deinfReason = deinfInfo!!.reason
+            if (deinfReason != null && !deinfReason.isEmpty())
+            {
+                sb.append(String.format(" %s", deinfReason))
+            }
+
+            sb.append("\n")
+            sb.append(getMeaning(entry))
+            sb.append("\n\n")
+        }
+
+        if (sb.length > 2)
+        {
+            sb.setLength(sb.length - 2)
+        }
+
+        val tv = window.findViewById<TextView>(R.id.instant_window_text)
+        tv.text = sb.toString()
+    }
+
+    private fun getMeaning(entry: EntryOptimized): String
+    {
+        val meanings = entry.meanings.split("\ufffc".toRegex()).toTypedArray()
+        val pos = entry.pos.split("\ufffc".toRegex()).toTypedArray()
+
+        val sb = StringBuilder()
+
+        for (i in meanings.indices)
+        {
+            if (i > 2)
+            {
+                sb.append(" [......]")
+                break
+            }
+            if (i != 0)
+            {
+                sb.append(" ")
+            }
+            sb.append(LangUtils.ConvertIntToCircledNum(i + 1))
+            sb.append(" ")
+            if (DB_JMDICT_NAME == entry.dictionary && !pos[i].isEmpty())
+            {
+                sb.append(String.format("(%s) ", pos[i]))
+            }
+            sb.append(meanings[i])
+        }
+
+        return sb.toString()
     }
 
     private fun setPadding(l: Int, t: Int, r: Int, b: Int)

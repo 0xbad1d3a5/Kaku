@@ -171,7 +171,6 @@ public class CaptureWindow extends Window implements WindowListener
 
 //        try {
 //            mCommonParser.parseJmDict();
-//            mCommonParser.parseKanjiDict2();
 //        } catch (Exception e1) {
 //            e1.printStackTrace();
 //        }

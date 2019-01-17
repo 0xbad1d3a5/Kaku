@@ -4,11 +4,15 @@ package ca.fuwafuwa.kaku
 
 // Thanks to the fact that SqliteOpenHelper.onUpgrade() doesn't work (due to multi-threading and getDao() being called before onUpgrade()),
 // we version/upgrade the DBs by changing the name. Lol. Should probably fix this if this becomes an issue in the future.
-const val JMDICT_DATABASE_NAME = "DB_JmDict.db"
-const val KANJI_DATABASE_NAME = "DB_KanjiDict.db"
+const val JMDICT_DATABASE_NAME = "DB_KakuDict.db"
 const val TESS_FOLDER_NAME = "tessdata"
 const val TESS_DATA_NAME = "jpn.traineddata"
 const val SCREENSHOT_FOLDER_NAME = "screenshots"
+
+const val DB_SPLIT_CHAR = "\ufffc"
+const val DB_JMDICT_NAME = "JMDICT"
+const val DB_KANJIDICT_NAME = "KANJIDICT"
+const val DB_ENAMEDICT_NAME = "ENAMEDICT"
 
 const val KAKU_PREF_FILE = "ca.fuwafuwa.kaku"
 const val KAKU_PREF_IMAGE_FILTER = "ImageFilter"
