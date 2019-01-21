@@ -92,6 +92,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
         List<ISquareChar> squareCharList = new ArrayList<>();
         DisplayData displayData = new DisplayData(squareCharList);
         for (String c : charList) squareCharList.add(new SquareChar(displayData, c));
+        displayData.assignIndicies();
 
         mKanjiGrid.setText(displayData);
         mTextOnlyLookup = true;
@@ -167,10 +168,10 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     @Override
     public void performSearch(@NotNull DisplayData displayData, @NotNull ISquareChar squareChar)
     {
-        Log.d(TAG, squareChar.getText());
+        Log.d(TAG, squareChar.getChar());
 
         mKanjiGrid.unhighlightAll();
-        mSearcher.search(new SearchInfo(displayData, squareChar));
+        mSearcher.search(new SearchInfo(squareChar));
     }
 
     /**
@@ -320,7 +321,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
         displayResults(results);
 
         // Highlights words in the window as long as they match
-        int start = mKanjiGrid.getKanjiViewList().indexOf(search.getTextOffset());
+        int start = search.getIndex();
         if (results.size() > 0){
             String kanji = results.get(0).getWord();
             for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){

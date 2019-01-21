@@ -198,6 +198,8 @@ public class OcrRunnable implements Runnable, Stoppable {
 
         iterator.delete();
 
+        displayData.assignIndicies();
+
         return displayData;
     }
 

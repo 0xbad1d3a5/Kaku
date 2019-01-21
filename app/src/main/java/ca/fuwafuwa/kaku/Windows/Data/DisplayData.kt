@@ -25,11 +25,6 @@ open class DisplayData(var squareChars: List<ISquareChar>)
             return squareChars.count()
         }
 
-    init
-    {
-        assignIndicies()
-    }
-
     fun recomputeChars()
     {
         val newSquareChars = mutableListOf<ISquareChar>()
@@ -58,7 +53,7 @@ open class DisplayData(var squareChars: List<ISquareChar>)
         assignIndicies()
     }
 
-    private fun assignIndicies()
+    fun assignIndicies()
     {
         for ((index, squareChars) in squareChars.withIndex())
         {

@@ -25,6 +25,7 @@ class InstantKanjiWindow(context: Context,
 
     init
     {
+        kanjiGrid.setDependencies(windowCoordinator, instantWindow)
     }
 
     fun setResult(result: DisplayDataOcr)

@@ -13,12 +13,17 @@ import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Search.JmSearchResult
 import ca.fuwafuwa.kaku.Search.SearchInfo
 import ca.fuwafuwa.kaku.Search.Searcher
+import ca.fuwafuwa.kaku.Windows.Data.DisplayData
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
+import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
+import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView
 import ca.fuwafuwa.kaku.dpToPx
 
-class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, EditWindow.InputDoneListener
+class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, EditWindow.InputDoneListener, ISearchPerformer
 {
+
+
     enum class LayoutPosition {
         TOP,
         BOTTOM,
@@ -106,6 +111,10 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     }
 
     override fun onInputDone()
+    {
+    }
+
+    override fun performSearch(displayData: DisplayData, squareChar: ISquareChar)
     {
     }
 

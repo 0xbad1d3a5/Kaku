@@ -1,14 +1,8 @@
 package ca.fuwafuwa.kaku.Windows.Views
 
 import android.content.Context
-import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.util.Log
-import android.util.TypedValue
 import android.view.GestureDetector
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -17,8 +11,8 @@ import android.widget.ImageView
 import android.widget.TextView
 
 import ca.fuwafuwa.kaku.*
+import ca.fuwafuwa.kaku.Ocr.BoxParams
 import ca.fuwafuwa.kaku.R
-import ca.fuwafuwa.kaku.Windows.Data.DisplayData
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
 import ca.fuwafuwa.kaku.Windows.KanjiChoiceWindow
@@ -108,9 +102,39 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
 
             if (mScrollStartEvent != null)
             {
-                //mCallback.onSquareScrollEnd(this, e);
                 mScrollStartEvent = null
+
+                mKanjiChoiceWindow.onSquareScrollEnd(e)
             }
+        }
+
+        return true
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean
+    {
+        mSearchPerformer.performSearch(squareChar.displayData, squareChar)
+        return true
+    }
+
+    override fun onScroll(motionEvent: MotionEvent, motionEvent1: MotionEvent, v: Float, v1: Float): Boolean
+    {
+        // scroll event start
+        if (mScrollStartEvent == null)
+        {
+            mScrollStartEvent = motionEvent
+
+            unhighlight()
+            mKanjiEditImg.setImageResource(R.drawable.icon_swap)
+
+            mKanjiTextView.visibility = View.INVISIBLE
+            mKanjiEditImg.visibility = View.VISIBLE
+
+            mKanjiChoiceWindow.onSquareScrollStart(motionEvent, squareChar, getKanjiBoxParams())
+        }
+        // scroll event continuing
+        else {
+            mKanjiChoiceWindow.onSquareScroll(motionEvent1)
         }
 
         return true
@@ -118,31 +142,7 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
 
     override fun onDown(motionEvent: MotionEvent): Boolean
     {
-        Log.d(TAG, String.format("%s: onDown: %f x %f", squareChar.char, x, y))
-        mKanjiTextView.visibility = View.INVISIBLE
-        mKanjiEditImg.visibility = View.VISIBLE
-        return true
-    }
-
-    override fun onSingleTapUp(e: MotionEvent): Boolean
-    {
-        Log.d(TAG, "onSingleTapUp")
-        mSearchPerformer.performSearch(squareChar.displayData, squareChar)
-        return true
-    }
-
-    override fun onScroll(motionEvent: MotionEvent, motionEvent1: MotionEvent, v: Float, v1: Float): Boolean
-    {
-        if (mScrollStartEvent == null)
-        {
-            mScrollStartEvent = motionEvent
-            //mCallback.onSquareScrollStart(this, mScrollStartEvent);
-        } else
-        {
-            //mCallback.onSquareScroll(this, motionEvent, motionEvent1);
-        }
-
-        return true
+        return false
     }
 
     override fun onFling(motionEvent: MotionEvent, motionEvent1: MotionEvent, v: Float, v1: Float): Boolean
@@ -156,6 +156,13 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
 
     override fun onShowPress(e: MotionEvent?)
     {
+    }
+
+    private fun getKanjiBoxParams() : BoxParams
+    {
+        var pos = IntArray(2)
+        getLocationInWindow(pos)
+        return BoxParams(pos[0], pos[1], width, height)
     }
 
     companion object
