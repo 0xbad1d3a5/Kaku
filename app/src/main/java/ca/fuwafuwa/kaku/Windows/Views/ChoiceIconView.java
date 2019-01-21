@@ -1,5 +1,6 @@
 package ca.fuwafuwa.kaku.Windows.Views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -15,6 +16,7 @@ import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
  * Created by 0xbad1d3a5 on 1/9/2017.
  */
 
+@SuppressLint("AppCompatCustomView")
 public class ChoiceIconView extends ImageView {
 
     private Context mContext;
@@ -47,9 +49,6 @@ public class ChoiceIconView extends ImageView {
     public void onKanjiViewScrollStart(int statusBarHeight, KanjiCharacterView kanjiView, MotionEvent e)
     {
         mStatusBarHeight = statusBarHeight;
-        int[] pos = kanjiView.getPosInWindow();
-        setX(pos[0]);
-        setY(pos[1]);
         setVisibility(View.VISIBLE);
     }
 

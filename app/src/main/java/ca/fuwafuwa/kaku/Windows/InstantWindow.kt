@@ -7,18 +7,17 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import ca.fuwafuwa.kaku.DB_JMDICT_NAME
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized
-import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized
 import ca.fuwafuwa.kaku.LangUtils
 
-import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Search.JmSearchResult
 import ca.fuwafuwa.kaku.Search.SearchInfo
 import ca.fuwafuwa.kaku.Search.Searcher
+import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView
 import ca.fuwafuwa.kaku.dpToPx
 
-class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.instant_window), Searcher.SearchDictDone, EditWindow.InputDoneListener
+class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, EditWindow.InputDoneListener
 {
     enum class LayoutPosition {
         TOP,
@@ -30,7 +29,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     private val isBoxHorizontal: Boolean
         get()
         {
-            return ocrResult.boxParams.width > ocrResult.boxParams.height;
+            return displayData.boxParams.width > displayData.boxParams.height;
         }
 
     private val instantKanjiWindow = InstantKanjiWindow(context, windowCoordinator, this)
@@ -39,13 +38,19 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
     private lateinit var layoutPosition: LayoutPosition
 
-    private lateinit var ocrResult: OcrResult
+    private lateinit var displayData: DisplayDataOcr
 
     private var searcher: Searcher = Searcher(context)
 
     init
     {
         searcher.registerCallback(this)
+    }
+
+    override fun reInit(options: ReinitOptions?)
+    {
+        instantKanjiWindow.reInit(options);
+        super.reInit(options)
     }
 
     override fun onDown(e: MotionEvent?): Boolean
@@ -62,7 +67,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
             if (!addedToWindowManager)
             {
                 var text = window.findViewById<TextView>(R.id.instant_window_text)
-                text.text = ocrResult.text
+                text.text = displayData.text
                 text.setTextColor(Color.BLACK)
 
                 if (isBoxHorizontal)
@@ -78,7 +83,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                 addedToWindowManager = true
             }
 
-            instantKanjiWindow.setResult(ocrResult)
+            instantKanjiWindow.setResult(displayData)
             instantKanjiWindow.show()
         }
     }
@@ -109,18 +114,18 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         val kanjiViewList = instantKanjiWindow.getKanjiView().kanjiViewList
         for (k in kanjiViewList)
         {
-            k.removeBackground()
+            k.unhighlight()
         }
 
-        searcher.search(SearchInfo(kanjiViewList.joinToString(
-                separator = "",
-                transform = fun(kcv: KanjiCharacterView): CharSequence { return kcv.text }
-        ), kanjiView.charPos, kanjiView))
+//        searcher.search(SearchInfo(kanjiViewList.joinToString(
+//                separator = "",
+//                transform = fun(kcv: KanjiCharacterView): CharSequence { return kcv.squareChar.char }
+//        ), kanjiView.index, kanjiView))
     }
 
-    fun setResult(result: OcrResult)
+    fun setResult(result: DisplayDataOcr)
     {
-        ocrResult = result
+        displayData = result
     }
 
     fun changeLayoutForKanjiWindow(minSize: Int)
@@ -259,10 +264,10 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
     private fun calcParamsForHorizontal()
     {
-        val topRectHeight = ocrResult.boxParams.y - statusBarHeight
-        val bottomRectHeight = realDisplaySize.y - ocrResult.boxParams.y - ocrResult.boxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
+        val topRectHeight = displayData.boxParams.y - statusBarHeight
+        val bottomRectHeight = realDisplaySize.y - displayData.boxParams.y - displayData.boxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
 
-        val boxMidPoint = ocrResult.boxParams.x + (ocrResult.boxParams.width / 2)
+        val boxMidPoint = displayData.boxParams.x + (displayData.boxParams.width / 2)
         var maxWidth = dpToPx(context, 400)
         var xPos = 0
 
@@ -290,7 +295,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         }
         else {
             params.x = xPos
-            params.y = ocrResult.boxParams.y + ocrResult.boxParams.height - statusBarHeight
+            params.y = displayData.boxParams.y + displayData.boxParams.height - statusBarHeight
             params.height = bottomRectHeight
             layoutPosition = LayoutPosition.BOTTOM
         }
@@ -298,10 +303,10 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
     private fun calcParamsForVertical()
     {
-        val leftRectWidth = ocrResult.boxParams.x
-        val rightRectWidth = viewWidth - (ocrResult.boxParams.x + ocrResult.boxParams.width)
+        val leftRectWidth = displayData.boxParams.x
+        val rightRectWidth = viewWidth - (displayData.boxParams.x + displayData.boxParams.width)
 
-        var yPos = ocrResult.boxParams.y - statusBarHeight
+        var yPos = displayData.boxParams.y - statusBarHeight
         var maxHeight = dpToPx(context, 600)
 
         maxHeight = minOf(maxHeight, realDisplaySize.y)
@@ -314,7 +319,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         if (leftRectWidth > rightRectWidth)
         {
             var maxWidth = dpToPx(context, 400)
-            var xPos = ocrResult.boxParams.x - maxWidth
+            var xPos = displayData.boxParams.x - maxWidth
 
             if (xPos < 0)
             {
@@ -328,7 +333,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         }
         else {
             var maxWidth = dpToPx(context, 400)
-            var xPos = ocrResult.boxParams.x + ocrResult.boxParams.width
+            var xPos = displayData.boxParams.x + displayData.boxParams.width
 
             params.x = xPos
             params.y = yPos

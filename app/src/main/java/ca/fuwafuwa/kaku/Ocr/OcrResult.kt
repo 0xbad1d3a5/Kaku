@@ -1,33 +1,16 @@
 package ca.fuwafuwa.kaku.Ocr
 
-import android.graphics.Bitmap
-import ca.fuwafuwa.kaku.Windows.CaptureWindow
+import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
 
 /**
  * Created by 0xbad1d3a5 on 5/2/2016.
  */
-class OcrResult(val bitmap: Bitmap,
-                val boxParams: BoxParams,
-                val ocrChars: List<OcrChar>,
+class OcrResult(val displayData: DisplayDataOcr,
                 val instant: Boolean,
-                val captureWindow: CaptureWindow,
                 private val mOcrTime: Long)
 {
-    val text: String
-        get()
-        {
-            val sb = StringBuilder()
-
-            for (ocrChar in ocrChars)
-            {
-                sb.append(ocrChar.bestChoice)
-            }
-
-            return sb.toString()
-        }
-
-    val message: String
-        get() = String.format("OCR Time: %.2fs", mOcrTime / 1000.0)
+    val text: String get() = displayData.text
+    val message: String get() = String.format("OCR Time: %.2fs", mOcrTime / 1000.0)
 
     override fun toString(): String
     {

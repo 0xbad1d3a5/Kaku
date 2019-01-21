@@ -42,12 +42,12 @@ public class MainServiceHandler extends Handler {
             if (result.getInstant())
             {
                 InstantWindow instantWindow = (InstantWindow) mWindowCoordinator.getWindow(Constants.WINDOW_INSTANT);
-                instantWindow.setResult(result);
+                instantWindow.setResult(result.getDisplayData());
                 instantWindow.show();
             }
             else {
                 InformationWindow infoWindow = (InformationWindow) mWindowCoordinator.getWindow(Constants.WINDOW_INFO);
-                infoWindow.setResult(result);
+                infoWindow.setResult(result.getDisplayData());
                 infoWindow.show();
             }
         }

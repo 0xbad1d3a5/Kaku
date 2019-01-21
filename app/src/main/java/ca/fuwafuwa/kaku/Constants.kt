@@ -26,6 +26,7 @@ const val WINDOW_CAPTURE = "WINDOW_CAPTURE"
 const val WINDOW_INFO = "WINDOW_INFO"
 const val WINDOW_EDIT = "WINDOW_EDIT"
 const val WINDOW_INSTANT = "WINDOW_INSTANT"
+const val WINDOW_KANJI_CHOICE = "WINDOW_KANJI_CHOICE"
 
 const val KAKU_CHANNEL_ID = "kaku_notification_channel_id"
 const val KAKU_CHANNEL_NAME = "Show Kaku Notification"

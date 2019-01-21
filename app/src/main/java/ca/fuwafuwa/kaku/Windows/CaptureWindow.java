@@ -115,7 +115,7 @@ public class CaptureWindow extends Window implements WindowListener
 
     public CaptureWindow(final Context context, WindowCoordinator windowCoordinator)
     {
-        super(context, windowCoordinator, R.layout.capture_window);
+        super(context, windowCoordinator, R.layout.window_capture);
         show();
 
         this.mCommonParser = new CommonParser(context);
@@ -295,7 +295,7 @@ public class CaptureWindow extends Window implements WindowListener
     private void setPreviewImageForThreshold(MotionEvent e)
     {
         if (mPrefs.getImageFilterSetting() && mScreenshotForOcr != null){
-            mThreshold = (int)((e.getRawX() / getRealDisplaySize().x) * 256);
+            mThreshold = (int)((e.getRawX() / getRealDisplaySize().x) * 255);
             Bitmap bitmap = mScreenshotForOcr.getProcessedScreenshot(mThreshold);
             mImageView.setImageBitmap(bitmap);
         }
@@ -331,7 +331,7 @@ public class CaptureWindow extends Window implements WindowListener
 
                         if (mPrefs.getInstantModeSetting() && System.currentTimeMillis() > mLastDoubleTapTime + mLastDoubleTapIgnoreDelay)
                         {
-                            int sizeForInstant = minSize * 2;
+                            int sizeForInstant = minSize * 4;
                             if (sizeForInstant >= mScreenshotForOcr.params.width || sizeForInstant >= mScreenshotForOcr.params.height)
                             {
                                 performOcr(true);
@@ -509,6 +509,7 @@ public class CaptureWindow extends Window implements WindowListener
                 }
             }
 
+            // TODO: mScreenshotForOcr can be null here, fix
             Bitmap processedImage = mPrefs.getImageFilterSetting() ? mScreenshotForOcr.getCachedScreenshot() : mScreenshotForOcr.crop;
 
             TextDirection textDirection = mPrefs.getTextDirectionSetting();

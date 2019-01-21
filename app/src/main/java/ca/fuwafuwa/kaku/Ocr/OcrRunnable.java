@@ -18,7 +18,9 @@ import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
-import ca.fuwafuwa.kaku.Windows.InstantWindow;
+import ca.fuwafuwa.kaku.Windows.Data.DisplayData;
+import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr;
+import ca.fuwafuwa.kaku.Windows.Data.SquareCharOcr;
 
 /**
  * Created by 0xbad1d3a5 on 4/16/2016.
@@ -92,18 +94,18 @@ public class OcrRunnable implements Runnable, Stoppable {
 
                     mTessBaseAPI.setImage(mOcrParams.getBitmap());
                     mTessBaseAPI.getHOCRText(0);
-                    List<OcrChar> ocrChars = processOcrIterator(mTessBaseAPI.getResultIterator());
+                    DisplayDataOcr displayData = getDisplayData(mOcrParams.getOriginalBitmap(), mOcrParams.getBox(), mTessBaseAPI.getResultIterator());
                     mTessBaseAPI.clear();
 
-                    if (ocrChars.size() > 0)
+                    if (displayData.getText().length() > 0)
                     {
                         long ocrTime = System.currentTimeMillis() - startTime;
                         if (mOcrParams.getInstantOcr())
                         {
-                            sendOcrResultToContext(new OcrResult(mOcrParams.getOriginalBitmap(), mOcrParams.getBox(), ocrChars, true, mCaptureWindow, ocrTime));
+                            sendOcrResultToContext(new OcrResult(displayData, true, ocrTime));
                         }
                         else {
-                            sendOcrResultToContext(new OcrResult(mOcrParams.getOriginalBitmap(), mOcrParams.getBox(), ocrChars,false, mCaptureWindow, ocrTime));
+                            sendOcrResultToContext(new OcrResult(displayData,false, ocrTime));
                         }
                     } else
                     {
@@ -173,26 +175,30 @@ public class OcrRunnable implements Runnable, Stoppable {
         }
     }
 
-    private List<OcrChar> processOcrIterator(ResultIterator iterator){
-
-        List<OcrChar> ocrChars = new ArrayList<>();
+    private DisplayDataOcr getDisplayData(Bitmap bitmap, BoxParams boxParams, ResultIterator iterator)
+    {
+        List<SquareCharOcr> ocrChars = new ArrayList<>();
+        DisplayDataOcr displayData = new DisplayDataOcr(bitmap, boxParams, ocrChars);
 
         if (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL)){
             iterator.begin();
         }
         else {
-            return ocrChars;
+            return displayData;
         }
 
         do {
-            List<Pair<String, Double>> choices = iterator.getSymbolChoicesAndConfidence();
+            List<Pair<String, Double>> c = iterator.getSymbolChoicesAndConfidence();
+            List<kotlin.Pair<String, Double>> choices = new ArrayList<>();
+            for (Pair p : c) choices.add(new kotlin.Pair<>((String)p.first, (Double)p.second));
             int[] pos = iterator.getBoundingBox(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL);
-            ocrChars.add(new OcrChar(choices, pos));
+
+            ocrChars.add(new SquareCharOcr(displayData, choices, pos));
         } while (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL));
 
         iterator.delete();
 
-        return ocrChars;
+        return displayData;
     }
 
     private void sendOcrResultToContext(OcrResult result){

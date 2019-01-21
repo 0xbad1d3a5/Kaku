@@ -45,10 +45,7 @@ public class Searcher implements JmTask.SearchJmTaskDone {
     public void search(SearchInfo searchInfo)
     {
         try {
-            // Stick to serial execution for now until drawing ugliness with Kd2 usually drawing first on InfoWindow is figured out
-            // Parallel doesn't make it that much faster anyways since Kd2 is usually super-fast, biggest delay on JmDict
             new JmTask(searchInfo, this, mContext).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-            //new Kd2Task(searchInfo, this, mContext).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
         } catch (SQLException e) {
             e.printStackTrace();
         }

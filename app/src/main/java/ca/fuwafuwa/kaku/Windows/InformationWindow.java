@@ -15,29 +15,32 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextSwitcher;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized;
-import ca.fuwafuwa.kaku.Database.KanjiDict2Database.Models.CharacterOptimized;
+import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.LangUtils;
-import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
 import ca.fuwafuwa.kaku.Search.JmSearchResult;
 import ca.fuwafuwa.kaku.Search.SearchInfo;
 import ca.fuwafuwa.kaku.Search.Searcher;
-import ca.fuwafuwa.kaku.Windows.Enums.ChoiceType;
-import ca.fuwafuwa.kaku.Windows.Views.ChoiceGridView;
-import ca.fuwafuwa.kaku.Windows.Views.ChoiceIconView;
+import ca.fuwafuwa.kaku.Windows.Data.DisplayData;
+import ca.fuwafuwa.kaku.Windows.Data.ISquareChar;
+import ca.fuwafuwa.kaku.Windows.Data.SquareChar;
+import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
-import ca.fuwafuwa.kaku.Windows.Views.SquareGridView;
 
 /**
  * Created by 0xbad1d3a5 on 4/23/2016.
  */
-public class InformationWindow extends Window implements SquareGridView.SquareViewListener, Searcher.SearchDictDone, EditWindow.InputDoneListener{
+public class InformationWindow extends Window implements Searcher.SearchDictDone, EditWindow.InputDoneListener, ISearchPerformer
+{
 
     private static final String TAG = InformationWindow.class.getName();
     private static final float FLICK_THRESHOLD = -0.05f;
@@ -47,23 +50,19 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     private KanjiGridView mKanjiGrid;
     private LinearLayout mLinearLayout;
     private Searcher mSearcher;
-    private OcrResult mOcrResult;
-    private String mText;
+    private DisplayData mDisplayData;
     private boolean mTextOnlyLookup;
 
     public InformationWindow(Context context, WindowCoordinator windowCoordinator)
     {
-        super(context, windowCoordinator, R.layout.info_window);
-        init();
-        show();
-    }
+        super(context, windowCoordinator, R.layout.window_info);
 
-    private void init()
-    {
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
         mGestureDetector = new GestureDetector(this.context, this);
         mKanjiGrid = window.findViewById(R.id.kanji_grid);
         mLinearLayout = window.findViewById(R.id.info_text);
+
+        mKanjiGrid.setDependencies(windowCoordinator, this);
 
         try {
             mSearcher = new Searcher(context);
@@ -71,14 +70,16 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        show();
     }
 
-    public void setResult(OcrResult ocrResult)
+    public void setResult(DisplayData displayData)
     {
-        this.mOcrResult = ocrResult;
-        this.mText = ocrResult.getText();
+        mDisplayData = displayData;
+
         mKanjiGrid.removeAllViews();
-        mKanjiGrid.setText(this, ocrResult);
+        mKanjiGrid.setText(displayData);
     }
 
     /**
@@ -87,77 +88,89 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
      */
     public void setResult(String textResult)
     {
-        this.mText = textResult;
-        mKanjiGrid.setText(this, textResult);
-        onSquareTouch(mKanjiGrid.getKanjiViewList().get(0));
+        List<String> charList = KakuTools.splitTextByChar(textResult);
+        List<ISquareChar> squareCharList = new ArrayList<>();
+        DisplayData displayData = new DisplayData(squareCharList);
+        for (String c : charList) squareCharList.add(new SquareChar(displayData, c));
+
+        mKanjiGrid.setText(displayData);
         mTextOnlyLookup = true;
     }
 
+//    @Override
+//    public void onSquareScrollStart(KanjiCharacterView kanjiView, MotionEvent e)
+//    {
+//        Log.d(TAG, "onSquareScrollStart");
+//
+//        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
+//        civ.onKanjiViewScrollStart(getStatusBarHeight(), kanjiView, e);
+//
+//        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
+//        cgv.onKanjiViewScrollStart(mOcrResult, kanjiView, e);
+//    }
+//
+//    @Override
+//    public void onSquareScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2)
+//    {
+//        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
+//        civ.onKanjiViewScroll(e1, e2);
+//
+//        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
+//        cgv.onKanjiViewScroll(kanjiView, e1, e2);
+//    }
+//
+//    @Override
+//    public void onSquareScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
+//
+//        Log.d(TAG, "onSquareScrollEnd");
+//
+//        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
+//        ChoiceType editChoice = civ.onKanjiViewScrollEnd(e);
+//
+//        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
+//        cgv.onKanjiViewScrollEnd(kanjiView, e);
+//
+//        switch (editChoice){
+//            case DELETE:
+//                kanjiView.setText("");
+//                kanjiView.setEdited(true);
+//                onInputDone();
+//                break;
+//            case EDIT:
+//                kanjiView.setEdited(true);
+//                EditWindow editWindow = (EditWindow) windowCoordinator.getWindow(Constants.WINDOW_EDIT);
+//                editWindow.setInfo(mOcrResult, kanjiView);
+//                editWindow.setInputDoneCallback(this);
+//                editWindow.show();
+//                break;
+//            case NONE:
+//                updateInternalText();
+//                break;
+//        }
+//    }
+//
+//    @Override
+//    public void onSquareTouch(KanjiCharacterView kanjiView) {
+//
+//        Log.d(TAG, "onSquareTouch");
+//
+//        Log.d(TAG, kanjiView.getText().toString());
+//
+//        List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
+//        for (KanjiCharacterView k : kanjiViewList){
+//            k.unhighlight();
+//        }
+//
+//        mSearcher.search(new SearchInfo(mText, kanjiView.getIndex(), kanjiView));
+//    }
+
     @Override
-    public void onSquareScrollStart(KanjiCharacterView kanjiView, MotionEvent e)
+    public void performSearch(@NotNull DisplayData displayData, @NotNull ISquareChar squareChar)
     {
-        Log.d(TAG, "onSquareScrollStart");
+        Log.d(TAG, squareChar.getText());
 
-        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
-        civ.onKanjiViewScrollStart(getStatusBarHeight(), kanjiView, e);
-
-        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
-        cgv.onKanjiViewScrollStart(mOcrResult, kanjiView, e);
-    }
-
-    @Override
-    public void onSquareScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2)
-    {
-        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
-        civ.onKanjiViewScroll(e1, e2);
-
-        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
-        cgv.onKanjiViewScroll(kanjiView, e1, e2);
-    }
-
-    @Override
-    public void onSquareScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
-
-        Log.d(TAG, "onSquareScrollEnd");
-
-        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
-        ChoiceType editChoice = civ.onKanjiViewScrollEnd(e);
-
-        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
-        cgv.onKanjiViewScrollEnd(kanjiView, e);
-
-        switch (editChoice){
-            case DELETE:
-                kanjiView.setText("");
-                kanjiView.setEdited(true);
-                onInputDone();
-                break;
-            case EDIT:
-                kanjiView.setEdited(true);
-                EditWindow editWindow = (EditWindow) windowCoordinator.getWindow(Constants.WINDOW_EDIT);
-                editWindow.setInfo(mOcrResult, kanjiView);
-                editWindow.setInputDoneCallback(this);
-                editWindow.show();
-                break;
-            case NONE:
-                updateInternalText();
-                break;
-        }
-    }
-
-    @Override
-    public void onSquareTouch(KanjiCharacterView kanjiView) {
-
-        Log.d(TAG, "onSquareTouch");
-
-        Log.d(TAG, kanjiView.getText().toString());
-
-        List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
-        for (KanjiCharacterView k : kanjiViewList){
-            k.removeBackground();
-        }
-
-        mSearcher.search(new SearchInfo(mText, kanjiView.getCharPos(), kanjiView));
+        mKanjiGrid.unhighlightAll();
+        mSearcher.search(new SearchInfo(displayData, squareChar));
     }
 
     /**
@@ -237,14 +250,11 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     @Override
     public void stop()
     {
-        mKanjiGrid.recycle();
         mSearcher.unregisterCallback();
         mGestureDetector = null;
         mKanjiGrid  = null;
         mLinearLayout = null;
         mSearcher = null;
-        mOcrResult = null;
-        mText = null;
         super.stop();
     }
 
@@ -270,7 +280,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     @Override
     public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1)
     {
-
         if (motionEvent == null || motionEvent1 == null){
             return false;
         }
@@ -287,7 +296,6 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     @Override
     public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1)
     {
-
         if (motionEvent == null || motionEvent1 == null){
             return false;
         }
@@ -307,35 +315,30 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
     }
 
     @Override
-    public void jmResultsCallback(List<JmSearchResult> results, SearchInfo search) {
-
+    public void jmResultsCallback(List<JmSearchResult> results, SearchInfo search)
+    {
         displayResults(results);
 
         // Highlights words in the window as long as they match
-        int start = mKanjiGrid.getKanjiViewList().indexOf(search.getKanjiCharacterView());
+        int start = mKanjiGrid.getKanjiViewList().indexOf(search.getTextOffset());
         if (results.size() > 0){
             String kanji = results.get(0).getWord();
             for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){
                 if (i >= mKanjiGrid.getKanjiViewList().size()){
                     break;
                 }
-                mKanjiGrid.getKanjiViewList().get(i).setBackground();
+                mKanjiGrid.getKanjiViewList().get(i).highlight();
             }
         }
         else {
-            mKanjiGrid.getKanjiViewList().get(start).setBackground();
+            mKanjiGrid.getKanjiViewList().get(start).highlight();
         }
     }
 
     @Override
-    public void onInputDone() {
-        if (mOcrResult == null){
-            mKanjiGrid.correctTextForText(this);
-        }
-        else {
-            mKanjiGrid.correctTextForOcr(this);
-        }
-        updateInternalText();
+    public void onInputDone()
+    {
+        mKanjiGrid.correctText();
     }
 
     private void displayResults(List<JmSearchResult> jmResults)
@@ -377,8 +380,8 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         tv.setText(sb.toString());
     }
 
-    private String getMeaning(EntryOptimized entry){
-
+    private String getMeaning(EntryOptimized entry)
+    {
         String[] meanings = entry.getMeanings().split("\ufffc", -1);
         String[] pos = entry.getPos().split("\ufffc", -1);
 
@@ -397,13 +400,5 @@ public class InformationWindow extends Window implements SquareGridView.SquareVi
         }
 
         return sb.toString();
-    }
-
-    private void updateInternalText(){
-        StringBuilder sb = new StringBuilder();
-        for (KanjiCharacterView k : mKanjiGrid.getKanjiViewList()){
-            sb.append(k.getText());
-        }
-        mText = sb.toString();
     }
 }
