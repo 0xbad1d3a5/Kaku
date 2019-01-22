@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -21,7 +22,14 @@ import ca.fuwafuwa.kaku.dpToPx
 
 class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_kanji_choice)
 {
-    val choiceWindow = window.findViewById<RelativeLayout>(R.id.kanji_choice_window)
+    private val choiceWindow = window.findViewById<RelativeLayout>(R.id.kanji_choice_window)!!
+    private val choiceIcon = ImageView(context)
+    private val currentKanjiViews = mutableListOf<View>()
+
+    init
+    {
+        choiceWindow.addView(choiceIcon)
+    }
 
     /**
      * KanjiChoiceWindow does not need to reInit layout as its getDefaultParams() are all relative. Re-initing will cause bugs.
@@ -34,26 +42,30 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
 
     fun onSquareScrollStart(e: MotionEvent, squareChar: ISquareChar, kanjiBoxParams: BoxParams)
     {
-        choiceWindow.removeAllViews()
+        removeKanjiViews()
+        currentKanjiViews.clear()
+
+        choiceIcon.x = kanjiBoxParams.x.toFloat()
+        choiceIcon.y = kanjiBoxParams.y.toFloat() - statusBarHeight
+        choiceIcon.layoutParams = RelativeLayout.LayoutParams(kanjiBoxParams.width, kanjiBoxParams.height)
+        choiceIcon.setImageResource(R.drawable.icon_swap)
 
         if (squareChar !is SquareCharOcr)
         {
             return
         }
 
-        val topHeight = kanjiBoxParams.y
-        val bottomHeight = viewHeight - (kanjiBoxParams.y + kanjiBoxParams.height)
+        val topRectHeight = kanjiBoxParams.y - statusBarHeight
+        val bottomRectHeight = realDisplaySize.y - kanjiBoxParams.y - kanjiBoxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
 
-        if (bottomHeight > topHeight)
+        if (bottomRectHeight > topRectHeight)
         {
-            drawOnBottom(squareChar, kanjiBoxParams)
+            drawOnBottom(squareChar, kanjiBoxParams, calculateBounds(kanjiBoxParams, topRectHeight, bottomRectHeight))
         }
         else
         {
-            drawOnTop(squareChar, kanjiBoxParams)
+            drawOnTop(squareChar, kanjiBoxParams, calculateBounds(kanjiBoxParams, topRectHeight, bottomRectHeight))
         }
-
-
 
         show()
     }
@@ -67,71 +79,135 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         hide()
     }
 
-    private fun drawOnBottom(squareChar: SquareCharOcr, kanjiBoxParams: BoxParams)
+    private fun removeKanjiViews()
     {
-        val startHeight = kanjiBoxParams.y + kanjiBoxParams.height + dpToPx(context, 10)
-        val choiceHeight = kanjiBoxParams.height * 2
-        val choiceWidth = kanjiBoxParams.width * 2
+        for (k in currentKanjiViews)
+        {
+            choiceWindow.removeView(k)
+        }
+    }
+
+    private fun calculateBounds(kanjiBoxParams: BoxParams, topRectHeight: Int, bottomRectHeight: Int) : BoxParams
+    {
+        val midPoint = kanjiBoxParams.x + (kanjiBoxParams.width / 2)
+        var maxWidth = dpToPx(context, 400)
+        var xPos = 0
+
+        if (realDisplaySize.x > maxWidth)
+        {
+            xPos = midPoint - (maxWidth / 2)
+            if (xPos < 0)
+            {
+                xPos = 0
+            }
+            else if (xPos + maxWidth > realDisplaySize.x)
+            {
+                xPos = realDisplaySize.x - maxWidth
+            }
+        }
+
+        maxWidth = minOf(realDisplaySize.x, maxWidth)
+
+        if (topRectHeight > bottomRectHeight)
+        {
+            return BoxParams(xPos, 0, maxWidth, topRectHeight)
+        }
+        else
+        {
+            return BoxParams(xPos, kanjiBoxParams.y + kanjiBoxParams.height - statusBarHeight, maxWidth, bottomRectHeight)
+        }
+    }
+
+    private fun drawOnBottom(squareChar: SquareCharOcr, kanjiBoxParams: BoxParams, choiceParams: BoxParams)
+    {
+        val kanjiHeight = kanjiBoxParams.height * 2
+        val kanjiWidth = kanjiBoxParams.width * 2
 
         val outerPadding = dpToPx(context, 10)
-        val drawableWidth = viewWidth - outerPadding
+        val startHeight = choiceParams.y + outerPadding
+
+        val drawableWidth = choiceParams.width - outerPadding
         val minPadding = dpToPx(context, 5)
-        val numColumns = minOf(calculateNumColumns(drawableWidth, choiceWidth, minPadding), squareChar.allChoices.size)
-        val outerSpacing = (viewWidth - (choiceWidth + minPadding * 2) * numColumns) / 2
+        val numColumns = minOf(calculateNumColumns(drawableWidth, kanjiWidth, minPadding), squareChar.allChoices.size + 1)
+        val outerSpacing = (choiceParams.width - (kanjiWidth + minPadding * 2) * numColumns) / 2
         val innerSpacing = minPadding
 
         var currColumn = 0
-        var currWidth = outerSpacing + innerSpacing
+        var currWidth = choiceParams.x + outerSpacing + innerSpacing
         var currHeight = startHeight
 
-        for ((index, choice) in squareChar.allChoices.withIndex())
+        drawKanjiImage(squareChar, currWidth, currHeight, kanjiWidth, kanjiHeight)
+        currWidth += kanjiWidth + innerSpacing
+        currColumn++
+
+        for (choice in squareChar.allChoices)
         {
             if (currColumn >= numColumns)
             {
-                currHeight += choiceHeight + innerSpacing
-                currWidth = outerSpacing + innerSpacing
+                currHeight += kanjiHeight + innerSpacing
+                currWidth = choiceParams.x + outerSpacing + innerSpacing
                 currColumn = 0
             }
 
-            if (index == 0)
-            {
-                val pos = squareChar.bitmapPos
-                val dp10 = dpToPx(context, 10)
-                val orig = squareChar.displayData.bitmap
-                var width = pos[2] - pos[0]
-                var height = pos[3] - pos[1]
-                width = if (width <= 0) 1 else width
-                height = if (height <= 0) 1 else height
-                val bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], width, height)
-                val charImage = ImageView(context)
+            val tv = TextView(context)
+            tv.text = choice.first
+            tv.gravity = Gravity.CENTER
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, (kanjiWidth / 1.5).toFloat())
+            tv.setTextColor(Color.BLACK)
+            tv.setBackgroundResource(R.drawable.bg_solid_border_0_white_black)
+            tv.width = kanjiWidth
+            tv.height = kanjiHeight
+            tv.x = currWidth.toFloat()
+            tv.y = currHeight.toFloat()
+            choiceWindow.addView(tv)
+            currentKanjiViews.add(tv)
 
-                charImage.setPadding(dp10, dp10, dp10, dp10)
-                charImage.layoutParams = LinearLayout.LayoutParams(choiceWidth, choiceHeight)
-                charImage.x = currWidth.toFloat()
-                charImage.y = currHeight.toFloat()
-                charImage.scaleType = ImageView.ScaleType.FIT_CENTER
-                charImage.cropToPadding = true
-                charImage.setImageBitmap(bitmapChar)
-                charImage.background = context.getDrawable(R.drawable.bg_translucent_border_0_black_black)
-                choiceWindow.addView(charImage)
-            }
-            else {
-                val tv = TextView(context)
-                tv.text = choice.first
-                tv.gravity = Gravity.CENTER
-                tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, (choiceWidth / 1.5).toFloat())
-                tv.setTextColor(Color.BLACK)
-                tv.setBackgroundResource(R.drawable.bg_solid_border_0_white_black)
-                tv.width = choiceWidth
-                tv.height = choiceHeight
-                tv.x = currWidth.toFloat()
-                tv.y = currHeight.toFloat()
-                choiceWindow.addView(tv)
-            }
-
-            currWidth += choiceWidth + innerSpacing
+            currWidth += kanjiWidth + innerSpacing
             currColumn++
         }
+    }
+
+    private fun drawOnTop(squareChar: SquareCharOcr, kanjiBoxParams: BoxParams, choiceParams: BoxParams)
+    {
+        val kanjiHeight = kanjiBoxParams.height * 2
+        val kanjiWidth = kanjiBoxParams.width * 2
+
+        val outerPadding = dpToPx(context, 10)
+        val startHeight = kanjiBoxParams.y - statusBarHeight - kanjiHeight - outerPadding
+
+        val drawableWidth = choiceParams.width - outerPadding
+        val minPadding = dpToPx(context, 5)
+        val numColumns = minOf(calculateNumColumns(drawableWidth, kanjiWidth, minPadding), squareChar.allChoices.size + 1)
+        val outerSpacing = (choiceParams.width - (kanjiWidth + minPadding * 2) * numColumns) / 2
+        val innerSpacing = minPadding
+
+        var currColumn = 0
+        var currWidth = choiceParams.x + outerSpacing + innerSpacing
+        var currHeight = startHeight
+    }
+
+    private fun drawKanjiImage(squareChar: SquareCharOcr, x: Int, y: Int, kanjiWidth: Int, kanjiHeight: Int)
+    {
+        // Image nonsense
+        val pos = squareChar.bitmapPos
+        val dp10 = dpToPx(context, 10)
+        val orig = squareChar.displayData.bitmap
+        var width = pos[2] - pos[0]
+        var height = pos[3] - pos[1]
+        width = if (width <= 0) 1 else width
+        height = if (height <= 0) 1 else height
+        val bitmapChar = Bitmap.createBitmap(orig, pos[0], pos[1], width, height)
+        val charImage = ImageView(context)
+        charImage.setPadding(dp10, dp10, dp10, dp10)
+        charImage.layoutParams = LinearLayout.LayoutParams(kanjiWidth, kanjiHeight)
+        charImage.x = x.toFloat()
+        charImage.y = y.toFloat()
+        charImage.scaleType = ImageView.ScaleType.FIT_CENTER
+        charImage.cropToPadding = true
+        charImage.setImageBitmap(bitmapChar)
+        charImage.background = context.getDrawable(R.drawable.bg_translucent_border_0_black_black)
+        choiceWindow.addView(charImage)
+        currentKanjiViews.add(charImage)
     }
 
     private fun calculateNumColumns(drawableWidth: Int, columnWidth: Int, minPadding: Int) : Int
@@ -147,11 +223,6 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         }
 
         return count
-    }
-
-    private fun drawOnTop(squareChar: SquareCharOcr, kanjiBoxParams: BoxParams)
-    {
-
     }
 
 
