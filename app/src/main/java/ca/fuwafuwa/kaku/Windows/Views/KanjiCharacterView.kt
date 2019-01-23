@@ -25,7 +25,6 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
 {
     private lateinit var mContext: Context
     private lateinit var mKanjiTextView: TextView
-    private lateinit var mKanjiEditImg: ImageView
     private lateinit var mFrameView: View
     private lateinit var mGestureDetector: GestureDetector
     private lateinit var mWindowCoordinator: WindowCoordinator
@@ -62,7 +61,6 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
 
         val view = LayoutInflater.from(mContext).inflate(R.layout.view_kanji_character, this, true)
         mKanjiTextView = view.findViewById(R.id.kanji_character)
-        mKanjiEditImg = view.findViewById(R.id.kanji_choice_edit)
         mFrameView = view.findViewById(R.id.border_frame)
     }
 
@@ -98,7 +96,6 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
         if (e.action == MotionEvent.ACTION_UP)
         {
             mKanjiTextView.visibility = View.VISIBLE
-            mKanjiEditImg.visibility = View.INVISIBLE
 
             if (mScrollStartEvent != null)
             {
@@ -125,10 +122,8 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
             mScrollStartEvent = motionEvent
 
             unhighlight()
-            mKanjiEditImg.setImageResource(R.drawable.icon_swap)
 
             mKanjiTextView.visibility = View.INVISIBLE
-            mKanjiEditImg.visibility = View.VISIBLE
 
             mKanjiChoiceWindow.onSquareScrollStart(motionEvent, squareChar, getKanjiBoxParams())
         }
@@ -161,7 +156,7 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
     private fun getKanjiBoxParams() : BoxParams
     {
         var pos = IntArray(2)
-        getLocationInWindow(pos)
+        getLocationOnScreen(pos)
         return BoxParams(pos[0], pos[1], width, height)
     }
 

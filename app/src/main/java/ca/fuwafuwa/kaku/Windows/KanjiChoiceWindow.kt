@@ -149,19 +149,7 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
                 currColumn = 0
             }
 
-            val tv = TextView(context)
-            tv.text = choice.first
-            tv.gravity = Gravity.CENTER
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, (kanjiWidth / 1.5).toFloat())
-            tv.setTextColor(Color.BLACK)
-            tv.setBackgroundResource(R.drawable.bg_solid_border_0_white_black)
-            tv.width = kanjiWidth
-            tv.height = kanjiHeight
-            tv.x = currWidth.toFloat()
-            tv.y = currHeight.toFloat()
-            choiceWindow.addView(tv)
-            currentKanjiViews.add(tv)
-
+            drawKanjiText(choice.first, currWidth, currHeight, kanjiWidth, kanjiHeight)
             currWidth += kanjiWidth + innerSpacing
             currColumn++
         }
@@ -184,6 +172,40 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         var currColumn = 0
         var currWidth = choiceParams.x + outerSpacing + innerSpacing
         var currHeight = startHeight
+
+        drawKanjiImage(squareChar, currWidth, currHeight, kanjiWidth, kanjiHeight)
+        currWidth += kanjiWidth + innerSpacing
+        currColumn++
+
+        for (choice in squareChar.allChoices)
+        {
+            if (currColumn >= numColumns)
+            {
+                currHeight -= kanjiHeight + innerSpacing
+                currWidth = choiceParams.x + outerSpacing + innerSpacing
+                currColumn = 0
+            }
+
+            drawKanjiText(choice.first, currWidth, currHeight, kanjiWidth, kanjiHeight)
+            currWidth += kanjiWidth + innerSpacing
+            currColumn++
+        }
+    }
+
+    private fun drawKanjiText(kanji: String, x: Int, y: Int, kanjiWidth: Int, kanjiHeight: Int)
+    {
+        val tv = TextView(context)
+        tv.text = kanji
+        tv.gravity = Gravity.CENTER
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, (kanjiWidth / 1.5).toFloat())
+        tv.setTextColor(Color.BLACK)
+        tv.setBackgroundResource(R.drawable.bg_solid_border_0_white_black)
+        tv.width = kanjiWidth
+        tv.height = kanjiHeight
+        tv.x = x.toFloat()
+        tv.y = y.toFloat()
+        choiceWindow.addView(tv)
+        currentKanjiViews.add(tv)
     }
 
     private fun drawKanjiImage(squareChar: SquareCharOcr, x: Int, y: Int, kanjiWidth: Int, kanjiHeight: Int)

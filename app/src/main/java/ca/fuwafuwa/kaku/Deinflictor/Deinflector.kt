@@ -76,7 +76,7 @@ class Deinflector(context: Context) {
      */
     fun getPotentialDeinflections(word: String): List<DeinflectionInfo> {
 
-        var text: String = LangUtils.ConvertKanatanaToHiragana(word)
+        var text: String = word //LangUtils.ConvertKanatanaToHiragana(word)
 
         // Chain of inflections encountered
         var deinfWordChain = ArrayList<DeinflectionInfo>()
