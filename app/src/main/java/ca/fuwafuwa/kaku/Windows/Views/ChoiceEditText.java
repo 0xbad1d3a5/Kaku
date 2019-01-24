@@ -1,5 +1,6 @@
 package ca.fuwafuwa.kaku.Windows.Views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.provider.Settings;
 import android.util.AttributeSet;
@@ -12,6 +13,7 @@ import android.widget.EditText;
  * Created by 0xbad1d3a5 on 1/10/2017.
  */
 
+@SuppressLint("AppCompatCustomView")
 public class ChoiceEditText extends EditText
 {
     public interface InputDoneListener
@@ -21,7 +23,6 @@ public class ChoiceEditText extends EditText
 
     private static final String TAG = ChoiceEditText.class.getName();
 
-    private Context mContext;
     private InputMethodManager mImeManager;
     private InputDoneListener mCallback;
 
@@ -51,8 +52,7 @@ public class ChoiceEditText extends EditText
 
     private void Init(Context context)
     {
-        mContext = context;
-        mImeManager = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+        mImeManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         showKeyboard();
     }
 

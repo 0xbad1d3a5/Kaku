@@ -18,6 +18,8 @@ class KanjiGridView : SquareGridView
     private lateinit var mSearchPerformer: ISearchPerformer
     private lateinit var mDisplayData: DisplayData
 
+    private val kanjiCellSize = squareCellSize
+
     val kanjiViewList: List<KanjiCharacterView>
         get()
         {
@@ -60,8 +62,9 @@ class KanjiGridView : SquareGridView
 
         for (squareChar in displayData.squareChars)
         {
-            val kanjiView = KanjiCharacterView(mContext)
+            val kanjiView = KanjiCharacterView(context)
             kanjiView.setDependencies(mWindowCoordinator, mSearchPerformer)
+            kanjiView.setCellSize(kanjiCellSize)
             kanjiView.setText(squareChar)
 
             addView(kanjiView)
@@ -77,7 +80,7 @@ class KanjiGridView : SquareGridView
         postInvalidate()
     }
 
-    fun correctText()
+    fun recomputeText()
     {
         mDisplayData.recomputeChars()
         val kanjiViews = kanjiViewList
@@ -114,8 +117,9 @@ class KanjiGridView : SquareGridView
     {
         for (i in 0 until count)
         {
-            val kanjiView = KanjiCharacterView(mContext)
+            val kanjiView = KanjiCharacterView(context)
             kanjiView.setDependencies(mWindowCoordinator, mSearchPerformer)
+            kanjiView.setCellSize(kanjiCellSize)
 
             addView(kanjiView)
         }

@@ -12,10 +12,9 @@ import ca.fuwafuwa.kaku.*
  */
 open class SquareGridView : ViewGroup
 {
-    protected lateinit var mContext: Context
+    protected var squareCellSize = 0
 
     private var mItemCount = 0
-    private var mCellSize = 0
 
     constructor(context: Context) : super(context)
     {
@@ -39,13 +38,12 @@ open class SquareGridView : ViewGroup
 
     private fun Init(context: Context)
     {
-        mContext = context
-        mCellSize = dpToPx(mContext, 37)
+        squareCellSize = dpToPx(context, 37)
     }
 
     fun setCellSize(dp: Int)
     {
-        mCellSize = dpToPx(mContext, dp)
+        squareCellSize = dpToPx(context, dp)
     }
 
     fun setItemCount(items: Int)
@@ -55,8 +53,8 @@ open class SquareGridView : ViewGroup
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int)
     {
-        val cellWidthSpec = View.MeasureSpec.makeMeasureSpec(mCellSize, View.MeasureSpec.EXACTLY)
-        val cellHeightSpec = View.MeasureSpec.makeMeasureSpec(mCellSize, View.MeasureSpec.EXACTLY)
+        val cellWidthSpec = View.MeasureSpec.makeMeasureSpec(squareCellSize, View.MeasureSpec.EXACTLY)
+        val cellHeightSpec = View.MeasureSpec.makeMeasureSpec(squareCellSize, View.MeasureSpec.EXACTLY)
 
         val count = childCount
         for (index in 0 until count)
@@ -65,20 +63,20 @@ open class SquareGridView : ViewGroup
             child.measure(cellWidthSpec, cellHeightSpec)
         }
 
-        // set width to mCellSize * count if width is smaller than screen, and just screen width if larger
-        val x = View.resolveSize(mCellSize * count, widthMeasureSpec)
-        var rows = Math.ceil(mItemCount.toDouble() / (x / mCellSize).toDouble()).toInt()
+        // set width to squareCellSize * count if width is smaller than screen, and just screen width if larger
+        val x = View.resolveSize(squareCellSize * count, widthMeasureSpec)
+        var rows = Math.ceil(mItemCount.toDouble() / (x / squareCellSize).toDouble()).toInt()
         rows = if (rows <= 0) 1 else rows
         rows = if (rows >= 4) 4 else rows
-        val y = mCellSize * rows
+        val y = squareCellSize * rows
 
         setMeasuredDimension(x, y)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int)
     {
-        var columns = (r - l) / mCellSize
-        val xStart = (r - l - mCellSize * columns) / 2
+        var columns = (r - l) / squareCellSize
+        val xStart = (r - l - squareCellSize * columns) / 2
         if (columns < 0)
         {
             columns = 1
@@ -93,19 +91,19 @@ open class SquareGridView : ViewGroup
             val child = getChildAt(index)
             val w = child.measuredWidth
             val h = child.measuredHeight
-            val left = x + (mCellSize - w) / 2
-            val top = y + (mCellSize - h) / 2
+            val left = x + (squareCellSize - w) / 2
+            val top = y + (squareCellSize - h) / 2
             child.layout(left, top, left + w, top + h)
             if (i >= columns - 1)
             {
                 // advance to next row
                 i = 0
                 x = xStart
-                y += mCellSize
+                y += squareCellSize
             } else
             {
                 i++
-                x += mCellSize
+                x += squareCellSize
             }
         }
     }

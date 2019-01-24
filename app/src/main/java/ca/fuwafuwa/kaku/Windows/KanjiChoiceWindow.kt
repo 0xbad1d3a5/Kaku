@@ -42,9 +42,6 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
 
     fun onSquareScrollStart(e: MotionEvent, squareChar: ISquareChar, kanjiBoxParams: BoxParams)
     {
-        removeKanjiViews()
-        currentKanjiViews.clear()
-
         choiceIcon.x = kanjiBoxParams.x.toFloat()
         choiceIcon.y = kanjiBoxParams.y.toFloat() - statusBarHeight
         choiceIcon.layoutParams = RelativeLayout.LayoutParams(kanjiBoxParams.width, kanjiBoxParams.height)
@@ -52,6 +49,7 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
 
         if (squareChar !is SquareCharOcr)
         {
+            show()
             return
         }
 
@@ -72,11 +70,46 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
 
     fun onSquareScroll(e: MotionEvent)
     {
+        for (kanjiView in currentKanjiViews)
+        {
+            val isTextView = kanjiView is TextView
+
+            if (checkForSelection(kanjiView, e) && isTextView)
+            {
+                kanjiView.setBackgroundResource(R.drawable.bg_solid_border_0_blue_black)
+            }
+            else if (isTextView)
+            {
+                kanjiView.setBackgroundResource(R.drawable.bg_solid_border_0_white_black)
+            }
+        }
     }
 
-    fun onSquareScrollEnd(e: MotionEvent)
+    fun onSquareScrollEnd(e: MotionEvent) : String?
     {
+        var returnVal: String? = null
+
+        for (kanjiView in currentKanjiViews)
+        {
+            if (checkForSelection(kanjiView, e) && kanjiView is TextView)
+            {
+                returnVal = kanjiView.text.toString()
+            }
+        }
+
+        removeKanjiViews()
         hide()
+
+        return returnVal
+    }
+
+    private fun checkForSelection(kanjiView: View, e: MotionEvent): Boolean
+    {
+        var pos = IntArray(2)
+        kanjiView.getLocationOnScreen(pos)
+
+        return pos[0] < e.rawX && e.rawX < pos[0] + kanjiView.width &&
+               pos[1] < e.rawY && e.rawY < pos[1] + kanjiView.height
     }
 
     private fun removeKanjiViews()
@@ -85,6 +118,8 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         {
             choiceWindow.removeView(k)
         }
+
+        currentKanjiViews.clear()
     }
 
     private fun calculateBounds(kanjiBoxParams: BoxParams, topRectHeight: Int, bottomRectHeight: Int) : BoxParams

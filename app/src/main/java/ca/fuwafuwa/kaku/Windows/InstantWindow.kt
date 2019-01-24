@@ -114,7 +114,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     {
     }
 
-    override fun performSearch(displayData: DisplayData, squareChar: ISquareChar)
+    override fun performSearch(squareChar: ISquareChar)
     {
     }
 

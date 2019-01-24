@@ -33,7 +33,6 @@ import ca.fuwafuwa.kaku.Windows.Data.DisplayData;
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar;
 import ca.fuwafuwa.kaku.Windows.Data.SquareChar;
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer;
-import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 
 /**
@@ -166,7 +165,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
 //    }
 
     @Override
-    public void performSearch(@NotNull DisplayData displayData, @NotNull ISquareChar squareChar)
+    public void performSearch(@NotNull ISquareChar squareChar)
     {
         Log.d(TAG, squareChar.getChar());
 
@@ -339,7 +338,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     @Override
     public void onInputDone()
     {
-        mKanjiGrid.correctText();
+        mKanjiGrid.recomputeText();
     }
 
     private void displayResults(List<JmSearchResult> jmResults)

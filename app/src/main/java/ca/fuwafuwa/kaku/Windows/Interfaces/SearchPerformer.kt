@@ -5,5 +5,5 @@ import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 
 interface ISearchPerformer
 {
-    fun performSearch(displayData: DisplayData, squareChar: ISquareChar)
+    fun performSearch(squareChar: ISquareChar)
 }

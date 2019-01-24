@@ -33,19 +33,28 @@ open class DisplayData(var squareChars: List<ISquareChar>)
         {
             val newChars = squareChar.text ?: squareChar.char
 
-            if (newChars.length > 1)
+            when
             {
-                val newCharsList = splitTextByChar(newChars);
-
-                for (newChar in newCharsList)
+                newChars.length > 1 ->
                 {
-                    val newSquareChar = squareChar.clone()
-                    if (newSquareChar is SquareCharOcr) newSquareChar.addChoice(newChar, ChoiceCertainty.CERTAIN)
-                    newSquareChars.add(newSquareChar)
+                    val newCharsList = splitTextByChar(newChars)
+
+                    for (newChar in newCharsList)
+                    {
+                        val newSquareChar = squareChar.clone()
+                        if (newSquareChar is SquareCharOcr) newSquareChar.addChoice(newChar, ChoiceCertainty.CERTAIN)
+                        newSquareChars.add(newSquareChar)
+                    }
                 }
-            }
-            else {
-                newSquareChars.add(squareChar)
+                newChars.length == 1 ->
+                {
+                    squareChar.char = newChars
+                    newSquareChars.add(squareChar)
+                }
+                else ->
+                {
+                    newSquareChars.add(squareChar)
+                }
             }
         }
 

@@ -2,12 +2,8 @@ package ca.fuwafuwa.kaku.Windows.Views
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.GestureDetector
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.widget.FrameLayout
-import android.widget.ImageView
+import android.util.TypedValue
+import android.view.*
 import android.widget.TextView
 
 import ca.fuwafuwa.kaku.*
@@ -21,17 +17,16 @@ import ca.fuwafuwa.kaku.Windows.WindowCoordinator
 /**
  * Created by 0xbad1d3a5 on 5/5/2016.
  */
-class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
+class KanjiCharacterView : TextView, GestureDetector.OnGestureListener
 {
     private lateinit var mContext: Context
-    private lateinit var mKanjiTextView: TextView
-    private lateinit var mFrameView: View
     private lateinit var mGestureDetector: GestureDetector
     private lateinit var mWindowCoordinator: WindowCoordinator
     private lateinit var mSearchPerformer: ISearchPerformer
     private lateinit var mKanjiChoiceWindow: KanjiChoiceWindow
     private lateinit var squareChar: ISquareChar
 
+    private var mCellSizePx: Int = 0
     private var mScrollStartEvent: MotionEvent? = null
 
     constructor(context: Context) : super(context)
@@ -58,10 +53,6 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
     {
         mContext = context
         mGestureDetector = GestureDetector(mContext, this)
-
-        val view = LayoutInflater.from(mContext).inflate(R.layout.view_kanji_character, this, true)
-        mKanjiTextView = view.findViewById(R.id.kanji_character)
-        mFrameView = view.findViewById(R.id.border_frame)
     }
 
     fun setDependencies(windowCoordinator: WindowCoordinator, searchPerformer: ISearchPerformer)
@@ -75,18 +66,30 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
     fun setText(squareChar: ISquareChar)
     {
         this.squareChar = squareChar
-        mKanjiTextView.text = squareChar.char
+        text = squareChar.char
+    }
+
+    fun setCellSize(px: Int)
+    {
+        mCellSizePx = dpToPx(context, pxToDp(context, px) - 2)
     }
 
     fun highlight()
     {
         val bg = mContext.getDrawable(R.drawable.bg_translucent_border_0_blue_blue)
-        mFrameView.background = bg
+        background = bg
     }
 
     fun unhighlight()
     {
-        mFrameView.background = null
+        background = null
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int)
+    {
+        gravity = Gravity.CENTER
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20.toFloat())
+        setMeasuredDimension(mCellSizePx, mCellSizePx)
     }
 
     override fun onTouchEvent(e: MotionEvent): Boolean
@@ -95,13 +98,19 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
 
         if (e.action == MotionEvent.ACTION_UP)
         {
-            mKanjiTextView.visibility = View.VISIBLE
+            visibility = View.VISIBLE
 
             if (mScrollStartEvent != null)
             {
                 mScrollStartEvent = null
 
-                mKanjiChoiceWindow.onSquareScrollEnd(e)
+                val choice = mKanjiChoiceWindow.onSquareScrollEnd(e)
+                if (choice != null)
+                {
+                    text = choice
+                    squareChar.text = choice
+                    squareChar.displayData.recomputeChars()
+                }
             }
         }
 
@@ -110,7 +119,7 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
 
     override fun onSingleTapUp(e: MotionEvent): Boolean
     {
-        mSearchPerformer.performSearch(squareChar.displayData, squareChar)
+        mSearchPerformer.performSearch(squareChar)
         return true
     }
 
@@ -123,7 +132,7 @@ class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener
 
             unhighlight()
 
-            mKanjiTextView.visibility = View.INVISIBLE
+            visibility = View.INVISIBLE
 
             mKanjiChoiceWindow.onSquareScrollStart(motionEvent, squareChar, getKanjiBoxParams())
         }
