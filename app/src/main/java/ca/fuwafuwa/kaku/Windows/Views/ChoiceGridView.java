@@ -11,11 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ca.fuwafuwa.kaku.KakuTools;
-import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.R;
-import ca.fuwafuwa.kaku.Windows.Data.DisplayData;
-import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr;
-import ca.fuwafuwa.kaku.Windows.Data.ISquareChar;
 import ca.fuwafuwa.kaku.Windows.Data.SquareCharOcr;
 import kotlin.Pair;
 

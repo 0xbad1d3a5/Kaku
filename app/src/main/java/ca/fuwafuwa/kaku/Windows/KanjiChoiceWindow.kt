@@ -20,11 +20,21 @@ import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Data.SquareCharOcr
 import ca.fuwafuwa.kaku.dpToPx
 
+enum class ChoiceResultType
+{
+    EDIT,
+    DELETE,
+    SWAP,
+    NONE
+}
+
 class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_kanji_choice)
 {
     private val choiceWindow = window.findViewById<RelativeLayout>(R.id.kanji_choice_window)!!
     private val choiceIcon = ImageView(context)
     private val currentKanjiViews = mutableListOf<View>()
+
+    private var isInstantMode: Boolean = false
 
     init
     {
@@ -40,8 +50,10 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         super.reInit(options)
     }
 
-    fun onSquareScrollStart(e: MotionEvent, squareChar: ISquareChar, kanjiBoxParams: BoxParams)
+    fun onSquareScrollStart(squareChar: ISquareChar, kanjiBoxParams: BoxParams, isInstantMode: Boolean)
     {
+        this.isInstantMode = isInstantMode
+
         choiceIcon.x = kanjiBoxParams.x.toFloat()
         choiceIcon.y = kanjiBoxParams.y.toFloat() - statusBarHeight
         choiceIcon.layoutParams = RelativeLayout.LayoutParams(kanjiBoxParams.width, kanjiBoxParams.height)
@@ -83,9 +95,25 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
                 kanjiView.setBackgroundResource(R.drawable.bg_solid_border_0_white_black)
             }
         }
+
+        when (getResultTypeForMotionEvent(e))
+        {
+            ChoiceResultType.EDIT ->
+            {
+                choiceIcon.setImageResource(R.drawable.icon_edit)
+            }
+            ChoiceResultType.DELETE ->
+            {
+                choiceIcon.setImageResource(R.drawable.icon_delete)
+            }
+            ChoiceResultType.NONE ->
+            {
+                choiceIcon.setImageResource(R.drawable.icon_swap)
+            }
+        }
     }
 
-    fun onSquareScrollEnd(e: MotionEvent) : String?
+    fun onSquareScrollEnd(e: MotionEvent) : Pair<ChoiceResultType, String>
     {
         var returnVal: String? = null
 
@@ -100,7 +128,32 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         removeKanjiViews()
         hide()
 
-        return returnVal
+        return if (returnVal != null)
+        {
+            Pair(ChoiceResultType.SWAP, returnVal)
+        }
+        else {
+            Pair(getResultTypeForMotionEvent(e), "")
+        }
+    }
+
+    private fun getResultTypeForMotionEvent(e: MotionEvent) : ChoiceResultType
+    {
+        val midpoint = choiceIcon.x + (choiceIcon.width / 2)
+        val height = choiceIcon.y + statusBarHeight
+
+        return if (e.rawX < midpoint && e.rawY < height)
+        {
+            ChoiceResultType.EDIT
+        }
+        else if (e.rawX > midpoint && e.rawY < height)
+        {
+            ChoiceResultType.DELETE
+        }
+        else
+        {
+            ChoiceResultType.NONE
+        }
     }
 
     private fun checkForSelection(kanjiView: View, e: MotionEvent): Boolean

@@ -25,6 +25,8 @@ open class DisplayData(var squareChars: List<ISquareChar>)
             return squareChars.count()
         }
 
+    open var instantMode = false
+
     fun recomputeChars()
     {
         val newSquareChars = mutableListOf<ISquareChar>()
@@ -32,6 +34,7 @@ open class DisplayData(var squareChars: List<ISquareChar>)
         for (squareChar in squareChars)
         {
             val newChars = squareChar.text ?: squareChar.char
+            squareChar.text = null
 
             when
             {
@@ -42,6 +45,7 @@ open class DisplayData(var squareChars: List<ISquareChar>)
                     for (newChar in newCharsList)
                     {
                         val newSquareChar = squareChar.clone()
+                        newSquareChar.char = newChar
                         if (newSquareChar is SquareCharOcr) newSquareChar.addChoice(newChar, ChoiceCertainty.CERTAIN)
                         newSquareChars.add(newSquareChar)
                     }
@@ -51,9 +55,9 @@ open class DisplayData(var squareChars: List<ISquareChar>)
                     squareChar.char = newChars
                     newSquareChars.add(squareChar)
                 }
-                else ->
+                newChars.length == 0 ->
                 {
-                    newSquareChars.add(squareChar)
+                    // character was deleted
                 }
             }
         }
@@ -73,6 +77,7 @@ open class DisplayData(var squareChars: List<ISquareChar>)
 
 class DisplayDataOcr(val bitmap: Bitmap,
                      val boxParams: BoxParams,
+                     override var instantMode: Boolean,
                      squareChars: List<SquareCharOcr>) : DisplayData(squareChars)
 {
 }

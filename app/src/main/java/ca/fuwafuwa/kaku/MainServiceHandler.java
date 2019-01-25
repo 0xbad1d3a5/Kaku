@@ -39,7 +39,7 @@ public class MainServiceHandler extends Handler {
             Log.e(TAG, result.toString());
             Toast.makeText(mKakuService, result.getMessage(), Toast.LENGTH_SHORT).show();
 
-            if (result.getInstant())
+            if (result.getDisplayData().getInstantMode())
             {
                 InstantWindow instantWindow = (InstantWindow) mWindowCoordinator.getWindow(Constants.WINDOW_INSTANT);
                 instantWindow.setResult(result.getDisplayData());

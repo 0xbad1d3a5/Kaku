@@ -9,12 +9,11 @@ import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.ImageView
 
-import ca.fuwafuwa.kaku.Ocr.OcrResult
 import ca.fuwafuwa.kaku.R
-import ca.fuwafuwa.kaku.Windows.Data.DisplayData
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Data.SquareCharOcr
+import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Views.ChoiceEditText
 
 /**
@@ -24,13 +23,8 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
 {
     private val mChoiceEditText: ChoiceEditText = window.findViewById(R.id.edit_text)
 
-    private lateinit var mCallback: InputDoneListener
+    private lateinit var mCallback: IRecalculateKanjiViews
     private lateinit var mSquareChar: ISquareChar
-
-    interface InputDoneListener
-    {
-        fun onInputDone()
-    }
 
     init
     {
@@ -65,7 +59,7 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
         {
             mSquareChar.text = input
 
-            mCallback.onInputDone()
+            mCallback.recalculateKanjiViews()
         }
 
         hide()
@@ -80,14 +74,15 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
         super.reInit(options)
     }
 
-    fun setInputDoneCallback(callback: InputDoneListener)
+    fun setInputDoneCallback(callback: IRecalculateKanjiViews)
     {
         mCallback = callback
     }
 
-    fun setInfo(displayData: DisplayData, squareChar: ISquareChar)
+    fun setInfo(squareChar: ISquareChar)
     {
         mSquareChar = squareChar
+        val displayData = squareChar.displayData
 
         if (displayData is DisplayDataOcr && squareChar is SquareCharOcr)
         {

@@ -9,22 +9,23 @@ import android.widget.TextView
 import ca.fuwafuwa.kaku.*
 import ca.fuwafuwa.kaku.Ocr.BoxParams
 import ca.fuwafuwa.kaku.R
+import ca.fuwafuwa.kaku.Windows.*
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
+import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
-import ca.fuwafuwa.kaku.Windows.KanjiChoiceWindow
-import ca.fuwafuwa.kaku.Windows.WindowCoordinator
 
 /**
  * Created by 0xbad1d3a5 on 5/5/2016.
  */
-class KanjiCharacterView : TextView, GestureDetector.OnGestureListener
+class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalculateKanjiViews
 {
     private lateinit var mContext: Context
     private lateinit var mGestureDetector: GestureDetector
     private lateinit var mWindowCoordinator: WindowCoordinator
     private lateinit var mSearchPerformer: ISearchPerformer
     private lateinit var mKanjiChoiceWindow: KanjiChoiceWindow
-    private lateinit var squareChar: ISquareChar
+    private lateinit var mEditWindow: EditWindow
+    private lateinit var mSquareChar: ISquareChar
 
     private var mCellSizePx: Int = 0
     private var mScrollStartEvent: MotionEvent? = null
@@ -61,11 +62,12 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener
         mSearchPerformer = searchPerformer
 
         mKanjiChoiceWindow = mWindowCoordinator.getWindow(WINDOW_KANJI_CHOICE) as KanjiChoiceWindow
+        mEditWindow = mWindowCoordinator.getWindow(WINDOW_EDIT) as EditWindow
     }
 
     fun setText(squareChar: ISquareChar)
     {
-        this.squareChar = squareChar
+        mSquareChar = squareChar
         text = squareChar.char
     }
 
@@ -104,12 +106,30 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener
             {
                 mScrollStartEvent = null
 
-                val choice = mKanjiChoiceWindow.onSquareScrollEnd(e)
-                if (choice != null)
+                val choiceResult = mKanjiChoiceWindow.onSquareScrollEnd(e)
+                when (choiceResult.first)
                 {
-                    text = choice
-                    squareChar.text = choice
-                    squareChar.displayData.recomputeChars()
+                    ChoiceResultType.SWAP ->
+                    {
+                        text = choiceResult.second
+                        mSquareChar.text = choiceResult.second
+                        recalculateKanjiViews()
+                    }
+                    ChoiceResultType.EDIT ->
+                    {
+                        mEditWindow.setInfo(mSquareChar)
+                        mEditWindow.setInputDoneCallback(this)
+                        mEditWindow.show()
+                    }
+                    ChoiceResultType.DELETE ->
+                    {
+                        mSquareChar.text = ""
+                        recalculateKanjiViews()
+                    }
+                    ChoiceResultType.NONE ->
+                    {
+                        // Do nothing
+                    }
                 }
             }
         }
@@ -117,9 +137,22 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener
         return true
     }
 
+    override fun recalculateKanjiViews()
+    {
+        val window: IRecalculateKanjiViews = if (mSquareChar.displayData.instantMode)
+        {
+            mWindowCoordinator.getWindow(WINDOW_INSTANT) as IRecalculateKanjiViews
+        }
+        else {
+            mWindowCoordinator.getWindow(WINDOW_INFO) as IRecalculateKanjiViews
+        }
+
+        window.recalculateKanjiViews()
+    }
+
     override fun onSingleTapUp(e: MotionEvent): Boolean
     {
-        mSearchPerformer.performSearch(squareChar)
+        mSearchPerformer.performSearch(mSquareChar)
         return true
     }
 
@@ -134,7 +167,7 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener
 
             visibility = View.INVISIBLE
 
-            mKanjiChoiceWindow.onSquareScrollStart(motionEvent, squareChar, getKanjiBoxParams())
+            mKanjiChoiceWindow.onSquareScrollStart(mSquareChar, getKanjiBoxParams(), mSquareChar.displayData.instantMode)
         }
         // scroll event continuing
         else {

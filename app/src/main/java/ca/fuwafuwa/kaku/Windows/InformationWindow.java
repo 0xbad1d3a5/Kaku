@@ -32,13 +32,14 @@ import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Data.DisplayData;
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar;
 import ca.fuwafuwa.kaku.Windows.Data.SquareChar;
+import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews;
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 
 /**
  * Created by 0xbad1d3a5 on 4/23/2016.
  */
-public class InformationWindow extends Window implements Searcher.SearchDictDone, EditWindow.InputDoneListener, ISearchPerformer
+public class InformationWindow extends Window implements Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
 {
 
     private static final String TAG = InformationWindow.class.getName();
@@ -96,73 +97,6 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
         mKanjiGrid.setText(displayData);
         mTextOnlyLookup = true;
     }
-
-//    @Override
-//    public void onSquareScrollStart(KanjiCharacterView kanjiView, MotionEvent e)
-//    {
-//        Log.d(TAG, "onSquareScrollStart");
-//
-//        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
-//        civ.onKanjiViewScrollStart(getStatusBarHeight(), kanjiView, e);
-//
-//        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
-//        cgv.onKanjiViewScrollStart(mOcrResult, kanjiView, e);
-//    }
-//
-//    @Override
-//    public void onSquareScroll(KanjiCharacterView kanjiView, MotionEvent e1, MotionEvent e2)
-//    {
-//        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
-//        civ.onKanjiViewScroll(e1, e2);
-//
-//        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
-//        cgv.onKanjiViewScroll(kanjiView, e1, e2);
-//    }
-//
-//    @Override
-//    public void onSquareScrollEnd(KanjiCharacterView kanjiView, MotionEvent e) {
-//
-//        Log.d(TAG, "onSquareScrollEnd");
-//
-//        ChoiceIconView civ = (ChoiceIconView) window.findViewById(R.id.kanji_choice_edit);
-//        ChoiceType editChoice = civ.onKanjiViewScrollEnd(e);
-//
-//        ChoiceGridView cgv = (ChoiceGridView) window.findViewById(R.id.kanji_choice_grid);
-//        cgv.onKanjiViewScrollEnd(kanjiView, e);
-//
-//        switch (editChoice){
-//            case DELETE:
-//                kanjiView.setText("");
-//                kanjiView.setEdited(true);
-//                onInputDone();
-//                break;
-//            case EDIT:
-//                kanjiView.setEdited(true);
-//                EditWindow editWindow = (EditWindow) windowCoordinator.getWindow(Constants.WINDOW_EDIT);
-//                editWindow.setInfo(mOcrResult, kanjiView);
-//                editWindow.setInputDoneCallback(this);
-//                editWindow.show();
-//                break;
-//            case NONE:
-//                updateInternalText();
-//                break;
-//        }
-//    }
-//
-//    @Override
-//    public void onSquareTouch(KanjiCharacterView kanjiView) {
-//
-//        Log.d(TAG, "onSquareTouch");
-//
-//        Log.d(TAG, kanjiView.getText().toString());
-//
-//        List<KanjiCharacterView> kanjiViewList = mKanjiGrid.getKanjiViewList();
-//        for (KanjiCharacterView k : kanjiViewList){
-//            k.unhighlight();
-//        }
-//
-//        mSearcher.search(new SearchInfo(mText, kanjiView.getIndex(), kanjiView));
-//    }
 
     @Override
     public void performSearch(@NotNull ISquareChar squareChar)
@@ -336,9 +270,9 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     }
 
     @Override
-    public void onInputDone()
+    public void recalculateKanjiViews()
     {
-        mKanjiGrid.recomputeText();
+        mKanjiGrid.recalculateKanjiViews();
     }
 
     private void displayResults(List<JmSearchResult> jmResults)

@@ -6,13 +6,14 @@ import android.util.AttributeSet
 import java.util.ArrayList
 
 import ca.fuwafuwa.kaku.Windows.Data.DisplayData
+import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
 import ca.fuwafuwa.kaku.Windows.WindowCoordinator
 
 /**
  * Created by 0xbad1d3a5 on 5/5/2016.
  */
-class KanjiGridView : SquareGridView
+class KanjiGridView : SquareGridView, IRecalculateKanjiViews
 {
     private lateinit var mWindowCoordinator: WindowCoordinator
     private lateinit var mSearchPerformer: ISearchPerformer
@@ -80,7 +81,15 @@ class KanjiGridView : SquareGridView
         postInvalidate()
     }
 
-    fun recomputeText()
+    fun unhighlightAll()
+    {
+        for (k in kanjiViewList)
+        {
+            k.unhighlight()
+        }
+    }
+
+    override fun recalculateKanjiViews()
     {
         mDisplayData.recomputeChars()
         val kanjiViews = kanjiViewList
@@ -103,14 +112,6 @@ class KanjiGridView : SquareGridView
 
         setItemCount(numChars)
         postInvalidate()
-    }
-
-    fun unhighlightAll()
-    {
-        for (k in kanjiViewList)
-        {
-            k.unhighlight()
-        }
     }
 
     private fun addKanjiViews(count: Int)

@@ -62,7 +62,7 @@ class SquareCharOcr(override val displayData: DisplayDataOcr,
 
     override fun clone(): ISquareChar
     {
-        return SquareCharOcr(displayData, allChoices, bitmapPos)
+        return SquareCharOcr(displayData, allChoices.toMutableList(), bitmapPos)
     }
 
     private fun sortChoices()

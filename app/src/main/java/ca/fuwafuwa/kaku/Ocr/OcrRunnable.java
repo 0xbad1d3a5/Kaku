@@ -18,7 +18,6 @@ import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
 import ca.fuwafuwa.kaku.MainService;
 import ca.fuwafuwa.kaku.Windows.CaptureWindow;
-import ca.fuwafuwa.kaku.Windows.Data.DisplayData;
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr;
 import ca.fuwafuwa.kaku.Windows.Data.SquareCharOcr;
 
@@ -94,25 +93,19 @@ public class OcrRunnable implements Runnable, Stoppable {
 
                     mTessBaseAPI.setImage(mOcrParams.getBitmap());
                     mTessBaseAPI.getHOCRText(0);
-                    DisplayDataOcr displayData = getDisplayData(mOcrParams.getOriginalBitmap(), mOcrParams.getBox(), mTessBaseAPI.getResultIterator());
+                    DisplayDataOcr displayData = getDisplayData(mOcrParams, mTessBaseAPI.getResultIterator());
                     mTessBaseAPI.clear();
 
                     if (displayData.getText().length() > 0)
                     {
                         long ocrTime = System.currentTimeMillis() - startTime;
-                        if (mOcrParams.getInstantOcr())
-                        {
-                            sendOcrResultToContext(new OcrResult(displayData, true, ocrTime));
-                        }
-                        else {
-                            sendOcrResultToContext(new OcrResult(displayData,false, ocrTime));
-                        }
+                        sendOcrResultToContext(new OcrResult(displayData, ocrTime));
                     } else
                     {
                         sendToastToContext("No Characters Recognized.");
                     }
 
-                    mCaptureWindow.stopLoadingAnimation(mOcrParams.getInstantOcr());
+                    mCaptureWindow.stopLoadingAnimation(mOcrParams.getInstantMode());
 
                     mOcrParams = null;
                 }
@@ -175,10 +168,13 @@ public class OcrRunnable implements Runnable, Stoppable {
         }
     }
 
-    private DisplayDataOcr getDisplayData(Bitmap bitmap, BoxParams boxParams, ResultIterator iterator)
+    private DisplayDataOcr getDisplayData(OcrParams ocrParams, ResultIterator iterator)
     {
+        Bitmap bitmap = mOcrParams.getOriginalBitmap();
+        BoxParams boxParams = mOcrParams.getBox();
+
         List<SquareCharOcr> ocrChars = new ArrayList<>();
-        DisplayDataOcr displayData = new DisplayDataOcr(bitmap, boxParams, ocrChars);
+        DisplayDataOcr displayData = new DisplayDataOcr(bitmap, boxParams, ocrParams.getInstantMode(), ocrChars);
 
         if (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL)){
             iterator.begin();
