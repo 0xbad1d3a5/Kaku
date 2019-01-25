@@ -5,13 +5,14 @@ import android.view.MotionEvent
 import android.view.View
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
+import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
 import ca.fuwafuwa.kaku.dpToPx
 
 
 class InstantKanjiWindow(context: Context,
                          windowCoordinator: WindowCoordinator,
-                         val instantWindow: InstantWindow) : Window(context, windowCoordinator, R.layout.window_instant_kanji)
+                         val instantWindow: InstantWindow) : Window(context, windowCoordinator, R.layout.window_instant_kanji), IRecalculateKanjiViews
 {
     private val isBoxHorizontal: Boolean
         get()
@@ -31,6 +32,11 @@ class InstantKanjiWindow(context: Context,
     fun setResult(result: DisplayDataOcr)
     {
         displayData = result
+    }
+
+    override fun recalculateKanjiViews()
+    {
+        kanjiGrid.recalculateKanjiViews()
     }
 
     override fun show()

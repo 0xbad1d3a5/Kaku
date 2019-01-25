@@ -82,12 +82,15 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
 
     fun onSquareScroll(e: MotionEvent)
     {
+        var inKanji = false
+
         for (kanjiView in currentKanjiViews)
         {
             val isTextView = kanjiView is TextView
 
             if (checkForSelection(kanjiView, e) && isTextView)
             {
+                inKanji = true
                 kanjiView.setBackgroundResource(R.drawable.bg_solid_border_0_blue_black)
             }
             else if (isTextView)
@@ -96,7 +99,7 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
             }
         }
 
-        when (getResultTypeForMotionEvent(e))
+        when (getResultTypeForMotionEvent(e, inKanji))
         {
             ChoiceResultType.EDIT ->
             {
@@ -106,7 +109,7 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
             {
                 choiceIcon.setImageResource(R.drawable.icon_delete)
             }
-            ChoiceResultType.NONE ->
+            else ->
             {
                 choiceIcon.setImageResource(R.drawable.icon_swap)
             }
@@ -115,30 +118,29 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
 
     fun onSquareScrollEnd(e: MotionEvent) : Pair<ChoiceResultType, String>
     {
-        var returnVal: String? = null
+        var swappedKanji = ""
 
         for (kanjiView in currentKanjiViews)
         {
             if (checkForSelection(kanjiView, e) && kanjiView is TextView)
             {
-                returnVal = kanjiView.text.toString()
+                swappedKanji = kanjiView.text.toString()
             }
         }
 
         removeKanjiViews()
         hide()
 
-        return if (returnVal != null)
-        {
-            Pair(ChoiceResultType.SWAP, returnVal)
-        }
-        else {
-            Pair(getResultTypeForMotionEvent(e), "")
-        }
+        return Pair(getResultTypeForMotionEvent(e, swappedKanji != ""), swappedKanji)
     }
 
-    private fun getResultTypeForMotionEvent(e: MotionEvent) : ChoiceResultType
+    private fun getResultTypeForMotionEvent(e: MotionEvent, inKanji: Boolean) : ChoiceResultType
     {
+        if (inKanji)
+        {
+            return ChoiceResultType.SWAP
+        }
+
         val midpoint = choiceIcon.x + (choiceIcon.width / 2)
         val height = choiceIcon.y + statusBarHeight
 
@@ -357,7 +359,7 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
                 if (Build.VERSION.SDK_INT > 25) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,
-                0,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT)
         params.x = 0
         params.y = 0

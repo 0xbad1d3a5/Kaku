@@ -46,13 +46,18 @@ open class DisplayData(var squareChars: List<ISquareChar>)
                     {
                         val newSquareChar = squareChar.clone()
                         newSquareChar.char = newChar
-                        if (newSquareChar is SquareCharOcr) newSquareChar.addChoice(newChar, ChoiceCertainty.CERTAIN)
+                        addOcrChoice(newSquareChar, newChar)
+
                         newSquareChars.add(newSquareChar)
                     }
                 }
                 newChars.length == 1 ->
                 {
-                    squareChar.char = newChars
+                    if (newChars != squareChar.char)
+                    {
+                        squareChar.char = newChars
+                        addOcrChoice(squareChar, newChars)
+                    }
                     newSquareChars.add(squareChar)
                 }
                 newChars.length == 0 ->
@@ -71,6 +76,17 @@ open class DisplayData(var squareChars: List<ISquareChar>)
         for ((index, squareChars) in squareChars.withIndex())
         {
             squareChars.index = index
+        }
+    }
+
+    private fun addOcrChoice(squareChar: ISquareChar, choice: String)
+    {
+        if (squareChar is SquareCharOcr)
+        {
+            val matchIndex = squareChar.allChoices.indexOfFirst { x -> x.first == choice}
+            if (matchIndex >= 0) squareChar.allChoices.removeAt(matchIndex)
+
+            squareChar.addChoice(choice, ChoiceCertainty.CERTAIN)
         }
     }
 }

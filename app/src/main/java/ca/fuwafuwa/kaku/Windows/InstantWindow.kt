@@ -112,10 +112,12 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
     override fun recalculateKanjiViews()
     {
+        instantKanjiWindow.recalculateKanjiViews()
     }
 
     override fun performSearch(squareChar: ISquareChar)
     {
+        searcher.search(SearchInfo(squareChar))
     }
 
     fun search(kanjiView: KanjiCharacterView)
