@@ -96,6 +96,9 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
             var xPos = pos[0]
             var yPos = pos[1]
 
+            width = if (width <= 0) 1 else width
+            height = if (height <= 0) 1 else height
+
             for (xTop in pos[0] until width + xPos)
             {
                 orig.setPixel(xTop, yPos, Color.RED)
@@ -134,6 +137,11 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
             iv.setBackgroundColor(0x44000000)
             return
         }
+    }
+
+    private fun calculateAverageSquareSize()
+    {
+
     }
 
     /**

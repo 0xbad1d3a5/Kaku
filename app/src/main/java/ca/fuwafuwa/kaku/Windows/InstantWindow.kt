@@ -22,8 +22,6 @@ import ca.fuwafuwa.kaku.dpToPx
 
 class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
 {
-
-
     enum class LayoutPosition {
         TOP,
         BOTTOM,

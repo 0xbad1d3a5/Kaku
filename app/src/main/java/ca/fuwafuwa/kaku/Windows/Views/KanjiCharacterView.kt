@@ -1,6 +1,7 @@
 package ca.fuwafuwa.kaku.Windows.Views
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.*
@@ -56,6 +57,11 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
         mGestureDetector = GestureDetector(mContext, this)
     }
 
+    fun getSquareChar(): ISquareChar
+    {
+        return mSquareChar
+    }
+
     fun setDependencies(windowCoordinator: WindowCoordinator, searchPerformer: ISearchPerformer)
     {
         mWindowCoordinator = windowCoordinator
@@ -78,8 +84,12 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
 
     fun highlight()
     {
-        val bg = mContext.getDrawable(R.drawable.bg_translucent_border_0_blue_blue)
-        background = bg
+        background = mContext.getDrawable(R.drawable.bg_translucent_border_0_blue_blue)
+    }
+
+    fun highlightLight()
+    {
+        background = mContext.getDrawable(R.drawable.bg_transparent_border_0_nil_default)
     }
 
     fun unhighlight()
@@ -91,6 +101,7 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
     {
         gravity = Gravity.CENTER
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20.toFloat())
+        setTextColor(Color.BLACK)
         setMeasuredDimension(mCellSizePx, mCellSizePx)
     }
 
@@ -152,6 +163,7 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
 
     override fun onSingleTapUp(e: MotionEvent): Boolean
     {
+        highlightLight()
         mSearchPerformer.performSearch(mSquareChar)
         return true
     }

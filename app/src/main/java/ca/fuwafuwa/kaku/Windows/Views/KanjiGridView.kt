@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import java.util.ArrayList
 
 import ca.fuwafuwa.kaku.Windows.Data.DisplayData
+import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
 import ca.fuwafuwa.kaku.Windows.WindowCoordinator
@@ -81,6 +82,14 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
         postInvalidate()
     }
 
+    fun unhighlightAll(squareCharToExclude: ISquareChar)
+    {
+        for (k in kanjiViewList)
+        {
+            if (k.getSquareChar() !== squareCharToExclude) k.unhighlight()
+        }
+    }
+
     fun unhighlightAll()
     {
         for (k in kanjiViewList)
@@ -111,6 +120,7 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
         }
 
         setItemCount(numChars)
+        unhighlightAll()
         postInvalidate()
     }
 

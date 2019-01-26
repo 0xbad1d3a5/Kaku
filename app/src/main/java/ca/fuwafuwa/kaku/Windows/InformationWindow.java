@@ -103,7 +103,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     {
         Log.d(TAG, squareChar.getChar());
 
-        mKanjiGrid.unhighlightAll();
+        mKanjiGrid.unhighlightAll(squareChar);
         mSearcher.search(new SearchInfo(squareChar));
     }
 
