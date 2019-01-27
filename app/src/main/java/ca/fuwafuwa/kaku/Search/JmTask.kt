@@ -29,18 +29,12 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
         private val TAG = JmTask::class.java.getName()
     }
 
-    private val mJmDbHelper: JmDatabaseHelper
-    private val mDeinflector: Deinflector
+    private val mJmDbHelper: JmDatabaseHelper = JmDatabaseHelper.instance(context)
+    private val mDeinflector: Deinflector = Deinflector(context)
 
     interface SearchJmTaskDone
     {
         fun jmTaskCallback(results: List<JmSearchResult>, searchInfo: SearchInfo)
-    }
-
-    init
-    {
-        mJmDbHelper = JmDatabaseHelper.instance(context)
-        mDeinflector = Deinflector(context)
     }
 
     override fun doInBackground(vararg params: Void): List<JmSearchResult>
@@ -50,7 +44,13 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
         val entryOptimizedDao = mJmDbHelper.getDbDao<EntryOptimized>(EntryOptimized::class.java)
 
         val startDictTime = System.currentTimeMillis()
-        val character = String(intArrayOf(text.codePointAt(textOffset)), 0, 1).replace("%", "\\%")
+        var character = String(intArrayOf(text.codePointAt(textOffset)), 0, 1)
+
+        // What the flying fuck? Wasn't the entire point of using an ORM is so shit would be escaped for me?
+        character = character.replace("%", "\\%")
+        character = character.replace("_", "\\_")
+        character = character.replace("'", "''")
+
         val entries: List<EntryOptimized> = entryOptimizedDao.queryBuilder().where().like("kanji", "$character%").query()
         val matchedEntries = rankResults(getMatchedEntries(text, textOffset, entries))
         Log.d(TAG, "Dict lookup time: ${System.currentTimeMillis() - startDictTime}")

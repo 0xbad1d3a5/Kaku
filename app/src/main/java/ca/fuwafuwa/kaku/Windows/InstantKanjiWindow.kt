@@ -32,6 +32,7 @@ class InstantKanjiWindow(context: Context,
     fun setResult(result: DisplayDataOcr)
     {
         displayData = result
+        instantWindow.performSearch(result.squareChars[0])
     }
 
     override fun recalculateKanjiViews()
@@ -45,16 +46,18 @@ class InstantKanjiWindow(context: Context,
         {
             if (!addedToWindowManager)
             {
-                kanjiGrid.clearText()
-                kanjiGrid.setText(displayData)
-
                 if (isBoxHorizontal)
                 {
+                    kanjiGrid.setRowLimit(1)
                     calcParamsForHorizontal()
                 } else
                 {
+                    kanjiGrid.setRowLimit(2)
                     calcParamsForVertical()
                 }
+
+                kanjiGrid.clearText()
+                kanjiGrid.setText(displayData)
 
                 windowManager.addView(window, params)
                 addedToWindowManager = true
@@ -152,8 +155,8 @@ class InstantKanjiWindow(context: Context,
         val rightRectWidth = viewWidth - (displayData.boxParams.x + displayData.boxParams.width)
 
         var yPos = displayData.boxParams.y - statusBarHeight
-        var maxHeight = dpToPx(context, 300)
-        var minWidth = dpToPx(context, 60)
+        var maxHeight = dpToPx(context, 320)
+        var minWidth = dpToPx(context, 65)
 
         maxHeight = minOf(maxHeight, realDisplaySize.y)
 

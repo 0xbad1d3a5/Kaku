@@ -15,6 +15,8 @@ open class SquareGridView : ViewGroup
     protected var squareCellSize = 0
 
     private var mItemCount = 0
+    private var mRowLimit = 0
+    private var mRows = 1
 
     constructor(context: Context) : super(context)
     {
@@ -51,6 +53,11 @@ open class SquareGridView : ViewGroup
         mItemCount = items
     }
 
+    fun setRowLimit(rowLimit: Int)
+    {
+        mRowLimit = rowLimit
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int)
     {
         val cellWidthSpec = View.MeasureSpec.makeMeasureSpec(squareCellSize, View.MeasureSpec.EXACTLY)
@@ -65,10 +72,17 @@ open class SquareGridView : ViewGroup
 
         // set width to squareCellSize * count if width is smaller than screen, and just screen width if larger
         val x = View.resolveSize(squareCellSize * count, widthMeasureSpec)
-        var rows = Math.ceil(mItemCount.toDouble() / (x / squareCellSize).toDouble()).toInt()
-        rows = if (rows <= 0) 1 else rows
-        rows = if (rows >= 4) 4 else rows
-        val y = squareCellSize * rows
+        mRows = Math.ceil(mItemCount.toDouble() / (x / squareCellSize).toDouble()).toInt()
+        mRows = if (mRows <= 0) 1 else mRows
+
+        when (mRowLimit)
+        {
+            0 -> { mRows = if (mRows >= 4) 4 else mRows }
+            1 -> { mRows = 1 }
+            2 -> { }
+        }
+
+        val y = View.resolveSize(squareCellSize * mRows, heightMeasureSpec)
 
         setMeasuredDimension(x, y)
     }
@@ -82,6 +96,7 @@ open class SquareGridView : ViewGroup
             columns = 1
         }
 
+        var rows = 1
         var x = xStart
         var y = 0
         var i = 0
@@ -100,6 +115,11 @@ open class SquareGridView : ViewGroup
                 i = 0
                 x = xStart
                 y += squareCellSize
+                rows++
+                if (rows > mRows)
+                {
+                    break
+                }
             } else
             {
                 i++

@@ -34,7 +34,7 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
     private val choiceIcon = ImageView(context)
     private val currentKanjiViews = mutableListOf<View>()
 
-    private var isInstantMode: Boolean = false
+    private var drawnOnTop = false
 
     init
     {
@@ -52,8 +52,6 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
 
     fun onSquareScrollStart(squareChar: ISquareChar, kanjiBoxParams: BoxParams, isInstantMode: Boolean)
     {
-        this.isInstantMode = isInstantMode
-
         choiceIcon.x = kanjiBoxParams.x.toFloat()
         choiceIcon.y = kanjiBoxParams.y.toFloat() - statusBarHeight
         choiceIcon.layoutParams = RelativeLayout.LayoutParams(kanjiBoxParams.width, kanjiBoxParams.height)
@@ -70,10 +68,12 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
 
         if (bottomRectHeight > topRectHeight)
         {
+            drawnOnTop = false
             drawOnBottom(squareChar, kanjiBoxParams, calculateBounds(kanjiBoxParams, topRectHeight, bottomRectHeight))
         }
         else
         {
+            drawnOnTop = true
             drawOnTop(squareChar, kanjiBoxParams, calculateBounds(kanjiBoxParams, topRectHeight, bottomRectHeight))
         }
 
@@ -99,7 +99,7 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
             }
         }
 
-        when (getResultTypeForMotionEvent(e, inKanji))
+        when (getResultTypeForMotionEvent(e, inKanji, drawnOnTop))
         {
             ChoiceResultType.EDIT ->
             {
@@ -131,10 +131,10 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         removeKanjiViews()
         hide()
 
-        return Pair(getResultTypeForMotionEvent(e, swappedKanji != ""), swappedKanji)
+        return Pair(getResultTypeForMotionEvent(e, swappedKanji != "", drawnOnTop), swappedKanji)
     }
 
-    private fun getResultTypeForMotionEvent(e: MotionEvent, inKanji: Boolean) : ChoiceResultType
+    private fun getResultTypeForMotionEvent(e: MotionEvent, inKanji: Boolean, drawnOnTop: Boolean) : ChoiceResultType
     {
         if (inKanji)
         {
@@ -142,13 +142,13 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         }
 
         val midpoint = choiceIcon.x + (choiceIcon.width / 2)
-        val height = choiceIcon.y + statusBarHeight
+        val height = if (drawnOnTop) choiceIcon.y + choiceIcon.height + statusBarHeight else choiceIcon.y + statusBarHeight
 
-        return if (e.rawX < midpoint && e.rawY < height)
+        return if (e.rawX < midpoint && heightCheckForResult(e, height, drawnOnTop))
         {
             ChoiceResultType.EDIT
         }
-        else if (e.rawX > midpoint && e.rawY < height)
+        else if (e.rawX > midpoint && heightCheckForResult(e, height, drawnOnTop))
         {
             ChoiceResultType.DELETE
         }
@@ -156,6 +156,11 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         {
             ChoiceResultType.NONE
         }
+    }
+
+    private fun heightCheckForResult(e: MotionEvent, height: Float, drawnOnTop: Boolean) : Boolean
+    {
+        return if (drawnOnTop) e.rawY > height else e.rawY < height
     }
 
     private fun checkForSelection(kanjiView: View, e: MotionEvent): Boolean

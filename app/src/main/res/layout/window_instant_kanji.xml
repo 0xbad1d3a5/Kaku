@@ -2,12 +2,20 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="5dp"
-    android:background="@drawable/bg_solid_border_corners_0_white_black_round">
+    android:padding="5dp">
+
+    <FrameLayout
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:background="@drawable/bg_solid_border_corners_0_white_black_round">
+
     <ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
         android:id="@+id/kanji_grid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="5dp" />
+        android:layout_margin="5dp"
+        android:gravity="center"/>
+
+    </FrameLayout>
+
 </FrameLayout>

@@ -2,6 +2,7 @@ package ca.fuwafuwa.kaku.Windows
 
 import android.content.Context
 import android.graphics.Color
+import android.view.Gravity
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -58,7 +59,6 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
     override fun onDown(e: MotionEvent?): Boolean
     {
-        //InformationWindow(context, ocrResult)
         hide()
         return super.onDown(e)
     }
@@ -106,6 +106,24 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     override fun jmResultsCallback(results: MutableList<JmSearchResult>, search: SearchInfo)
     {
         displayResults(results)
+
+        // Highlights words in the window as long as they match
+        val start = search.index
+        if (results.size > 0)
+        {
+            val kanji = results[0].word
+            for (i in start until start + kanji.codePointCount(0, kanji.length))
+            {
+                if (i >= instantKanjiWindow.getKanjiView().kanjiViewList.size)
+                {
+                    break
+                }
+                instantKanjiWindow.getKanjiView().kanjiViewList[i].highlight()
+            }
+        } else
+        {
+            instantKanjiWindow.getKanjiView().kanjiViewList[start].highlight()
+        }
     }
 
     override fun recalculateKanjiViews()
@@ -115,21 +133,8 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
     override fun performSearch(squareChar: ISquareChar)
     {
+        instantKanjiWindow.getKanjiView().unhighlightAll(squareChar)
         searcher.search(SearchInfo(squareChar))
-    }
-
-    fun search(kanjiView: KanjiCharacterView)
-    {
-        val kanjiViewList = instantKanjiWindow.getKanjiView().kanjiViewList
-        for (k in kanjiViewList)
-        {
-            k.unhighlight()
-        }
-
-//        searcher.search(SearchInfo(kanjiViewList.joinToString(
-//                separator = "",
-//                transform = fun(kcv: KanjiCharacterView): CharSequence { return kcv.squareChar.char }
-//        ), kanjiView.index, kanjiView))
     }
 
     fun setResult(result: DisplayDataOcr)
@@ -151,7 +156,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                     params.y = 0
                 }
 
-                setPadding(paddingSize, paddingSize, paddingSize, 0)
+                //setPadding(paddingSize, paddingSize, paddingSize, 0)
             }
             LayoutPosition.BOTTOM ->
             {
@@ -163,7 +168,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                     params.height -= overflowHeight
                 }
 
-                setPadding(paddingSize, 0, paddingSize, paddingSize)
+                //setPadding(paddingSize, 0, paddingSize, paddingSize)
             }
             LayoutPosition.LEFT ->
             {
@@ -175,7 +180,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                     params.x = 0
                 }
 
-                setPadding(paddingSize, paddingSize, 0, paddingSize)
+                //setPadding(paddingSize, paddingSize, 0, paddingSize)
             }
             LayoutPosition.RIGHT ->
             {
@@ -187,7 +192,7 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                     params.width -= overflowWidth
                 }
 
-                setPadding(0, paddingSize, paddingSize, paddingSize)
+                //setPadding(0, paddingSize, paddingSize, paddingSize)
             }
         }
 

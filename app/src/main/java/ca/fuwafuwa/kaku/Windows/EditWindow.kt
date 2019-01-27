@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.Point
 import android.os.Build
 import android.view.MotionEvent
 import android.view.WindowManager
@@ -91,36 +92,53 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
             var orig = displayData.bitmap
             orig = orig.copy(orig.config, true)
 
-            var width = pos[2] - pos[0] - 1
-            var height = pos[3] - pos[1] - 1
+            var width = pos[2] - pos[0]
+            var height = pos[3] - pos[1]
             var xPos = pos[0]
             var yPos = pos[1]
 
             width = if (width <= 0) 1 else width
             height = if (height <= 0) 1 else height
 
-            for (xTop in pos[0] until width + xPos)
+            val wPadding = ((width * 1.5).toInt() - width) / 2
+            val hPadding = ((height * 1.5).toInt() - height) / 2
+
+            xPos -= wPadding
+            yPos -= hPadding
+            width += wPadding * 2
+            height += hPadding * 2
+
+            if (xPos < 0) xPos = 0
+            if (yPos < 0) yPos = 0
+            if (width + xPos > orig.width) width = orig.width - xPos - 1
+            if (height + yPos > orig.height) height = orig.height - yPos - 1
+
+            for (xTop in xPos until width + xPos)
             {
                 orig.setPixel(xTop, yPos, Color.RED)
             }
-            for (xBottom in pos[0] until width + xPos)
+            for (xBottom in xPos until width + xPos)
             {
                 orig.setPixel(xBottom, yPos + height, Color.RED)
             }
-            for (yLeft in pos[1] until height + yPos)
+            for (yLeft in yPos until height + yPos)
             {
                 orig.setPixel(xPos, yLeft, Color.RED)
             }
-            for (yRight in pos[1] until height + yPos)
+            for (yRight in yPos until height + yPos)
             {
                 orig.setPixel(xPos + width, yRight, Color.RED)
             }
             orig.setPixel(xPos + width, yPos + height, Color.RED)
 
-            xPos = pos[0] - width * 6
-            yPos = pos[1] - height * 6
-            width += width * 12
-            height += height * 12
+            val avgSize = calculateMedianSquareSize(squareChar)
+            val avgWidth = avgSize.x
+            val avgHeight = avgSize.y
+
+            xPos -= avgWidth * 6
+            yPos -= avgHeight * 6
+            width += avgWidth * 12
+            height += avgHeight * 12
 
             if (xPos < 0) xPos = 0
             if (yPos < 0) yPos = 0
@@ -139,9 +157,13 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
         }
     }
 
-    private fun calculateAverageSquareSize()
+    private fun calculateMedianSquareSize(squareChar: SquareCharOcr) : Point
     {
+        val squareChars = (squareChar.displayData.squareChars as List<SquareCharOcr>).toList()
+        val widths = squareChars.map { it.bitmapPos[2] - it.bitmapPos[0] }.sorted()
+        val heights = squareChars.map { it.bitmapPos[3] - it.bitmapPos[1] }.sorted()
 
+        return Point(widths[widths.size / 2], heights[heights.size / 2])
     }
 
     /**

@@ -37,7 +37,6 @@ public class MainServiceHandler extends Handler {
             OcrResult result = (OcrResult) message.obj;
 
             Log.e(TAG, result.toString());
-            Toast.makeText(mKakuService, result.getMessage(), Toast.LENGTH_SHORT).show();
 
             if (result.getDisplayData().getInstantMode())
             {

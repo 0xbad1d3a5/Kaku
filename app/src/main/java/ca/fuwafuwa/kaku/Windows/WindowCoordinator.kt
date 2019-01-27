@@ -33,6 +33,12 @@ class WindowCoordinator(private val context: Context)
         return windows[key]!!
     }
 
+    // WARNING: DO NOT USE THIS UNLESS YOU KNOW WHAT YOU ARE DOING
+    fun setWindow(key: String, window: Window)
+    {
+        windows[key] = window
+    }
+
     fun reinitAllWindows()
     {
         windows.forEach { it.value.reInit(Window.ReinitOptions()) }
