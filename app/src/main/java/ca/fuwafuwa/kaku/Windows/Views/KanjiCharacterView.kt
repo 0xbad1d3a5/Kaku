@@ -152,7 +152,7 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
     {
         val window: IRecalculateKanjiViews = if (mSquareChar.displayData.instantMode)
         {
-            mWindowCoordinator.getWindow(WINDOW_INSTANT) as IRecalculateKanjiViews
+            mWindowCoordinator.getWindow(WINDOW_INSTANT_KANJI) as IRecalculateKanjiViews
         }
         else {
             mWindowCoordinator.getWindow(WINDOW_INFO) as IRecalculateKanjiViews
@@ -201,6 +201,7 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
 
     override fun onLongPress(motionEvent: MotionEvent)
     {
+        (mWindowCoordinator.getWindow(WINDOW_INFO) as InformationWindow).copyText()
     }
 
     override fun onShowPress(e: MotionEvent?)

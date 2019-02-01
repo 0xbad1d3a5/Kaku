@@ -2,15 +2,12 @@ package ca.fuwafuwa.kaku.Windows
 
 import android.content.Context
 import android.graphics.Color
-import android.view.Gravity
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import android.widget.TextView
-import ca.fuwafuwa.kaku.DB_JMDICT_NAME
+import ca.fuwafuwa.kaku.*
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized
-import ca.fuwafuwa.kaku.LangUtils
 
-import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Search.JmSearchResult
 import ca.fuwafuwa.kaku.Search.SearchInfo
 import ca.fuwafuwa.kaku.Search.Searcher
@@ -18,10 +15,9 @@ import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
-import ca.fuwafuwa.kaku.Windows.Views.KanjiCharacterView
-import ca.fuwafuwa.kaku.dpToPx
 
-class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
+class InstantInfoWindow(context: Context,
+                        windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
 {
     enum class LayoutPosition {
         TOP,
@@ -36,7 +32,12 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
             return displayData.boxParams.width > displayData.boxParams.height;
         }
 
-    private val instantKanjiWindow = InstantKanjiWindow(context, windowCoordinator, this)
+    // Lazy initialization otherwise we end up in a circlar dependency when initializing.
+    // Probably should just inject the dependency... might be cleaner
+    private val instantKanjiWindow : InstantKanjiWindow by lazy()
+    {
+        windowCoordinator.getWindow(WINDOW_INSTANT_KANJI) as InstantKanjiWindow
+    }
 
     private val paddingSize = dpToPx(context, 5)
 
@@ -49,12 +50,6 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     init
     {
         searcher.registerCallback(this)
-    }
-
-    override fun reInit(options: ReinitOptions?)
-    {
-        instantKanjiWindow.reInit(options);
-        super.reInit(options)
     }
 
     override fun onDown(e: MotionEvent?): Boolean
@@ -85,9 +80,6 @@ class InstantWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                 windowManager.addView(window, params)
                 addedToWindowManager = true
             }
-
-            instantKanjiWindow.setResult(displayData)
-            instantKanjiWindow.show()
         }
     }
 

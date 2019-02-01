@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import ca.fuwafuwa.kaku.Ocr.OcrResult;
 import ca.fuwafuwa.kaku.Windows.InformationWindow;
-import ca.fuwafuwa.kaku.Windows.InstantWindow;
+import ca.fuwafuwa.kaku.Windows.InstantKanjiWindow;
 import ca.fuwafuwa.kaku.Windows.WindowCoordinator;
 
 /**
@@ -40,9 +40,9 @@ public class MainServiceHandler extends Handler {
 
             if (result.getDisplayData().getInstantMode())
             {
-                InstantWindow instantWindow = (InstantWindow) mWindowCoordinator.getWindow(Constants.WINDOW_INSTANT);
-                instantWindow.setResult(result.getDisplayData());
-                instantWindow.show();
+                InstantKanjiWindow instantKanjiWindow = (InstantKanjiWindow) mWindowCoordinator.getWindow(Constants.WINDOW_INSTANT_KANJI);
+                instantKanjiWindow.setResult(result.getDisplayData());
+                instantKanjiWindow.show();
             }
             else {
                 InformationWindow infoWindow = (InformationWindow) mWindowCoordinator.getWindow(Constants.WINDOW_INFO);

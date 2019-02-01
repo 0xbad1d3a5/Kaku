@@ -2,6 +2,8 @@ package ca.fuwafuwa.kaku.Windows;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -83,7 +85,11 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
 
     public void setResult(String textResult)
     {
+        // We need to do this because text-only InfoWindow can still trigger an EditWindow - in which
+        // case if we don't add this InfoWindow to the WindowCoordinator, EditWindow will crash due
+        // to not being able to find the correct window in WindowCoordinator
         windowCoordinator.setWindow(Constants.WINDOW_INFO, this);
+
         List<String> charList = KakuTools.splitTextByChar(textResult);
         List<ISquareChar> squareCharList = new ArrayList<>();
         DisplayData displayData = new DisplayData(squareCharList);
@@ -93,6 +99,15 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
         mKanjiGrid.setText(displayData);
         performSearch(displayData.getSquareChars().get(0));
         mTextOnlyLookup = true;
+    }
+
+    public void copyText()
+    {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(null, mKanjiGrid.getText());
+        clipboard.setPrimaryClip(clip);
+
+        hide();
     }
 
     @Override
@@ -254,7 +269,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     @Override
     public void jmResultsCallback(List<JmSearchResult> results, SearchInfo search)
     {
-        windowCoordinator.getWindow(Constants.WINDOW_INSTANT).hide();
+        windowCoordinator.getWindow(Constants.WINDOW_INSTANT_KANJI).hide();
         displayResults(results);
 
         // Highlights words in the window as long as they match

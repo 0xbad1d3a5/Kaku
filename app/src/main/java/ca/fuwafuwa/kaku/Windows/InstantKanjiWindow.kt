@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.MotionEvent
 import android.view.View
 import ca.fuwafuwa.kaku.R
+import ca.fuwafuwa.kaku.WINDOW_INSTANT_INFO
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView
@@ -11,8 +12,7 @@ import ca.fuwafuwa.kaku.dpToPx
 
 
 class InstantKanjiWindow(context: Context,
-                         windowCoordinator: WindowCoordinator,
-                         val instantWindow: InstantWindow) : Window(context, windowCoordinator, R.layout.window_instant_kanji), IRecalculateKanjiViews
+                         windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_instant_kanji), IRecalculateKanjiViews
 {
     private val isBoxHorizontal: Boolean
         get()
@@ -24,6 +24,8 @@ class InstantKanjiWindow(context: Context,
 
     private val kanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
 
+    private val instantWindow = windowCoordinator.getWindow(WINDOW_INSTANT_INFO) as InstantInfoWindow
+
     init
     {
         kanjiGrid.setDependencies(windowCoordinator, instantWindow)
@@ -32,6 +34,7 @@ class InstantKanjiWindow(context: Context,
     fun setResult(result: DisplayDataOcr)
     {
         displayData = result
+        instantWindow.setResult(result)
         instantWindow.performSearch(result.squareChars[0])
     }
 
@@ -42,6 +45,8 @@ class InstantKanjiWindow(context: Context,
 
     override fun show()
     {
+        instantWindow.show()
+
         synchronized(this)
         {
             if (!addedToWindowManager)

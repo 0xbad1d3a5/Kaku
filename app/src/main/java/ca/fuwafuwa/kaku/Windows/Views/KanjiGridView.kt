@@ -76,6 +76,16 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
         postInvalidate()
     }
 
+    fun getText() : String
+    {
+        val sb = StringBuilder()
+        for (k in kanjiViewList)
+        {
+            sb.append(k.getSquareChar().char)
+        }
+        return sb.toString()
+    }
+
     fun clearText()
     {
         removeAllViews()

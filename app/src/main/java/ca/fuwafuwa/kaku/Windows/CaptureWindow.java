@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import androidx.core.content.ContextCompat;
 import ca.fuwafuwa.kaku.Constants;
 import ca.fuwafuwa.kaku.KakuTools;
 import ca.fuwafuwa.kaku.MainService;
@@ -85,12 +85,6 @@ public class CaptureWindow extends Window implements WindowListener
             return binarizedBitmap;
         }
 
-        public void recycle()
-        {
-            if (mCropProcessed != null) mCropProcessed.recycle();
-            crop.recycle();
-            orig.recycle();
-        }
     }
 
     private static final String TAG = CaptureWindow.class.getName();
@@ -219,8 +213,6 @@ public class CaptureWindow extends Window implements WindowListener
     @Override
     public boolean onResize(MotionEvent e)
     {
-        Log.d(TAG, "onResize");
-
         hideInstantWindows();
 
         mOcr.cancel();
@@ -289,7 +281,7 @@ public class CaptureWindow extends Window implements WindowListener
 
     public void hideInstantWindows()
     {
-        windowCoordinator.getWindow(Constants.WINDOW_INSTANT).hide();
+        windowCoordinator.getWindow(Constants.WINDOW_INSTANT_KANJI).hide();
     }
 
     private void setPreviewImageForThreshold(MotionEvent e)
