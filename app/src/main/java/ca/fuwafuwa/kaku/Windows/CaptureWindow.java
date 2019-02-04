@@ -87,6 +87,11 @@ public class CaptureWindow extends Window implements WindowListener
 
     }
 
+    private class Nullable<T>
+    {
+        public T value;
+    }
+
     private static final String TAG = CaptureWindow.class.getName();
 
     private OcrRunnable mOcr;
@@ -158,8 +163,6 @@ public class CaptureWindow extends Window implements WindowListener
     @Override
     public boolean onDoubleTap(MotionEvent e)
     {
-        Log.d(TAG, "onDoubleTap");
-
         mLastDoubleTapTime = System.currentTimeMillis();
         performOcr(false);
 
@@ -185,9 +188,6 @@ public class CaptureWindow extends Window implements WindowListener
         switch (e.getAction())
         {
             case MotionEvent.ACTION_MOVE:
-
-                Log.d(TAG, "onTouch - Move");
-
                 if (System.currentTimeMillis() > mLastDoubleTapTime + mLastDoubleTapIgnoreDelay)
                 {
                     mOcr.cancel();
@@ -274,6 +274,7 @@ public class CaptureWindow extends Window implements WindowListener
                 else {
                     mImageView.setImageAlpha(255);
                     mImageView.setImageResource(0);
+                    mScreenshotForOcr = null;
                 }
             }
         });
@@ -307,28 +308,33 @@ public class CaptureWindow extends Window implements WindowListener
                     return;
                 }
 
+                final Nullable<Bitmap> screen = new Nullable<>();
+                if (mPrefs.getImageFilterSetting())
+                {
+                    screen.value = ocrScreenshot.getCachedScreenshot();
+                    //mImageView.setImageBitmap(calculateFuriganaPosition(screen));
+                }
+
                 ((MainService)context).getHandler().post(new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        mScreenshotForOcr = ocrScreenshot;
-
                         if (mPrefs.getImageFilterSetting())
                         {
-                            Bitmap screen = mScreenshotForOcr.getCachedScreenshot();
-                            //mImageView.setImageBitmap(calculateFuriganaPosition(screen));
-                            mImageView.setImageBitmap(screen);
+                            mImageView.setImageBitmap(screen.value);
                         }
 
                         if (mPrefs.getInstantModeSetting() && System.currentTimeMillis() > mLastDoubleTapTime + mLastDoubleTapIgnoreDelay)
                         {
                             int sizeForInstant = minSize * 4;
-                            if (sizeForInstant >= mScreenshotForOcr.params.width || sizeForInstant >= mScreenshotForOcr.params.height)
+                            if (sizeForInstant >= ocrScreenshot.params.width || sizeForInstant >= ocrScreenshot.params.height)
                             {
                                 performOcr(true);
                             }
                         }
+
+                        mScreenshotForOcr = ocrScreenshot;
                         mProcessingPreview = false;
                     }
                 });
@@ -501,7 +507,12 @@ public class CaptureWindow extends Window implements WindowListener
                 }
             }
 
-            // TODO: mScreenshotForOcr can be null here, fix
+            if (mScreenshotForOcr == null)
+            {
+                mProcessingOcr = false;
+                return;
+            }
+
             Bitmap processedImage = mPrefs.getImageFilterSetting() ? mScreenshotForOcr.getCachedScreenshot() : mScreenshotForOcr.crop;
 
             TextDirection textDirection = mPrefs.getTextDirectionSetting();
