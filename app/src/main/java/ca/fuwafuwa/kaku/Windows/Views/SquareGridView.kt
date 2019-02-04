@@ -13,6 +13,7 @@ import ca.fuwafuwa.kaku.*
 open class SquareGridView : ViewGroup
 {
     protected var squareCellSize = 0
+    protected var maxSquares = 0
 
     private var mItemCount = 0
     private var mRowLimit = 0
@@ -79,7 +80,7 @@ open class SquareGridView : ViewGroup
         {
             0 -> { mRows = if (mRows >= 4) 4 else mRows }
             1 -> { mRows = 1 }
-            2 -> { }
+            2 -> { mRows = 8}
         }
 
         val y = View.resolveSize(squareCellSize * mRows, heightMeasureSpec)
@@ -126,6 +127,8 @@ open class SquareGridView : ViewGroup
                 x += squareCellSize
             }
         }
+
+        maxSquares = columns * mRows
     }
 
     companion object

@@ -12,6 +12,7 @@ import ca.fuwafuwa.kaku.Ocr.BoxParams
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Windows.*
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
+import ca.fuwafuwa.kaku.Windows.Interfaces.ICopyText
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
 
@@ -150,14 +151,7 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
 
     override fun recalculateKanjiViews()
     {
-        val window: IRecalculateKanjiViews = if (mSquareChar.displayData.instantMode)
-        {
-            mWindowCoordinator.getWindow(WINDOW_INSTANT_KANJI) as IRecalculateKanjiViews
-        }
-        else {
-            mWindowCoordinator.getWindow(WINDOW_INFO) as IRecalculateKanjiViews
-        }
-
+        val window = getProperWindow<IRecalculateKanjiViews>()
         window.recalculateKanjiViews()
     }
 
@@ -201,11 +195,23 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
 
     override fun onLongPress(motionEvent: MotionEvent)
     {
-        (mWindowCoordinator.getWindow(WINDOW_INFO) as InformationWindow).copyText()
+        val window = getProperWindow<ICopyText>()
+        window.copyText()
     }
 
     override fun onShowPress(e: MotionEvent?)
     {
+    }
+
+    private fun <WindowType> getProperWindow() : WindowType
+    {
+        return if (mSquareChar.displayData.instantMode)
+        {
+            mWindowCoordinator.getWindow(WINDOW_INSTANT_KANJI) as WindowType
+        }
+        else {
+            mWindowCoordinator.getWindow(WINDOW_INFO) as WindowType
+        }
     }
 
     private fun getKanjiBoxParams() : BoxParams

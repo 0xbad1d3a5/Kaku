@@ -79,10 +79,19 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
     fun getText() : String
     {
         val sb = StringBuilder()
+        var i = 0
+
         for (k in kanjiViewList)
         {
+            i++
+            if (i > maxSquares)
+            {
+                break
+            }
+
             sb.append(k.getSquareChar().char)
         }
+
         return sb.toString()
     }
 

@@ -34,6 +34,7 @@ import ca.fuwafuwa.kaku.Search.Searcher;
 import ca.fuwafuwa.kaku.Windows.Data.DisplayData;
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar;
 import ca.fuwafuwa.kaku.Windows.Data.SquareChar;
+import ca.fuwafuwa.kaku.Windows.Interfaces.ICopyText;
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews;
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer;
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
@@ -41,7 +42,7 @@ import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView;
 /**
  * Created by 0xbad1d3a5 on 4/23/2016.
  */
-public class InformationWindow extends Window implements Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
+public class InformationWindow extends Window implements Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer, ICopyText
 {
 
     private static final String TAG = InformationWindow.class.getName();

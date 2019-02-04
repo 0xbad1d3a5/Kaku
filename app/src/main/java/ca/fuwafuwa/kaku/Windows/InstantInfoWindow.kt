@@ -17,7 +17,8 @@ import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
 
 class InstantInfoWindow(context: Context,
-                        windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
+                        windowCoordinator: WindowCoordinator,
+                        private val instantKanjiWindow: InstantKanjiWindow) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
 {
     enum class LayoutPosition {
         TOP,
@@ -31,13 +32,6 @@ class InstantInfoWindow(context: Context,
         {
             return displayData.boxParams.width > displayData.boxParams.height;
         }
-
-    // Lazy initialization otherwise we end up in a circlar dependency when initializing.
-    // Probably should just inject the dependency... might be cleaner
-    private val instantKanjiWindow : InstantKanjiWindow by lazy()
-    {
-        windowCoordinator.getWindow(WINDOW_INSTANT_KANJI) as InstantKanjiWindow
-    }
 
     private val paddingSize = dpToPx(context, 5)
 
@@ -54,7 +48,7 @@ class InstantInfoWindow(context: Context,
 
     override fun onDown(e: MotionEvent?): Boolean
     {
-        hide()
+        instantKanjiWindow.hide()
         return super.onDown(e)
     }
 
@@ -81,18 +75,6 @@ class InstantInfoWindow(context: Context,
                 addedToWindowManager = true
             }
         }
-    }
-
-    override fun hide()
-    {
-        instantKanjiWindow.hide()
-        super.hide()
-    }
-
-    override fun stop()
-    {
-        instantKanjiWindow.stop()
-        super.stop()
     }
 
     override fun jmResultsCallback(results: MutableList<JmSearchResult>, search: SearchInfo)
