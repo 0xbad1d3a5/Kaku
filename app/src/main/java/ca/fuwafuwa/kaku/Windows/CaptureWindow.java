@@ -282,6 +282,7 @@ public class CaptureWindow extends Window implements WindowListener
     public void hideInstantWindows()
     {
         windowCoordinator.getWindow(Constants.WINDOW_INSTANT_KANJI).hide();
+        windowCoordinator.getWindow(Constants.WINDOW_INSTANT_INFO).hide();
     }
 
     private void setPreviewImageForThreshold(MotionEvent e)

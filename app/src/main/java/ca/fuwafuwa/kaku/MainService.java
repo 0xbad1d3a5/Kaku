@@ -274,7 +274,6 @@ public class MainService extends Service implements Stoppable {
                 .setSmallIcon(R.drawable.kaku_notification_icon)
                 .setContentTitle(contentTitle)
                 .setContentText(String.format("Black and white filter %s, instant mode %s", prefs.getImageFilterSetting() ? "on" : "off", prefs.getInstantModeSetting() ? "on" : "off"))
-                //.setContentText(String.format("Black and white filter %s", prefs.getImageFilterSetting() ? "on" : "off"))
                 .setContentIntent(closeMainService)
                 .addAction(0, "Text Direction", togglePageMode)
                 .addAction(0, "Image Filter", toggleImagePreview)

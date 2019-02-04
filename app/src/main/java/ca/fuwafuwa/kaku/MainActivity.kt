@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity()
 {
@@ -44,16 +45,24 @@ class MainActivity : AppCompatActivity()
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
     {
         if (!(requestCode == REQUEST_SCREENSHOT && resultCode == Activity.RESULT_OK)) {
+            Toast.makeText(this, "Unable to get screen capture token", Toast.LENGTH_LONG).show()
             return
         }
 
         // In theory we shouldn't need this permission, but for some reason it crashes on older devices without this,
         // despite the fact that starting in API 19 all apps should be able to write to their private folder, so idk
         if (!isExternalStorageWritable()){
+            Toast.makeText(this, "Unable to write to storage", Toast.LENGTH_LONG).show()
             return
         }
 
-        setupKakuDatabasesAndFiles(this)
+        try {
+            setupKakuDatabasesAndFiles(this)
+        }
+        catch (e: Exception)
+        {
+            Toast.makeText(this, "Unable to setup Kaku database", Toast.LENGTH_LONG).show()
+        }
 
         val i = Intent(this, MainService::class.java)
                 .putExtra(EXTRA_PROJECTION_RESULT_CODE, resultCode)

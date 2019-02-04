@@ -3,10 +3,11 @@
     package="ca.fuwafuwa.kaku">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -23,6 +24,12 @@
 
         <activity
             android:name=".MainActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait">
+
+        </activity>
+
+        <activity android:name=".BetaActivity"
             android:noHistory="true"
             android:screenOrientation="portrait">
             <intent-filter>
