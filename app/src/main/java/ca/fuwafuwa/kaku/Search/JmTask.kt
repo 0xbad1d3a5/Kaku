@@ -3,19 +3,18 @@ package ca.fuwafuwa.kaku.Search
 import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
-import ca.fuwafuwa.kaku.DB_ENAMEDICT_NAME
 import ca.fuwafuwa.kaku.DB_JMDICT_NAME
 import ca.fuwafuwa.kaku.DB_KANJIDICT_NAME
-
-import com.j256.ormlite.dao.Dao
-
-import java.sql.SQLException
-import java.util.ArrayList
-
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.JmDatabaseHelper
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized
 import ca.fuwafuwa.kaku.Deinflictor.DeinflectionInfo
 import ca.fuwafuwa.kaku.Deinflictor.Deinflector
+import java.sql.SQLException
+import java.util.ArrayList
+import kotlin.collections.HashSet
+import kotlin.collections.List
+import kotlin.collections.filter
+import kotlin.collections.sortedWith
 
 /**
  * Created by 0xbad1d3a5 on 12/16/2016.
