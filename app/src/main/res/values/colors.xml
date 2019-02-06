@@ -6,6 +6,8 @@
     <color name="PrimaryDark">#000000</color>
     <color name="AccentDark">#FF4081</color>
 
+    <color name="important">#ff0000</color>
+
     <color name="black100a">#64000000</color>
     <color name="translucent">#22000000</color>
     <color name="info_window_color">#AA000000</color>

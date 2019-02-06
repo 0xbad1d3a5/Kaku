@@ -308,33 +308,30 @@ public class CaptureWindow extends Window implements WindowListener
                     return;
                 }
 
-                final Nullable<Bitmap> screen = new Nullable<>();
-                if (mPrefs.getImageFilterSetting())
-                {
-                    screen.value = ocrScreenshot.getCachedScreenshot();
-                    //mImageView.setImageBitmap(calculateFuriganaPosition(screen));
-                }
+                // Generate a cached screenshot in worker thread before setting it in the UI thread
+                ocrScreenshot.getCachedScreenshot();
 
                 ((MainService)context).getHandler().post(new Runnable()
                 {
                     @Override
                     public void run()
                     {
+                        mScreenshotForOcr = ocrScreenshot;
+
                         if (mPrefs.getImageFilterSetting())
                         {
-                            mImageView.setImageBitmap(screen.value);
+                            mImageView.setImageBitmap(mScreenshotForOcr.getCachedScreenshot());
                         }
 
                         if (mPrefs.getInstantModeSetting() && System.currentTimeMillis() > mLastDoubleTapTime + mLastDoubleTapIgnoreDelay)
                         {
                             int sizeForInstant = minSize * 4;
-                            if (sizeForInstant >= ocrScreenshot.params.width || sizeForInstant >= ocrScreenshot.params.height)
+                            if (sizeForInstant >= mScreenshotForOcr.params.width || sizeForInstant >= mScreenshotForOcr.params.height)
                             {
                                 performOcr(true);
                             }
                         }
 
-                        mScreenshotForOcr = ocrScreenshot;
                         mProcessingPreview = false;
                     }
                 });

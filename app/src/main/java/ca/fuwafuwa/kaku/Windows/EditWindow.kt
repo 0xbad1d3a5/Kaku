@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.os.Build
+import android.util.Log
 import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.ImageView
@@ -97,6 +98,8 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
             var xPos = pos[0]
             var yPos = pos[1]
 
+            Log.d(TAG, "Initial | Orig: (${orig.width}x${orig.height}) Box: ($xPos, $yPos) (${width}x${height})")
+
             width = if (width <= 0) 1 else width
             height = if (height <= 0) 1 else height
 
@@ -112,6 +115,8 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
             if (yPos < 0) yPos = 0
             if (width + xPos > orig.width) width = orig.width - xPos - 1
             if (height + yPos > orig.height) height = orig.height - yPos - 1
+
+            Log.d(TAG, "After | Orig: (${orig.width}x${orig.height}) Box: ($xPos, $yPos) (${width}x${height})")
 
             for (xTop in xPos until width + xPos)
             {

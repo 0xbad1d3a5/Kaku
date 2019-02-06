@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/Primary">
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -36,7 +37,8 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:textSize="30sp"
-        android:text="TEST"/>
+        android:text="TEST"
+        android:textColor="@color/PrimaryDark"/>
 
     <TextView
         android:id="@+id/instruction_text"
@@ -47,7 +49,8 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:textSize="15sp"
-        android:text="lorum ipsum"/>
+        android:text="lorum ipsum"
+        android:textColor="@color/PrimaryDark"/>
     </LinearLayout>
 
 </LinearLayout>
