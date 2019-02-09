@@ -80,7 +80,7 @@ open class SquareGridView : ViewGroup
         {
             0 -> { mRows = if (mRows >= 4) 4 else mRows }
             1 -> { mRows = 1 }
-            2 -> { mRows = 8}
+            2 -> { mRows = if (mRows >= 8) 8 else mRows }
         }
 
         val y = View.resolveSize(squareCellSize * mRows, heightMeasureSpec)

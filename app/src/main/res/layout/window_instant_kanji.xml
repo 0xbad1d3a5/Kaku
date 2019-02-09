@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:padding="5dp">
 
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/instant_window_kanji_frame"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:background="@drawable/bg_solid_border_corners_0_white_black_round">
@@ -13,9 +14,8 @@
         android:id="@+id/kanji_grid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:gravity="center"/>
+        android:layout_margin="5dp"/>
 
-    </FrameLayout>
+    </LinearLayout>
 
 </FrameLayout>

@@ -40,6 +40,8 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
 
     private boolean onlyKana = false;
 
+    private boolean isAltForm = false;
+
     public EntryOptimized(){
     }
 
@@ -92,6 +94,16 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
 
     public void setOnlyKana(boolean onlyKana) {
         this.onlyKana = onlyKana;
+    }
+
+    public boolean isAltForm()
+    {
+        return isAltForm;
+    }
+
+    public void setAltForm(boolean altForm)
+    {
+        isAltForm = altForm;
     }
 
     public String getPriorities()

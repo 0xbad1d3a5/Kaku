@@ -2,8 +2,12 @@ package ca.fuwafuwa.kaku.Windows
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.MotionEvent
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import ca.fuwafuwa.kaku.*
 import ca.fuwafuwa.kaku.Database.JmDictDatabase.Models.EntryOptimized
@@ -16,17 +20,17 @@ import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
 
+enum class LayoutPosition {
+    TOP,
+    BOTTOM,
+    LEFT,
+    RIGHT
+}
+
 class InstantInfoWindow(context: Context,
                         windowCoordinator: WindowCoordinator,
-                        private val instantKanjiWindow: InstantKanjiWindow) : Window(context, windowCoordinator, R.layout.window_instant), Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
+                        private val instantKanjiWindow: InstantKanjiWindow) : Window(context, windowCoordinator, R.layout.window_instant_info), Searcher.SearchDictDone, IRecalculateKanjiViews, ISearchPerformer
 {
-    enum class LayoutPosition {
-        TOP,
-        BOTTOM,
-        LEFT,
-        RIGHT
-    }
-
     private val isBoxHorizontal: Boolean
         get()
         {
@@ -41,9 +45,52 @@ class InstantInfoWindow(context: Context,
 
     private var searcher: Searcher = Searcher(context)
 
+    private var textInfo = window.findViewById<TextView>(R.id.instant_window_text)
+
+    private var textFrame = window.findViewById<LinearLayout>(R.id.instant_window_text_frame)
+
+    private var updateView = false
+
     init
     {
         searcher.registerCallback(this)
+
+        textFrame.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            run {
+                if (updateView)
+                {
+                    when (layoutPosition)
+                    {
+                        LayoutPosition.LEFT ->
+                        {
+                            params.x = params.x + (params.width - v.width) - dpToPx(context, 10)
+                            //params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
+                            params.width = v.width + dpToPx(context, 10)
+                            params.height = v.height + dpToPx(context, 10)
+                        }
+                        LayoutPosition.RIGHT ->
+                        {
+                            //params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
+                            params.width = v.width + dpToPx(context, 10)
+                            params.height = v.height + dpToPx(context, 10)
+                        }
+                        LayoutPosition.TOP ->
+                        {
+                            params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
+                            params.width = v.width + dpToPx(context, 10)
+                            params.height = v.height + dpToPx(context, 10)
+                        }
+                        LayoutPosition.BOTTOM ->
+                        {
+                        }
+                    }
+
+                    window.visibility = VISIBLE
+                    windowManager.updateViewLayout(window, params)
+                    updateView = false
+                }
+            }
+        }
     }
 
     override fun onDown(e: MotionEvent?): Boolean
@@ -58,9 +105,8 @@ class InstantInfoWindow(context: Context,
         {
             if (!addedToWindowManager)
             {
-                var text = window.findViewById<TextView>(R.id.instant_window_text)
-                text.text = displayData.text
-                text.setTextColor(Color.BLACK)
+                textInfo.text = displayData.text
+                textInfo.setTextColor(Color.BLACK)
 
                 if (isBoxHorizontal)
                 {
@@ -69,8 +115,8 @@ class InstantInfoWindow(context: Context,
                 {
                     calcParamsForVertical()
                 }
-                setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
 
+                window.visibility = INVISIBLE
                 windowManager.addView(window, params)
                 addedToWindowManager = true
             }
@@ -79,6 +125,8 @@ class InstantInfoWindow(context: Context,
 
     override fun jmResultsCallback(results: MutableList<JmSearchResult>, search: SearchInfo)
     {
+        show()
+        updateView = true
         displayResults(results)
 
         // Highlights words in the window as long as they match
@@ -107,6 +155,7 @@ class InstantInfoWindow(context: Context,
 
     override fun performSearch(squareChar: ISquareChar)
     {
+        hide()
         instantKanjiWindow.getKanjiView().unhighlightAll(squareChar)
         searcher.search(SearchInfo(squareChar))
     }
@@ -116,13 +165,21 @@ class InstantInfoWindow(context: Context,
         displayData = result
     }
 
-    fun changeLayoutForKanjiWindow(minSize: Int)
+    private fun changeLayoutForKanjiWindow()
     {
+        if (instantKanjiWindow.getLayoutPosition() != layoutPosition)
+        {
+            setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
+            return
+        }
+
+        val kanjiWindowSize = if (isBoxHorizontal) instantKanjiWindow.getHeight() else instantKanjiWindow.getWidth()
+
         when(layoutPosition)
         {
             LayoutPosition.TOP ->
             {
-                params.y -= minSize
+                params.y -= kanjiWindowSize
 
                 if (params.y < 0)
                 {
@@ -130,11 +187,11 @@ class InstantInfoWindow(context: Context,
                     params.y = 0
                 }
 
-                //setPadding(paddingSize, paddingSize, paddingSize, 0)
+                setPadding(paddingSize, paddingSize, paddingSize, 0)
             }
             LayoutPosition.BOTTOM ->
             {
-                params.y += minSize
+                params.y += kanjiWindowSize
 
                 if (params.y + params.height > viewHeight)
                 {
@@ -142,11 +199,11 @@ class InstantInfoWindow(context: Context,
                     params.height -= overflowHeight
                 }
 
-                //setPadding(paddingSize, 0, paddingSize, paddingSize)
+                setPadding(paddingSize, 0, paddingSize, paddingSize)
             }
             LayoutPosition.LEFT ->
             {
-                params.x -= minSize
+                params.x -= kanjiWindowSize
 
                 if (params.x < 0)
                 {
@@ -154,11 +211,11 @@ class InstantInfoWindow(context: Context,
                     params.x = 0
                 }
 
-                //setPadding(paddingSize, paddingSize, 0, paddingSize)
+                setPadding(paddingSize, paddingSize, 0, paddingSize)
             }
             LayoutPosition.RIGHT ->
             {
-                params.x += minSize
+                params.x += kanjiWindowSize
 
                 if (params.x + params.width > realDisplaySize.x)
                 {
@@ -166,11 +223,9 @@ class InstantInfoWindow(context: Context,
                     params.width -= overflowWidth
                 }
 
-                //setPadding(0, paddingSize, paddingSize, paddingSize)
+                setPadding(0, paddingSize, paddingSize, paddingSize)
             }
         }
-
-        windowManager.updateViewLayout(window, params)
     }
 
     private fun displayResults(jmResults: List<JmSearchResult>)
@@ -210,8 +265,7 @@ class InstantInfoWindow(context: Context,
             sb.setLength(sb.length - 2)
         }
 
-        val tv = window.findViewById<TextView>(R.id.instant_window_text)
-        tv.text = sb.toString()
+        textInfo.text = sb.toString()
     }
 
     private fun getMeaning(entry: EntryOptimized): String
@@ -287,6 +341,8 @@ class InstantInfoWindow(context: Context,
             params.height = bottomRectHeight
             layoutPosition = LayoutPosition.BOTTOM
         }
+
+        changeLayoutForKanjiWindow()
     }
 
     private fun calcParamsForVertical()
@@ -328,5 +384,12 @@ class InstantInfoWindow(context: Context,
             params.width = minOf(rightRectWidth, maxWidth)
             layoutPosition = LayoutPosition.RIGHT
         }
+
+        changeLayoutForKanjiWindow()
+    }
+
+    companion object
+    {
+        val TAG = InstantInfoWindow::class.java.name
     }
 }

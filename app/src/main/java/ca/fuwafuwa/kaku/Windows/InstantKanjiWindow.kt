@@ -3,10 +3,12 @@ package ca.fuwafuwa.kaku.Windows
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.INVISIBLE
+import android.widget.LinearLayout
 import ca.fuwafuwa.kaku.R
-import ca.fuwafuwa.kaku.WINDOW_INSTANT_INFO
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
 import ca.fuwafuwa.kaku.Windows.Interfaces.ICopyText
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
@@ -25,20 +27,79 @@ class InstantKanjiWindow(context: Context,
 
     private lateinit var displayData: DisplayDataOcr
 
+    private lateinit var layoutPosition: LayoutPosition
+
     private val kanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
 
-    private val instantWindow = InstantInfoWindow(context, windowCoordinator, this)
+    private var kanjiFrame = window.findViewById<LinearLayout>(R.id.instant_window_kanji_frame)
+
+    private val instantInfoWindow = InstantInfoWindow(context, windowCoordinator, this)
 
     init
     {
-        kanjiGrid.setDependencies(windowCoordinator, instantWindow)
+        kanjiGrid.setDependencies(windowCoordinator, instantInfoWindow)
+
+        kanjiFrame.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            run {
+                if (params.height != v.height || params.width != v.width)
+                {
+                    when (layoutPosition)
+                    {
+                        LayoutPosition.LEFT ->
+                        {
+                            params.x = params.x + (params.width - v.width) - dpToPx(context, 10)
+                            params.width = v.width + dpToPx(context, 10)
+                            params.height = v.height + dpToPx(context, 10)
+                        }
+                        LayoutPosition.RIGHT ->
+                        {
+                            params.x = params.x + (params.width - v.width) - dpToPx(context, 10)
+                            params.width = v.width + dpToPx(context, 10)
+                            params.height = v.height + dpToPx(context, 10)
+                        }
+                        LayoutPosition.TOP ->
+                        {
+                            params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
+                            params.width = v.width + dpToPx(context, 10)
+                            params.height = v.height + dpToPx(context, 10)
+                        }
+                        LayoutPosition.BOTTOM ->
+                        {
+                            params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
+                            params.width = v.width + dpToPx(context, 10)
+                            params.height = v.height + dpToPx(context, 10)
+                        }
+                    }
+
+                    window.visibility = View.VISIBLE
+                    windowManager.updateViewLayout(window, params)
+
+                    Log.d(TAG, "Drawn")
+                }
+            }
+        }
+    }
+
+    fun getLayoutPosition() : LayoutPosition
+    {
+        return layoutPosition
+    }
+
+    fun getWidth() : Int
+    {
+        return window.width
+    }
+
+    fun getHeight() : Int
+    {
+        return window.height
     }
 
     fun setResult(result: DisplayDataOcr)
     {
         displayData = result
-        instantWindow.setResult(result)
-        instantWindow.performSearch(result.squareChars[0])
+        instantInfoWindow.setResult(result)
+        instantInfoWindow.performSearch(result.squareChars[0])
     }
 
     override fun recalculateKanjiViews()
@@ -57,14 +118,12 @@ class InstantKanjiWindow(context: Context,
 
     override fun hide()
     {
-        instantWindow.hide()
+        instantInfoWindow.hide()
         super.hide()
     }
 
     override fun show()
     {
-        instantWindow.show()
-
         synchronized(this)
         {
             if (!addedToWindowManager)
@@ -82,10 +141,13 @@ class InstantKanjiWindow(context: Context,
                 kanjiGrid.clearText()
                 kanjiGrid.setText(displayData)
 
+                window.visibility = INVISIBLE
                 windowManager.addView(window, params)
                 addedToWindowManager = true
             }
         }
+
+        instantInfoWindow.show()
     }
 
     override fun onTouch(e: MotionEvent?): Boolean
@@ -140,6 +202,7 @@ class InstantKanjiWindow(context: Context,
             params.x = xPos
             params.y = displayData.boxParams.y - (minHeight + statusBarHeight)
             params.height = minHeight
+            layoutPosition = LayoutPosition.TOP
         }
 
         val drawOnBottom = fun()
@@ -147,6 +210,7 @@ class InstantKanjiWindow(context: Context,
             params.x = xPos
             params.y = displayData.boxParams.y + displayData.boxParams.height - statusBarHeight
             params.height = minHeight
+            layoutPosition = LayoutPosition.BOTTOM
         }
 
         if (topRectHeight < bottomRectHeight)
@@ -157,7 +221,6 @@ class InstantKanjiWindow(context: Context,
             }
             else {
                 drawOnBottom()
-                instantWindow.changeLayoutForKanjiWindow(minHeight)
             }
         }
         else {
@@ -167,7 +230,6 @@ class InstantKanjiWindow(context: Context,
             }
             else {
                 drawOnTop()
-                instantWindow.changeLayoutForKanjiWindow(minHeight)
             }
         }
     }
@@ -202,6 +264,7 @@ class InstantKanjiWindow(context: Context,
             params.x = xPos
             params.y = yPos
             params.width = minOf(leftRectWidth, minWidth)
+            layoutPosition = LayoutPosition.LEFT
         }
 
         val drawOnRightSide = fun()
@@ -211,6 +274,7 @@ class InstantKanjiWindow(context: Context,
             params.x = xPos
             params.y = yPos
             params.width = minOf(rightRectWidth, minWidth)
+            layoutPosition = LayoutPosition.RIGHT
         }
 
         if (leftRectWidth < rightRectWidth)
@@ -221,7 +285,6 @@ class InstantKanjiWindow(context: Context,
             }
             else {
                 drawOnRightSide()
-                instantWindow.changeLayoutForKanjiWindow(minWidth)
             }
         }
         else {
@@ -231,8 +294,12 @@ class InstantKanjiWindow(context: Context,
             }
             else {
                 drawOnLeftSide()
-                instantWindow.changeLayoutForKanjiWindow(minWidth)
             }
         }
+    }
+
+    companion object
+    {
+        val TAG = InstantKanjiWindow::class.java.name
     }
 }

@@ -111,8 +111,8 @@ public class JmParser implements DictParser {
             }
         }
 
-        for (EntryOptimized entryOptimized : optimizedEntries){
-
+        for (EntryOptimized entryOptimized : optimizedEntries)
+        {
             String kanji = entryOptimized.getKanji();
             List<String> eoReadings = new ArrayList<>();
             List<String> eoMeanings = new ArrayList<>();

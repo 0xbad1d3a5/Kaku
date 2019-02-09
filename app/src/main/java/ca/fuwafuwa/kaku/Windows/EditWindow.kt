@@ -189,7 +189,6 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
 
     companion object
     {
-
         val TAG = EditWindow::class.java.name
     }
 }
