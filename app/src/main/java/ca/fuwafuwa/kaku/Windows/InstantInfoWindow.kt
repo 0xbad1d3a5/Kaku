@@ -82,6 +82,8 @@ class InstantInfoWindow(context: Context,
                         }
                         LayoutPosition.BOTTOM ->
                         {
+                            params.width = v.width + dpToPx(context, 10)
+                            params.height = v.height + dpToPx(context, 10)
                         }
                     }
 
@@ -97,6 +99,16 @@ class InstantInfoWindow(context: Context,
     {
         instantKanjiWindow.hide()
         return super.onDown(e)
+    }
+
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean
+    {
+        return false
+    }
+
+    override fun onResize(e: MotionEvent?): Boolean
+    {
+        return false
     }
 
     override fun show()
@@ -173,12 +185,13 @@ class InstantInfoWindow(context: Context,
             return
         }
 
-        val kanjiWindowSize = if (isBoxHorizontal) instantKanjiWindow.getHeight() else instantKanjiWindow.getWidth()
+        var kanjiWindowSize = if (isBoxHorizontal) instantKanjiWindow.getHeight() else instantKanjiWindow.getWidth()
 
         when(layoutPosition)
         {
             LayoutPosition.TOP ->
             {
+                kanjiWindowSize -= dpToPx(context, 5)
                 params.y -= kanjiWindowSize
 
                 if (params.y < 0)
@@ -203,6 +216,7 @@ class InstantInfoWindow(context: Context,
             }
             LayoutPosition.LEFT ->
             {
+                kanjiWindowSize += dpToPx(context, 5)
                 params.x -= kanjiWindowSize
 
                 if (params.x < 0)
@@ -215,6 +229,7 @@ class InstantInfoWindow(context: Context,
             }
             LayoutPosition.RIGHT ->
             {
+                kanjiWindowSize += dpToPx(context, 5)
                 params.x += kanjiWindowSize
 
                 if (params.x + params.width > realDisplaySize.x)

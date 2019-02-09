@@ -31,9 +31,13 @@ class InstantKanjiWindow(context: Context,
 
     private val kanjiGrid = window.findViewById<View>(R.id.kanji_grid) as KanjiGridView
 
-    private var kanjiFrame = window.findViewById<LinearLayout>(R.id.instant_window_kanji_frame)
+    private val kanjiFrame = window.findViewById<LinearLayout>(R.id.instant_window_kanji_frame)
 
     private val instantInfoWindow = InstantInfoWindow(context, windowCoordinator, this)
+
+    val minHeight = dpToPx(context, 60)
+
+    val minWidth = dpToPx(context, 65)
 
     init
     {
@@ -41,41 +45,50 @@ class InstantKanjiWindow(context: Context,
 
         kanjiFrame.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             run {
-                if (params.height != v.height || params.width != v.width)
+                val oldWidth = params.width
+                val oldHeight = params.height
+                params.width = v.width + dpToPx(context, 10)
+                params.height = v.height + dpToPx(context, 10)
+
+                if (isBoxHorizontal)
                 {
-                    when (layoutPosition)
+                    if (params.height < minHeight)
                     {
-                        LayoutPosition.LEFT ->
-                        {
-                            params.x = params.x + (params.width - v.width) - dpToPx(context, 10)
-                            params.width = v.width + dpToPx(context, 10)
-                            params.height = v.height + dpToPx(context, 10)
-                        }
-                        LayoutPosition.RIGHT ->
-                        {
-                            params.x = params.x + (params.width - v.width) - dpToPx(context, 10)
-                            params.width = v.width + dpToPx(context, 10)
-                            params.height = v.height + dpToPx(context, 10)
-                        }
-                        LayoutPosition.TOP ->
-                        {
-                            params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
-                            params.width = v.width + dpToPx(context, 10)
-                            params.height = v.height + dpToPx(context, 10)
-                        }
-                        LayoutPosition.BOTTOM ->
-                        {
-                            params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
-                            params.width = v.width + dpToPx(context, 10)
-                            params.height = v.height + dpToPx(context, 10)
-                        }
+                        params.height = minHeight
+                        params.width = oldWidth
                     }
-
-                    window.visibility = View.VISIBLE
-                    windowManager.updateViewLayout(window, params)
-
-                    Log.d(TAG, "Drawn")
                 }
+                else {
+                    if (params.width < minWidth)
+                    {
+                        params.width = minWidth
+                        params.height = oldHeight
+                    }
+                }
+
+                when (layoutPosition)
+                {
+                    LayoutPosition.TOP ->
+                    {
+                        params.y = displayData.boxParams.y - (params.height + statusBarHeight)
+                    }
+                    LayoutPosition.BOTTOM ->
+                    {
+                        params.y = displayData.boxParams.y + displayData.boxParams.height - statusBarHeight
+                    }
+                    LayoutPosition.LEFT ->
+                    {
+                        params.x = displayData.boxParams.x - params.width
+                    }
+                    LayoutPosition.RIGHT ->
+                    {
+                        params.x = displayData.boxParams.x + displayData.boxParams.width
+                    }
+                }
+
+                window.visibility = View.VISIBLE
+                windowManager.updateViewLayout(window, params)
+                Log.d(TAG, "layoutChanged")
             }
         }
     }
@@ -141,7 +154,7 @@ class InstantKanjiWindow(context: Context,
                 kanjiGrid.clearText()
                 kanjiGrid.setText(displayData)
 
-                window.visibility = INVISIBLE
+                //window.visibility = INVISIBLE
                 windowManager.addView(window, params)
                 addedToWindowManager = true
             }
@@ -176,7 +189,6 @@ class InstantKanjiWindow(context: Context,
         val bottomRectHeight = realDisplaySize.y - displayData.boxParams.y - displayData.boxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
 
         val boxMidPoint = displayData.boxParams.x + (displayData.boxParams.width / 2)
-        val minHeight = dpToPx(context, 60)
         var maxWidth = dpToPx(context, 300)
         var xPos = 0
 
@@ -241,7 +253,6 @@ class InstantKanjiWindow(context: Context,
 
         var yPos = displayData.boxParams.y - statusBarHeight
         var maxHeight = dpToPx(context, 320)
-        var minWidth = dpToPx(context, 65)
 
         maxHeight = minOf(maxHeight, realDisplaySize.y)
 
