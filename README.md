@@ -1,15 +1,5 @@
 Kaku: 画 (かく) - stroke (of a kanji, etc.), picture, drawing
 
-Get it on the [Play Store](https://play.google.com/store/apps/details?id=ca.fuwafuwa.kaku)!
+https://kaku.fuwafuwa.ca/
 
-App requirements:
-
-* Android 5.0+
-* "Draw over other apps" permission **** APP WILL NOT WORK WITHOUT THIS PERMISSION ****
-* "Fast enough" device
-
-For best experience, install a handwriting keyboard (i.e., Google Handwriting Keyboard) so that you can manually input corrections when the OCR engine is totally wrong.
-
-Building the project:
-
-* After pulling the project, replace the /assets and /res folder with the assets and resources in a [release APK](https://github.com/0xbad1d3a5/Kaku/releases) (unzip the APK).
+Kaku is a fast, powerful Japanese dictionary that stays on top of all your apps. It uses optical character recognition (OCR) technology to recognize kanji on the device screen for you (rather than the slowww tedious process of looking up individual characters manually), making it perfect for Japanese learners who want to study by reading raw manga, play untranslated games, and so on without the hassle of switching apps.
