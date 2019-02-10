@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/instant_window_layout"
+    android:id="@+id/instant_info_window_layout"
     android:paddingTop="5dp"
     android:paddingBottom="5dp"
     android:paddingLeft="5dp"

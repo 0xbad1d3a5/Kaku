@@ -28,6 +28,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import java.util.HashMap;
 
@@ -148,6 +149,7 @@ public class MainService extends Service implements Stoppable {
         super.onCreate();
 
         Log.d(TAG, "CREATING MAINSERVICE: " + System.identityHashCode(this));
+        Toast.makeText(this, "Starting capture window...", Toast.LENGTH_LONG).show();
 
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         mWindowCoordinator = new WindowCoordinator(this);

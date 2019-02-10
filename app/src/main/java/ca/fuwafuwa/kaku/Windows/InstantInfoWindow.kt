@@ -87,9 +87,18 @@ class InstantInfoWindow(context: Context,
                         }
                     }
 
+                    if (isBoxHorizontal)
+                    {
+                        calcParamsForHorizontal(params.width)
+                    } else
+                    {
+                        calcParamsForVertical(params.height)
+                    }
+
                     window.visibility = VISIBLE
                     windowManager.updateViewLayout(window, params)
                     updateView = false
+                    Log.d(TAG, "layoutChanged - InstantInfoWindow")
                 }
             }
         }
@@ -122,10 +131,10 @@ class InstantInfoWindow(context: Context,
 
                 if (isBoxHorizontal)
                 {
-                    calcParamsForHorizontal()
+                    calcParamsForHorizontal(dpToPx(context, 400))
                 } else
                 {
-                    calcParamsForVertical()
+                    calcParamsForVertical(dpToPx(context, 600))
                 }
 
                 window.visibility = INVISIBLE
@@ -139,7 +148,13 @@ class InstantInfoWindow(context: Context,
     {
         show()
         updateView = true
-        displayResults(results)
+        if (results.size > 0)
+        {
+            displayResults(results)
+        }
+        else {
+            textInfo.text = "No entry found"
+        }
 
         // Highlights words in the window as long as they match
         val start = search.index
@@ -315,35 +330,25 @@ class InstantInfoWindow(context: Context,
 
     private fun setPadding(l: Int, t: Int, r: Int, b: Int)
     {
-        val frameLayout = window.findViewById<FrameLayout>(R.id.instant_window_layout)
+        val frameLayout = window.findViewById<FrameLayout>(R.id.instant_info_window_layout)
         frameLayout.setPadding(l, t, r, b)
     }
 
-    private fun calcParamsForHorizontal()
+    private fun calcParamsForHorizontal(maxWidth: Int)
     {
         val topRectHeight = displayData.boxParams.y - statusBarHeight
         val bottomRectHeight = realDisplaySize.y - displayData.boxParams.y - displayData.boxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
 
-        val boxMidPoint = displayData.boxParams.x + (displayData.boxParams.width / 2)
-        var maxWidth = dpToPx(context, 400)
-        var xPos = 0
+        var maxWidth = minOf(realDisplaySize.x, maxWidth)
+        var xPos = displayData.boxParams.x
 
-        if (realDisplaySize.x > maxWidth)
+        if (xPos + maxWidth > realDisplaySize.x)
         {
-            xPos = boxMidPoint - maxWidth / 2
-            if (xPos < 0)
-            {
-                xPos = 0
-            }
-            else if (xPos + maxWidth > realDisplaySize.x)
-            {
-                xPos = realDisplaySize.x - maxWidth
-            }
+            xPos = realDisplaySize.x - maxWidth
         }
 
-        maxWidth = minOf(realDisplaySize.x, maxWidth)
-
         params.width = maxWidth
+
         if (topRectHeight > bottomRectHeight){
             params.x = xPos
             params.y = 0
@@ -360,15 +365,13 @@ class InstantInfoWindow(context: Context,
         changeLayoutForKanjiWindow()
     }
 
-    private fun calcParamsForVertical()
+    private fun calcParamsForVertical(maxHeight: Int)
     {
         val leftRectWidth = displayData.boxParams.x
         val rightRectWidth = viewWidth - (displayData.boxParams.x + displayData.boxParams.width)
 
         var yPos = displayData.boxParams.y - statusBarHeight
-        var maxHeight = dpToPx(context, 600)
-
-        maxHeight = minOf(maxHeight, realDisplaySize.y)
+        var maxHeight = minOf(maxHeight, realDisplaySize.y)
 
         if (yPos + maxHeight > realDisplaySize.y){
             yPos = viewHeight - maxHeight

@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.INVISIBLE
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
@@ -45,24 +46,19 @@ class InstantKanjiWindow(context: Context,
 
         kanjiFrame.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             run {
-                val oldWidth = params.width
-                val oldHeight = params.height
-                params.width = v.width + dpToPx(context, 10)
-                params.height = v.height + dpToPx(context, 10)
-
                 if (isBoxHorizontal)
                 {
+                    params.width = dpToPx(context, 37) * (displayData.count + 1)
                     if (params.height < minHeight)
                     {
                         params.height = minHeight
-                        params.width = oldWidth
                     }
                 }
                 else {
+                    params.height = dpToPx(context, 37) * (displayData.count + 1)
                     if (params.width < minWidth)
                     {
                         params.width = minWidth
-                        params.height = oldHeight
                     }
                 }
 
@@ -86,9 +82,17 @@ class InstantKanjiWindow(context: Context,
                     }
                 }
 
+                if (isBoxHorizontal)
+                {
+                    calcParamsForHorizontal(params.width)
+                } else
+                {
+                    calcParamsForVertical(params.height)
+                }
+
                 window.visibility = View.VISIBLE
                 windowManager.updateViewLayout(window, params)
-                Log.d(TAG, "layoutChanged")
+                Log.d(TAG, "layoutChanged - InstantKanjiWindow")
             }
         }
     }
@@ -112,7 +116,6 @@ class InstantKanjiWindow(context: Context,
     {
         displayData = result
         instantInfoWindow.setResult(result)
-        instantInfoWindow.performSearch(result.squareChars[0])
     }
 
     override fun recalculateKanjiViews()
@@ -144,23 +147,24 @@ class InstantKanjiWindow(context: Context,
                 if (isBoxHorizontal)
                 {
                     kanjiGrid.setRowLimit(1)
-                    calcParamsForHorizontal()
+                    calcParamsForHorizontal(dpToPx(context, 300))
                 } else
                 {
                     kanjiGrid.setRowLimit(2)
-                    calcParamsForVertical()
+                    calcParamsForVertical(dpToPx(context, 320))
                 }
 
                 kanjiGrid.clearText()
                 kanjiGrid.setText(displayData)
 
-                //window.visibility = INVISIBLE
+                window.visibility = INVISIBLE
                 windowManager.addView(window, params)
                 addedToWindowManager = true
             }
         }
 
         instantInfoWindow.show()
+        instantInfoWindow.performSearch(displayData.squareChars[0])
     }
 
     override fun onTouch(e: MotionEvent?): Boolean
@@ -183,29 +187,18 @@ class InstantKanjiWindow(context: Context,
         return kanjiGrid
     }
 
-    private fun calcParamsForHorizontal()
+    private fun calcParamsForHorizontal(maxWidth: Int)
     {
         val topRectHeight = displayData.boxParams.y - statusBarHeight
         val bottomRectHeight = realDisplaySize.y - displayData.boxParams.y - displayData.boxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
 
-        val boxMidPoint = displayData.boxParams.x + (displayData.boxParams.width / 2)
-        var maxWidth = dpToPx(context, 300)
-        var xPos = 0
+        var xPos = displayData.boxParams.x
+        var maxWidth = minOf(realDisplaySize.x, maxWidth)
 
-        if (realDisplaySize.x > maxWidth)
+        if (xPos + maxWidth > realDisplaySize.x)
         {
-            xPos = boxMidPoint - maxWidth / 2
-            if (xPos < 0)
-            {
-                xPos = 0
-            }
-            else if (xPos + maxWidth > realDisplaySize.x)
-            {
-                xPos = realDisplaySize.x - maxWidth
-            }
+            xPos = viewWidth - maxWidth
         }
-
-        maxWidth = minOf(realDisplaySize.x, maxWidth)
 
         params.width = maxWidth
 
@@ -246,15 +239,14 @@ class InstantKanjiWindow(context: Context,
         }
     }
 
-    private fun calcParamsForVertical()
+    private fun calcParamsForVertical(maxHeight: Int)
     {
         val leftRectWidth = displayData.boxParams.x
         val rightRectWidth = viewWidth - (displayData.boxParams.x + displayData.boxParams.width)
 
         var yPos = displayData.boxParams.y - statusBarHeight
-        var maxHeight = dpToPx(context, 320)
 
-        maxHeight = minOf(maxHeight, realDisplaySize.y)
+        var maxHeight = minOf(maxHeight, realDisplaySize.y)
 
         if (yPos + maxHeight > realDisplaySize.y)
         {

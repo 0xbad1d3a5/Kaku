@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity()
 
     private fun checkDrawOnTopPermissions()
     {
-        var checkPermissions = "Check \"Draw on Top of Other Apps\" Permission"
+        var checkPermissions = "Check \"Draw on Top of Other Apps\" permission"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
             if (!Settings.canDrawOverlays(this))
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity()
         }
         else
         {
-            Toast.makeText(this, "Manually $checkPermissions\nKaku Might Not Work on This Device", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Manually $checkPermissions\nKaku might not work on this device", Toast.LENGTH_LONG).show()
         }
     }
 
