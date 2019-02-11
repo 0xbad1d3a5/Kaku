@@ -34,41 +34,49 @@ class MainActivity : AppCompatActivity()
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         container.adapter = mSectionsPagerAdapter
         container.offscreenPageLimit = 0
-
         tab_indicator.setupWithViewPager(container, true)
 
+        setupKakuDatabasesAndFiles()
         checkDrawOnTopPermissions()
+
+        Log.d(TAG, "Sending REQUEST_SCREENSHOT Intent")
         mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
+    }
+
+    override fun onStart()
+    {
+        super.onStart()
         startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
     {
-        if (!(requestCode == REQUEST_SCREENSHOT && resultCode == Activity.RESULT_OK)) {
-            Toast.makeText(this, "Unable to get screen capture token", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        // In theory we shouldn't need this permission, but for some reason it crashes on older devices without this,
-        // despite the fact that starting in API 19 all apps should be able to write to their private folder, so idk
-        if (!isExternalStorageWritable()){
-            Toast.makeText(this, "Unable to write to storage", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        try {
-            setupKakuDatabasesAndFiles(this)
-        }
-        catch (e: Exception)
+        if (requestCode == REQUEST_DRAW_ON_TOP)
         {
-            Toast.makeText(this, "Unable to setup Kaku database", Toast.LENGTH_LONG).show()
+            Log.d(TAG, "Recieved ACTION_MANAGE_OVERLAY_PERMISSION Intent")
+            if (resultCode != Activity.RESULT_OK)
+            {
+                Toast.makeText(this, "Unable to draw on top of other apps", Toast.LENGTH_LONG).show()
+            }
+            return
         }
 
-        val i = Intent(this, MainService::class.java)
-                .putExtra(EXTRA_PROJECTION_RESULT_CODE, resultCode)
-                .putExtra(EXTRA_PROJECTION_RESULT_INTENT, data)
+        if (requestCode == REQUEST_SCREENSHOT)
+        {
+            Log.d(TAG, "Recieved REQUEST_SCREENSHOT Intent")
+            if (resultCode != Activity.RESULT_OK)
+            {
+                Toast.makeText(this, "Unable to get screen capture token", Toast.LENGTH_LONG).show()
+                return
+            }
 
-        startKakuService(this, i)
+            val i = Intent(this, MainService::class.java)
+                    .putExtra(EXTRA_PROJECTION_RESULT_CODE, resultCode)
+                    .putExtra(EXTRA_PROJECTION_RESULT_INTENT, data)
+
+            startKakuService(this, i)
+        }
     }
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm)
@@ -95,6 +103,8 @@ class MainActivity : AppCompatActivity()
             if (!Settings.canDrawOverlays(this))
             {
                 Toast.makeText(this, checkPermissions, Toast.LENGTH_LONG).show()
+
+                Log.d(TAG, "Sending ACTION_MANAGE_OVERLAY_PERMISSION Intent")
                 startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), REQUEST_DRAW_ON_TOP)
             }
         }
@@ -104,24 +114,34 @@ class MainActivity : AppCompatActivity()
         }
     }
 
-    private fun setupKakuDatabasesAndFiles(context: Context)
+    private fun setupKakuDatabasesAndFiles() : Boolean
     {
-        val filesAndPaths = hashMapOf(JMDICT_DATABASE_NAME to context.getExternalFilesDir(null).absolutePath,
-                TESS_DATA_NAME to "${context.getExternalFilesDir(null).absolutePath}/$TESS_FOLDER_NAME")
+        try {
+            val filesAndPaths = hashMapOf(
+                    JMDICT_DATABASE_NAME to filesDir.absolutePath,
+                    TESS_DATA_NAME to "${filesDir.absolutePath}/$TESS_FOLDER_NAME")
 
-        if (shouldResetData(filesAndPaths))
-        {
-            Log.d(TAG, "Resetting Data")
-            for (fileAndPath in filesAndPaths){
-                File("${fileAndPath.value}/${fileAndPath.key}").delete()
+            if (shouldResetData(filesAndPaths))
+            {
+                Log.d(TAG, "Resetting Data")
+                for (fileAndPath in filesAndPaths){
+                    File("${fileAndPath.value}/${fileAndPath.key}").delete()
+                }
             }
+
+            copyFilesIfNotExists(filesAndPaths)
+
+            var screenshotPath: String = filesDir.absolutePath + "/$SCREENSHOT_FOLDER_NAME"
+            createDirIfNotExists(screenshotPath)
+            deleteScreenshotsOlderThanOneDay(screenshotPath)
+        }
+        catch (e: Exception)
+        {
+            Toast.makeText(this, "Unable to setup Kaku database", Toast.LENGTH_LONG).show()
+            return false
         }
 
-        copyFilesIfNotExists(filesAndPaths)
-
-        var screenshotPath: String = context.getExternalFilesDir(null).absolutePath + "/$SCREENSHOT_FOLDER_NAME"
-        createDirIfNotExists(screenshotPath)
-        deleteScreenshotsOlderThanOneDay(screenshotPath)
+        return true
     }
 
     private fun shouldResetData(filesAndPaths: Map<String, String>) : Boolean
@@ -181,11 +201,6 @@ class MainActivity : AppCompatActivity()
                 }
             }
         }
-    }
-
-    private fun isExternalStorageWritable(): Boolean
-    {
-        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
     companion object

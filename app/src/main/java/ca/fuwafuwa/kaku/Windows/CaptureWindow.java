@@ -666,7 +666,7 @@ public class CaptureWindow extends Window implements WindowListener
 
     private void saveBitmap(Bitmap bitmap, String name) throws IOException
     {
-        String fs = String.format("%s/%s/%s_%d.png", context.getExternalFilesDir(null).getAbsolutePath(), Constants.SCREENSHOT_FOLDER_NAME, name, System.nanoTime());
+        String fs = String.format("%s/%s/%s_%d.png", context.getFilesDir().getAbsolutePath(), Constants.SCREENSHOT_FOLDER_NAME, name, System.nanoTime());
         Log.d(TAG, fs);
         FileOutputStream fos = new FileOutputStream(fs);
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);

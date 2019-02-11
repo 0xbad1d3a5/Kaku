@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Kaku</string>
+    <string name="beta_screen">"Thanks for installing the beta version of Kaku! If you didn't intend to install the beta version, I highly recommend that you go to the Play Store and leave the beta program - the beta version of Kaku may be unstable and more prone to bugs.
+
+If you run into issues (i.e., constant crashes or graphical glitches) in the beta, please let me know at 0xbad1d3a5@gmail.com! Feedback and suggestions are also welcome!
+
+BETA UPDATES:
+
+v1.3.32
+- Instant Mode window positioning logic has been implemented. If things look off here, please let me know!
+
+Note that if you try to leave feedback on the Play Store as a beta user, it is not shown to all users."</string>
 </resources>

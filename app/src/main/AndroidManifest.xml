@@ -3,8 +3,6 @@
     package="ca.fuwafuwa.kaku">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -24,13 +22,17 @@
 
         <activity
             android:name=".MainActivity"
-            android:noHistory="true"
+            android:label="Kaku"
+            android:noHistory="false"
+            android:launchMode="standard"
             android:screenOrientation="portrait">
 
         </activity>
 
         <activity android:name=".BetaActivity"
-            android:noHistory="true"
+            android:label="Kaku Beta"
+            android:noHistory="false"
+            android:launchMode="standard"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,6 +42,8 @@
 
         <activity
             android:name=".PassthroughActivity"
+            android:label="Kaku"
+            android:launchMode="singleInstance"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT" />

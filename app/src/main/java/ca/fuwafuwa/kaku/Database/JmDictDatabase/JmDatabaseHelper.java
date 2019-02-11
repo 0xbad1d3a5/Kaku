@@ -51,7 +51,7 @@ public class JmDatabaseHelper extends DatabaseHelper {
     private Context mContext;
 
     private JmDatabaseHelper(Context context){
-        super(context, String.format("%s/%s", context.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME), null, DATABASE_VERSION);
+        super(context, String.format("%s/%s", context.getFilesDir().getAbsolutePath(), DATABASE_NAME), null, DATABASE_VERSION);
         Log.d(TAG, "JmDatabaseHelper Constructor");
         mContext = context;
     }
@@ -80,7 +80,7 @@ public class JmDatabaseHelper extends DatabaseHelper {
     }
 
     public void deleteDatabase(){
-        mContext.deleteDatabase(String.format("%s/%s", mContext.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME));
+        mContext.deleteDatabase(String.format("%s/%s", mContext.getFilesDir().getAbsolutePath(), DATABASE_NAME));
     }
 
     public <T> Dao<T, Integer> getDbDao(Class clazz) throws SQLException {

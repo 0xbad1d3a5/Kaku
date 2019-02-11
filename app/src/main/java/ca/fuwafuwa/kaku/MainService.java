@@ -92,7 +92,7 @@ public class MainService extends Service implements Stoppable {
         public void onReceive(Context context, Intent intent)
         {
             SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
-            boolean pageMode = prefs.getBoolean(Constants.KAKU_PREF_INSTANT_MODE, true);
+            boolean pageMode = prefs.getBoolean(Constants.KAKU_PREF_INSTANT_MODE, false);
             prefs.edit().putBoolean(Constants.KAKU_PREF_INSTANT_MODE, !pageMode).apply();
 
             KakuTools.startKakuService(context, new Intent(context, MainService.class));

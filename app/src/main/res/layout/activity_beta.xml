@@ -27,7 +27,7 @@
         android:layout_marginTop="8dp"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
-        android:text="Thanks for installing the beta version of Kaku! If you didn't intend to install the beta version, I highly recommend that you go to the Play Store and leave the beta program - the beta version of Kaku may be unstable and more prone to bugs.\n\nKaku is a decently complex program and I'm the sole developer. I try my best to make sure Kaku is free of bugs but sometimes things slip through the cracks. Android fragmentation doesn't help either - the Android features that Kaku depends on can differ between devices.\n\nAs such, if you run into problems with Kaku, please let me know! My e-mail is 0xbad1d3a5@gmail.com and I'll definitely try my best to resolve your issue! Feedback and suggestions also welcome! Note that if you try to leave feedback on the Play Store as a beta user, it is not shown to all users."
+        android:text="@string/beta_screen"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"

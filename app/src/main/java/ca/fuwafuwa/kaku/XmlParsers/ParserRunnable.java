@@ -61,7 +61,7 @@ public class ParserRunnable implements Runnable {
 
         DatabaseHelper mDbHelper = mDbHelperFactory.instance(dbHelperClass);
         final DictParser mDictParser = (DictParser) dictParserClass.getConstructor(IDatabaseHelper.class).newInstance(mDbHelper);
-        FileInputStream mDictXml = new FileInputStream(new File(mContext.getExternalFilesDir(null), fileName));
+        FileInputStream mDictXml = new FileInputStream(new File(mContext.getFilesDir(), fileName));
 
         final XmlPullParser mParser = Xml.newPullParser();
         mDbHelper.deleteDatabase();

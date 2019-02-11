@@ -46,7 +46,7 @@ public class OcrRunnable implements Runnable, Stoppable {
     public void run()
     {
         mTessBaseAPI = new TessBaseAPI();
-        String storagePath = mContext.getExternalFilesDir(null).getAbsolutePath();
+        String storagePath = mContext.getFilesDir().getAbsolutePath();
         mTessBaseAPI.init(storagePath, "jpn");
 
         mTessReady = true;
@@ -212,7 +212,7 @@ public class OcrRunnable implements Runnable, Stoppable {
     }
 
     private void saveBitmap(Bitmap bitmap, String name) throws FileNotFoundException {
-        String fs = String.format("%s/%s/%s_%d.png", mContext.getExternalFilesDir(null).getAbsolutePath(), Constants.SCREENSHOT_FOLDER_NAME, name, System.nanoTime());
+        String fs = String.format("%s/%s/%s_%d.png", mContext.getFilesDir().getAbsolutePath(), Constants.SCREENSHOT_FOLDER_NAME, name, System.nanoTime());
         Log.d(TAG, fs);
         FileOutputStream fos = new FileOutputStream(fs);
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);

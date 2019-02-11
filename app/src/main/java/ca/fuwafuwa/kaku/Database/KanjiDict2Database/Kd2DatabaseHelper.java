@@ -29,7 +29,7 @@ public class Kd2DatabaseHelper extends DatabaseHelper {
     private Context mContext;
 
     public Kd2DatabaseHelper(Context context){
-        super(context, String.format("%s/%s", context.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME), null, DATABASE_VERSION);
+        super(context, String.format("%s/%s", context.getFilesDir().getAbsolutePath(), DATABASE_NAME), null, DATABASE_VERSION);
         mContext = context;
     }
 
@@ -57,7 +57,7 @@ public class Kd2DatabaseHelper extends DatabaseHelper {
 
     @Override
     public void deleteDatabase() {
-        //mContext.deleteDatabase(String.format("%s/%s", mContext.getExternalFilesDir(null).getAbsolutePath(), DATABASE_NAME));
+        //mContext.deleteDatabase(String.format("%s/%s", mContext.getFilesDir().getAbsolutePath(), DATABASE_NAME));
     }
 
     @Override

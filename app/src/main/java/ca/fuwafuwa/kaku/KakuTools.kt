@@ -29,6 +29,8 @@ data class Prefs(val textDirectionSetting: TextDirection,
                  val imageFilterSetting: Boolean,
                  val instantModeSetting: Boolean);
 
+// NOTE: The defValue here should match the defValue of the BroadcastReceivers, otherwise
+// they will be out of sync the first time.
 fun getPrefs(context: Context): Prefs
 {
     val prefs = context.getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
