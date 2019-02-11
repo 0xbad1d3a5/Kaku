@@ -59,40 +59,15 @@ class InstantInfoWindow(context: Context,
             run {
                 if (updateView)
                 {
-                    when (layoutPosition)
-                    {
-                        LayoutPosition.LEFT ->
-                        {
-                            params.x = params.x + (params.width - v.width) - dpToPx(context, 10)
-                            //params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
-                            params.width = v.width + dpToPx(context, 10)
-                            params.height = v.height + dpToPx(context, 10)
-                        }
-                        LayoutPosition.RIGHT ->
-                        {
-                            //params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
-                            params.width = v.width + dpToPx(context, 10)
-                            params.height = v.height + dpToPx(context, 10)
-                        }
-                        LayoutPosition.TOP ->
-                        {
-                            params.y = params.y + (params.height - v.height) - dpToPx(context, 10)
-                            params.width = v.width + dpToPx(context, 10)
-                            params.height = v.height + dpToPx(context, 10)
-                        }
-                        LayoutPosition.BOTTOM ->
-                        {
-                            params.width = v.width + dpToPx(context, 10)
-                            params.height = v.height + dpToPx(context, 10)
-                        }
-                    }
+                    val width = v.width + dpToPx(context, 10)
+                    val height = v.height + dpToPx(context, 10)
 
                     if (isBoxHorizontal)
                     {
-                        calcParamsForHorizontal(params.width)
+                        calcParamsForHorizontal(width, height)
                     } else
                     {
-                        calcParamsForVertical(params.height)
+                        calcParamsForVertical(width, height)
                     }
 
                     window.visibility = VISIBLE
@@ -131,10 +106,41 @@ class InstantInfoWindow(context: Context,
 
                 if (isBoxHorizontal)
                 {
-                    calcParamsForHorizontal(dpToPx(context, 400))
+                    val topRectHeight = displayData.boxParams.y - statusBarHeight
+                    val bottomRectHeight = realDisplaySize.y - displayData.boxParams.y - displayData.boxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
+                    val maxHeight = dpToPx(context, 600)
+                    var height: Int
+
+                    if (topRectHeight > bottomRectHeight){
+                        layoutPosition = LayoutPosition.TOP
+                        height = topRectHeight
+                    }
+                    else {
+                        layoutPosition = LayoutPosition.BOTTOM
+                        height = bottomRectHeight
+                    }
+
+                    height = minOf(height, maxHeight)
+                    calcParamsForHorizontal(dpToPx(context, 400), height)
                 } else
                 {
-                    calcParamsForVertical(dpToPx(context, 600))
+                    val leftRectWidth = displayData.boxParams.x
+                    val rightRectWidth = viewWidth - (displayData.boxParams.x + displayData.boxParams.width)
+                    val maxWidth = dpToPx(context, 400)
+                    var width: Int
+
+                    if (leftRectWidth > rightRectWidth)
+                    {
+                        layoutPosition = LayoutPosition.LEFT
+                        width = leftRectWidth
+                    }
+                    else {
+                        layoutPosition = LayoutPosition.RIGHT
+                        width = rightRectWidth
+                    }
+
+                    width = minOf(width, maxWidth)
+                    calcParamsForVertical(width, dpToPx(context, 600))
                 }
 
                 window.visibility = INVISIBLE
@@ -334,12 +340,8 @@ class InstantInfoWindow(context: Context,
         frameLayout.setPadding(l, t, r, b)
     }
 
-    private fun calcParamsForHorizontal(maxWidth: Int)
+    private fun calcParamsForHorizontal(maxWidth: Int, maxHeight: Int)
     {
-        val topRectHeight = displayData.boxParams.y - statusBarHeight
-        val bottomRectHeight = realDisplaySize.y - displayData.boxParams.y - displayData.boxParams.height - (realDisplaySize.y - viewHeight - statusBarHeight)
-
-        var maxWidth = minOf(realDisplaySize.x, maxWidth)
         var xPos = displayData.boxParams.x
 
         if (xPos + maxWidth > realDisplaySize.x)
@@ -349,38 +351,32 @@ class InstantInfoWindow(context: Context,
 
         params.width = maxWidth
 
-        if (topRectHeight > bottomRectHeight){
+        if (layoutPosition == LayoutPosition.TOP){
             params.x = xPos
-            params.y = 0
-            params.height = topRectHeight
-            layoutPosition = LayoutPosition.TOP
+            params.y = displayData.boxParams.y - maxHeight - statusBarHeight
+            params.height = maxHeight
         }
         else {
             params.x = xPos
             params.y = displayData.boxParams.y + displayData.boxParams.height - statusBarHeight
-            params.height = bottomRectHeight
-            layoutPosition = LayoutPosition.BOTTOM
+            params.height = maxHeight
         }
 
         changeLayoutForKanjiWindow()
     }
 
-    private fun calcParamsForVertical(maxHeight: Int)
+    private fun calcParamsForVertical(maxWidth: Int, maxHeight: Int)
     {
-        val leftRectWidth = displayData.boxParams.x
-        val rightRectWidth = viewWidth - (displayData.boxParams.x + displayData.boxParams.width)
-
         var yPos = displayData.boxParams.y - statusBarHeight
-        var maxHeight = minOf(maxHeight, realDisplaySize.y)
 
         if (yPos + maxHeight > realDisplaySize.y){
             yPos = viewHeight - maxHeight
         }
 
         params.height = maxHeight
-        if (leftRectWidth > rightRectWidth)
+
+        if (layoutPosition == LayoutPosition.LEFT)
         {
-            var maxWidth = dpToPx(context, 400)
             var xPos = displayData.boxParams.x - maxWidth
 
             if (xPos < 0)
@@ -390,17 +386,14 @@ class InstantInfoWindow(context: Context,
 
             params.x = xPos
             params.y = yPos
-            params.width = minOf(leftRectWidth, maxWidth)
-            layoutPosition = LayoutPosition.LEFT
+            params.width = maxWidth
         }
         else {
-            var maxWidth = dpToPx(context, 400)
             var xPos = displayData.boxParams.x + displayData.boxParams.width
 
             params.x = xPos
             params.y = yPos
-            params.width = minOf(rightRectWidth, maxWidth)
-            layoutPosition = LayoutPosition.RIGHT
+            params.width = maxWidth
         }
 
         changeLayoutForKanjiWindow()

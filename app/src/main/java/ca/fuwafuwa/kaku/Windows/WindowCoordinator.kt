@@ -27,7 +27,7 @@ class WindowCoordinator(private val context: Context)
     {
         if (!windows.containsKey(key))
         {
-            windows[key] = windowInitMap[key]!!.invoke()
+            windows[key] = windowInitMap.getValue(key).invoke()
         }
 
         return windows[key]!!

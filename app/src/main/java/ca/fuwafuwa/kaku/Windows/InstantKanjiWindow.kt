@@ -46,16 +46,19 @@ class InstantKanjiWindow(context: Context,
 
         kanjiFrame.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             run {
+                var count = displayData.count + 1
                 if (isBoxHorizontal)
                 {
-                    params.width = dpToPx(context, 37) * (displayData.count + 1)
+                    count = if (count > 8) 8 else count
+                    params.width = dpToPx(context, 37) * count
                     if (params.height < minHeight)
                     {
                         params.height = minHeight
                     }
                 }
                 else {
-                    params.height = dpToPx(context, 37) * (displayData.count + 1)
+                    count = if (count > 9) 9 else count
+                    params.height = dpToPx(context, 37) * count
                     if (params.width < minWidth)
                     {
                         params.width = minWidth
