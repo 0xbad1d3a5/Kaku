@@ -170,6 +170,12 @@ class InstantKanjiWindow(context: Context,
         instantInfoWindow.performSearch(displayData.squareChars[0])
     }
 
+    override fun reInit(options: ReinitOptions?)
+    {
+        instantInfoWindow.reInit(options)
+        super.reInit(options)
+    }
+
     override fun onTouch(e: MotionEvent?): Boolean
     {
         return false

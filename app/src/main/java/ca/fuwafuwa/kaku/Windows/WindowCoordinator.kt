@@ -20,6 +20,7 @@ class WindowCoordinator(private val context: Context)
             WINDOW_EDIT to fun(): Window { return EditWindow(context, this) },
             WINDOW_CAPTURE to fun(): Window { return CaptureWindow(context, this) },
             WINDOW_INSTANT_KANJI to fun(): Window { return InstantKanjiWindow(context, this) },
+            WINDOW_HISTORY to fun(): Window { return HistoryWindow(context, this) },
             WINDOW_KANJI_CHOICE to fun(): Window { return KanjiChoiceWindow(context, this) }
     )
 

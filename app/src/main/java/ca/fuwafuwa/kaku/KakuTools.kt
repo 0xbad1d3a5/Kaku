@@ -6,8 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.DisplayMetrics
+import android.util.Log
+import android.widget.Toast
 
 import com.google.gson.GsonBuilder
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
 
 import java.util.ArrayList
 
@@ -90,5 +95,92 @@ fun startKakuService(context: Context, i: Intent)
     else
     {
         context.startService(i)
+    }
+}
+
+fun setupKakuDatabasesAndFiles(context: Context)
+{
+    try {
+        val filesAndPaths = hashMapOf(
+                JMDICT_DATABASE_NAME to context.filesDir.absolutePath,
+                TESS_DATA_NAME to "${context.filesDir.absolutePath}/$TESS_FOLDER_NAME")
+
+        if (shouldResetData(filesAndPaths))
+        {
+            Log.d(TAG, "Resetting Data")
+            for (fileAndPath in filesAndPaths){
+                File("${fileAndPath.value}/${fileAndPath.key}").delete()
+            }
+        }
+
+        copyFilesIfNotExists(context, filesAndPaths)
+
+        var screenshotPath: String = context.filesDir.absolutePath + "/$SCREENSHOT_FOLDER_NAME"
+        createDirIfNotExists(screenshotPath)
+        deleteScreenshotsOlderThanOneDay(screenshotPath)
+    }
+    catch (e: Exception)
+    {
+        Toast.makeText(context, "Unable to setup Kaku database", Toast.LENGTH_LONG).show()
+        return
+    }
+}
+
+fun shouldResetData(filesAndPaths: Map<String, String>) : Boolean
+{
+    for (fileAndPath in filesAndPaths){
+        if (!File("${fileAndPath.value}/${fileAndPath.key}").exists()) return true
+    }
+    return false
+}
+
+fun createDirIfNotExists(path: String)
+{
+    val dir = File(path)
+    if (!dir.exists())
+    {
+        dir.mkdirs()
+    }
+}
+
+fun copyFilesIfNotExists(context: Context, filesAndPaths: Map<String, String>)
+{
+    for (fileAndPath in filesAndPaths)
+    {
+        val path = fileAndPath.value
+        val fileName = fileAndPath.key
+        val filePath = "$path/$fileName"
+
+        if (File(filePath).exists())
+        {
+            return
+        }
+
+        createDirIfNotExists(path)
+
+        val input = context.assets.open(fileName)
+        val output = FileOutputStream(filePath)
+
+        input.copyTo(output);
+        output.close()
+
+        Log.d(TAG, "Copied $filePath")
+    }
+}
+
+fun deleteScreenshotsOlderThanOneDay(path: String)
+{
+    var dir = File(path)
+    if (dir.exists())
+    {
+        var listFiles = dir.listFiles()
+        var purgeTime = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000
+        for (file in listFiles)
+        {
+            if (file.lastModified() < purgeTime)
+            {
+                file.delete()
+            }
+        }
     }
 }

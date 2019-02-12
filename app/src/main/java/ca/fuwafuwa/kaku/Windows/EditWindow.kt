@@ -60,10 +60,9 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
         if (input != null && !input.trim { it <= ' ' }.isEmpty())
         {
             mSquareChar.text = input
-
-            mCallback.recalculateKanjiViews()
         }
 
+        mCallback.recalculateKanjiViews()
         hide()
     }
 

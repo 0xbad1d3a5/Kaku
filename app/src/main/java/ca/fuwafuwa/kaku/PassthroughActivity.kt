@@ -14,8 +14,9 @@ class PassthroughActivity : AppCompatActivity()
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        var processText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+        setupKakuDatabasesAndFiles(this)
 
+        var processText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
         if (processText != null){
             InformationWindow(applicationContext, WindowCoordinator(applicationContext)).setResult(processText)
             finish()

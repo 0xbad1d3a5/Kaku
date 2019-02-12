@@ -6,6 +6,12 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+v1.3.33
+- One ad added to start screen. Sorry! But it's to help support development. It should be fairly out of the way, but let me know if it causes problems.
+- Adding the ad does get rid of the 'Close Capture Window' button, but a reminder to all that you can close Kaku by simply tapping on Kaku's notification in the status bar. If you are unable to close Kaku because the notification is missing, please send me an e-mail!
+- Fixed instant mode rotation bug where positioning was incorrect after device rotation.
+- Fixed bug where Kaku does not start on some devices (particularly Xiaomi devices).
+
 v1.3.32
 - Instant Mode window positioning logic has been implemented. If things look off here, please let me know!
 

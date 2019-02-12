@@ -138,7 +138,8 @@ public class MainService extends Service implements Stoppable {
     private WindowCoordinator mWindowCoordinator;
 
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(Intent intent)
+    {
         // Not used
         return null;
     }
@@ -197,7 +198,8 @@ public class MainService extends Service implements Stoppable {
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroy()
+    {
         Log.d(TAG, "DESTORYING MAINSERVICE: " + System.identityHashCode(this));
         mWindowCoordinator.stopAllWindows();
         stop();
@@ -205,8 +207,10 @@ public class MainService extends Service implements Stoppable {
     }
 
     @Override
-    public void stop() {
-        if (mMediaProjection != null){
+    public void stop()
+    {
+        if (mMediaProjection != null)
+        {
             mMediaProjection.stop();
         }
     }
@@ -217,7 +221,8 @@ public class MainService extends Service implements Stoppable {
      * such a case onConfigurationChanged will not trigger and {@link Window#reInit(ca.fuwafuwa.kaku.Windows.Window.ReinitOptions)} will not
      * update the LayoutParams.
      */
-    public void onCaptureWindowFinishedInitializing(){
+    public void onCaptureWindowFinishedInitializing()
+    {
         if (mMediaProjection == null){
             Log.d(TAG, "mMediaProjection is null");
             mMediaProjection = mMediaProjectionManager.getMediaProjection(mProjectionResultCode, mProjectionResultIntent);
@@ -227,11 +232,13 @@ public class MainService extends Service implements Stoppable {
         createVirtualDisplay();
     }
 
-    public Handler getHandler(){
+    public Handler getHandler()
+    {
         return mHandler;
     }
 
-    public Image getScreenshot() throws InterruptedException {
+    public Image getScreenshot() throws InterruptedException
+    {
         long startTime = System.nanoTime();
         Image image = mImageReader.acquireLatestImage();
         while (image == null && System.nanoTime() < startTime + 2000000000){
