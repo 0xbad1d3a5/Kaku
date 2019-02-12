@@ -15,6 +15,7 @@ import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Interfaces.ICopyText
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
+import ca.fuwafuwa.kaku.Windows.Window
 
 /**
  * Created by 0xbad1d3a5 on 5/5/2016.
@@ -68,8 +69,8 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
         mWindowCoordinator = windowCoordinator
         mSearchPerformer = searchPerformer
 
-        mKanjiChoiceWindow = mWindowCoordinator.getWindow(WINDOW_KANJI_CHOICE) as KanjiChoiceWindow
-        mEditWindow = mWindowCoordinator.getWindow(WINDOW_EDIT) as EditWindow
+        mKanjiChoiceWindow = mWindowCoordinator.getWindowOfType(WINDOW_KANJI_CHOICE)
+        mEditWindow = mWindowCoordinator.getWindowOfType(WINDOW_EDIT)
     }
 
     fun setText(squareChar: ISquareChar)
@@ -129,6 +130,9 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
                     }
                     ChoiceResultType.EDIT ->
                     {
+                        val window = getProperWindow<Window>()
+                        window.hide()
+
                         mEditWindow.setInfo(mSquareChar)
                         mEditWindow.setInputDoneCallback(this)
                         mEditWindow.show()
@@ -151,13 +155,17 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
 
     override fun recalculateKanjiViews()
     {
-        val window = getProperWindow<IRecalculateKanjiViews>()
-        window.recalculateKanjiViews()
+        val cwindow = getProperWindow<IRecalculateKanjiViews>()
+        cwindow.recalculateKanjiViews()
+
+        val window = getProperWindow<Window>()
+        window.show()
     }
 
     override fun onSingleTapUp(e: MotionEvent): Boolean
     {
         highlightLight()
+        mSquareChar.userTouched = true
         mSearchPerformer.performSearch(mSquareChar)
         return true
     }
@@ -207,10 +215,10 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
     {
         return if (mSquareChar.displayData.instantMode)
         {
-            mWindowCoordinator.getWindow(WINDOW_INSTANT_KANJI) as WindowType
+            mWindowCoordinator.getWindowOfType(WINDOW_INSTANT_KANJI)
         }
         else {
-            mWindowCoordinator.getWindow(WINDOW_INFO) as WindowType
+            mWindowCoordinator.getWindowOfType(WINDOW_INFO)
         }
     }
 

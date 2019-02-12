@@ -51,7 +51,6 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     private GestureDetector mGestureDetector;
     private float mMaxFlingVelocity;
     private KanjiGridView mKanjiGrid;
-    private LinearLayout mLinearLayout;
     private TextSwitcher mDictResults;
     private Searcher mSearcher;
     private boolean mTextOnlyLookup;
@@ -63,8 +62,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
         mGestureDetector = new GestureDetector(this.context, this);
         mKanjiGrid = window.findViewById(R.id.kanji_grid);
-        mLinearLayout = window.findViewById(R.id.info_text);
-        mDictResults = mLinearLayout.findViewById(R.id.dict_results);
+        mDictResults = window.findViewById(R.id.dict_results);
 
         mKanjiGrid.setDependencies(windowCoordinator, this);
 
@@ -199,7 +197,6 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
         mSearcher.unregisterCallback();
         mGestureDetector = null;
         mKanjiGrid  = null;
-        mLinearLayout = null;
         mSearcher = null;
         super.stop();
     }

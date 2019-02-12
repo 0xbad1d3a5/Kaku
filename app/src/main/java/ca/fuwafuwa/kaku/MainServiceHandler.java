@@ -40,12 +40,12 @@ public class MainServiceHandler extends Handler {
 
             if (result.getDisplayData().getInstantMode())
             {
-                InstantKanjiWindow instantKanjiWindow = (InstantKanjiWindow) mWindowCoordinator.getWindow(Constants.WINDOW_INSTANT_KANJI);
+                InstantKanjiWindow instantKanjiWindow = mWindowCoordinator.getWindowOfType(Constants.WINDOW_INSTANT_KANJI);
                 instantKanjiWindow.setResult(result.getDisplayData());
                 instantKanjiWindow.show();
             }
             else {
-                InformationWindow infoWindow = (InformationWindow) mWindowCoordinator.getWindow(Constants.WINDOW_INFO);
+                InformationWindow infoWindow = mWindowCoordinator.getWindowOfType(Constants.WINDOW_INFO);
                 infoWindow.setResult(result.getDisplayData());
                 infoWindow.show();
             }

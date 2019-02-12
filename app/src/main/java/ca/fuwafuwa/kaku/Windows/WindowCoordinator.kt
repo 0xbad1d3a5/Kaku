@@ -34,6 +34,11 @@ class WindowCoordinator(private val context: Context)
         return windows[key]!!
     }
 
+    fun <WindowType> getWindowOfType(key: String) : WindowType
+    {
+        return getWindow(key) as WindowType
+    }
+
     // WARNING: DO NOT USE THIS UNLESS YOU KNOW WHAT YOU ARE DOING
     fun setWindow(key: String, window: Window)
     {

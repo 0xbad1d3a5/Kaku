@@ -8,6 +8,8 @@ interface ISquareChar
 
     var text: String?
 
+    var userTouched: Boolean
+
     val displayData: DisplayData
 
     fun clone() : ISquareChar
@@ -17,6 +19,8 @@ open class SquareChar(override val displayData: DisplayData,
                       override var char: String) : ISquareChar
 {
     override var index: Int = -1
+
+    override var userTouched: Boolean = false
 
     override var text : String? = null
     get()

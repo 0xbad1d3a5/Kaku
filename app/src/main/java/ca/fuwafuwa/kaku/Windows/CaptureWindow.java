@@ -151,6 +151,8 @@ public class CaptureWindow extends Window implements WindowListener
                 mWindowBox.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
+
+        windowCoordinator.getWindow(Constants.WINDOW_HISTORY).show();
     }
 
     @Override

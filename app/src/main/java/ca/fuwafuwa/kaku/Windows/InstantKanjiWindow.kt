@@ -119,6 +119,7 @@ class InstantKanjiWindow(context: Context,
     {
         displayData = result
         instantInfoWindow.setResult(result)
+        instantInfoWindow.performSearch(displayData.squareChars[0])
     }
 
     override fun recalculateKanjiViews()
@@ -167,7 +168,6 @@ class InstantKanjiWindow(context: Context,
         }
 
         instantInfoWindow.show()
-        instantInfoWindow.performSearch(displayData.squareChars[0])
     }
 
     override fun reInit(options: ReinitOptions?)

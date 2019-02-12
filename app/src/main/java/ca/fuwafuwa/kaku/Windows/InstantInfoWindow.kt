@@ -156,6 +156,10 @@ class InstantInfoWindow(context: Context,
         updateView = true
         if (results.size > 0)
         {
+            if (search.squareChar.userTouched)
+            {
+                windowCoordinator.getWindowOfType<HistoryWindow>(WINDOW_HISTORY).addResult(results)
+            }
             displayResults(results)
         }
         else {
