@@ -12,12 +12,14 @@ import android.os.CountDownTimer
 import android.provider.Settings
 import android.util.Log
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity()
 {
@@ -37,9 +39,7 @@ class MainActivity : AppCompatActivity()
         }
     }
 
-    var kakuAlreadyStarted: Boolean = false
-    private set
-
+    private var isActivityVisible = false
     private var mSectionsPagerAdapter: FragmentStatePagerAdapter? = null
     private var mMediaProjectionManager: MediaProjectionManager? = null
     private lateinit var mStartKakuIntent: Intent
@@ -62,13 +62,27 @@ class MainActivity : AppCompatActivity()
         mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
 
-        MobileAds.initialize(this, "ca-app-pub-5188380133042312~6553483029")
+        MobileAds.initialize(this, resources.getString(R.string.ads_app_id))
     }
 
     override fun onStart()
     {
         super.onStart()
         startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
+    }
+
+    override fun onPause()
+    {
+        super.onPause()
+        Log.d(TAG, "ACTIVITY INVISIBLE")
+        isActivityVisible = false
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+        Log.d(TAG, "ACTIVITY VISIBLE")
+        isActivityVisible = true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
@@ -105,9 +119,9 @@ class MainActivity : AppCompatActivity()
         }
     }
 
-    fun startKakuService(progressBar: ProgressBar)
+    fun startKakuService(progressBar: ProgressBar, supportText: TextView)
     {
-        if (kakuAlreadyStarted)
+        if (MainService.IsRunning())
         {
             return
         }
@@ -121,10 +135,13 @@ class MainActivity : AppCompatActivity()
             {
                 override fun onFinish()
                 {
-                    progressBar.isIndeterminate = false
-                    progressBar.progress = 100
-                    kakuAlreadyStarted = true
-                    startKakuService(this@MainActivity, mStartKakuIntent)
+                    if (isActivityVisible)
+                    {
+                        progressBar.isIndeterminate = false
+                        progressBar.progress = 100
+                        supportText.text = getString(R.string.support_text)
+                        startKakuService(this@MainActivity, mStartKakuIntent)
+                    }
                 }
 
                 override fun onTick(millisUntilFinished: Long)

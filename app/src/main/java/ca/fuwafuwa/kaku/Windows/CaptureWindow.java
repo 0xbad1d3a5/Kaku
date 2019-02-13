@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -285,6 +286,15 @@ public class CaptureWindow extends Window implements WindowListener
     public void hideInstantWindows()
     {
         windowCoordinator.getWindow(Constants.WINDOW_INSTANT_KANJI).hide();
+    }
+
+    @Override
+    protected WindowManager.LayoutParams getDefaultParams()
+    {
+        WindowManager.LayoutParams params = super.getDefaultParams();
+        params.x = getRealDisplaySize().x / 2 - params.width / 2;
+        params.y = getRealDisplaySize().y / 2 - params.height / 2;
+        return params;
     }
 
     private void setPreviewImageForThreshold(MotionEvent e)

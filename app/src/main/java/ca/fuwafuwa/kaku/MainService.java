@@ -92,7 +92,7 @@ public class MainService extends Service implements Stoppable {
         public void onReceive(Context context, Intent intent)
         {
             SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
-            boolean pageMode = prefs.getBoolean(Constants.KAKU_PREF_INSTANT_MODE, false);
+            boolean pageMode = prefs.getBoolean(Constants.KAKU_PREF_INSTANT_MODE, true);
             prefs.edit().putBoolean(Constants.KAKU_PREF_INSTANT_MODE, !pageMode).apply();
 
             KakuTools.startKakuService(context, new Intent(context, MainService.class));
@@ -116,6 +116,8 @@ public class MainService extends Service implements Stoppable {
             });
         }
     }
+
+    private static boolean isKakuRunning = false;
 
     private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
     private static final int NOTIFICATION_ID = 1;
@@ -148,6 +150,7 @@ public class MainService extends Service implements Stoppable {
     public void onCreate()
     {
         super.onCreate();
+        isKakuRunning = true;
 
         Log.d(TAG, "CREATING MAINSERVICE: " + System.identityHashCode(this));
         Toast.makeText(this, "Starting capture window...", Toast.LENGTH_LONG).show();
@@ -203,6 +206,7 @@ public class MainService extends Service implements Stoppable {
         Log.d(TAG, "DESTORYING MAINSERVICE: " + System.identityHashCode(this));
         mWindowCoordinator.stopAllWindows();
         stop();
+        isKakuRunning = false;
         super.onDestroy();
     }
 
@@ -213,6 +217,11 @@ public class MainService extends Service implements Stoppable {
         {
             mMediaProjection.stop();
         }
+    }
+
+    public static boolean IsRunning()
+    {
+        return isKakuRunning;
     }
 
     /**

@@ -17,15 +17,9 @@ import ca.fuwafuwa.kaku.Search.SearchInfo
 import ca.fuwafuwa.kaku.Search.Searcher
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
+import ca.fuwafuwa.kaku.Windows.Enums.LayoutPosition
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
-
-enum class LayoutPosition {
-    TOP,
-    BOTTOM,
-    LEFT,
-    RIGHT
-}
 
 class InstantInfoWindow(context: Context,
                         windowCoordinator: WindowCoordinator,
@@ -44,6 +38,8 @@ class InstantInfoWindow(context: Context,
     private lateinit var displayData: DisplayDataOcr
 
     private var searcher: Searcher = Searcher(context)
+
+    private var searchedChars: MutableList<ISquareChar> = mutableListOf()
 
     private var textInfo = window.findViewById<TextView>(R.id.instant_window_text)
 
@@ -156,13 +152,16 @@ class InstantInfoWindow(context: Context,
         updateView = true
         if (results.size > 0)
         {
-            if (search.squareChar.userTouched)
+            if (search.squareChar.userTouched && !searchedChars.contains(search.squareChar))
             {
-                windowCoordinator.getWindowOfType<HistoryWindow>(WINDOW_HISTORY).addResult(results)
+                windowCoordinator.getWindowOfType<HistoryWindow>(WINDOW_HISTORY).addResult(search.squareChar, results)
+                searchedChars.add(search.squareChar)
             }
+
             displayResults(results)
         }
-        else {
+        else
+        {
             textInfo.text = "No entry found"
         }
 
@@ -200,6 +199,7 @@ class InstantInfoWindow(context: Context,
     fun setResult(result: DisplayDataOcr)
     {
         displayData = result
+        searchedChars = mutableListOf()
     }
 
     private fun changeLayoutForKanjiWindow()

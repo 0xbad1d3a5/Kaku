@@ -7,10 +7,10 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.INVISIBLE
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
+import ca.fuwafuwa.kaku.Windows.Enums.LayoutPosition
 import ca.fuwafuwa.kaku.Windows.Interfaces.ICopyText
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Views.KanjiGridView

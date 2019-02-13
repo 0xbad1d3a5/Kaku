@@ -54,6 +54,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     private TextSwitcher mDictResults;
     private Searcher mSearcher;
     private boolean mTextOnlyLookup;
+    private ArrayList<ISquareChar> mSearchedChars = new ArrayList<>();
 
     public InformationWindow(Context context, WindowCoordinator windowCoordinator)
     {
@@ -78,6 +79,8 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
 
     public void setResult(DisplayData displayData)
     {
+        mSearchedChars = new ArrayList<>();
+
         mKanjiGrid.removeAllViews();
         mKanjiGrid.setText(displayData);
     }
@@ -268,7 +271,17 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     public void jmResultsCallback(List<JmSearchResult> results, SearchInfo search)
     {
         windowCoordinator.getWindow(Constants.WINDOW_INSTANT_KANJI).hide();
-        displayResults(results);
+
+        if (results.size() > 0)
+        {
+            displayResults(results);
+
+            if (search.getSquareChar().getUserTouched() && !mSearchedChars.contains(search.getSquareChar()))
+            {
+                windowCoordinator.<HistoryWindow>getWindowOfType(Constants.WINDOW_HISTORY).addResult(search.getSquareChar(), results);
+                mSearchedChars.add(search.getSquareChar());
+            }
+        }
 
         // Highlights words in the window as long as they match
         int start = search.getIndex();

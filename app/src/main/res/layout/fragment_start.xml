@@ -16,7 +16,7 @@
         android:layout_gravity="center_horizontal"
         android:text="画"
         android:textColor="@color/PrimaryDark"
-        android:textSize="150dp"
+        android:textSize="150sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -28,7 +28,7 @@
         android:layout_gravity="center_horizontal"
         android:text="Japanese OCR Dictionary"
         android:textColor="@color/PrimaryDark"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/kaku_logo" />
@@ -46,7 +46,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/kaku_title" />
 
+    <TextView
+        android:id="@+id/support_text"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:text="@string/kaku_loading"
+        android:textColor="@color/PrimaryDark"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/horizontal_line"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="300dp"
         android:layout_height="4dp"
         android:layout_marginStart="8dp"
@@ -54,13 +71,15 @@
         app:layout_constraintBottom_toTopOf="@+id/horizontal_line"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
         <ProgressBar
             android:id="@+id/progress_bar"
             style="?android:attr/progressBarStyleHorizontal"
-            android:indeterminate="true"
             android:layout_width="300dp"
             android:layout_height="32dp"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateOnly="false" />
     </FrameLayout>
 
     <FrameLayout
@@ -80,7 +99,7 @@
         android:layout_margin="48dp"
         android:background="@android:color/darker_gray"
         ads:adSize="MEDIUM_RECTANGLE"
-        ads:adUnitId="@string/ads_unit_id_test"
+        ads:adUnitId="@string/ads_unit_id_start_screen"
         app:layout_constraintBottom_toBottomOf="parent"
         ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintStart_toStartOf="parent" />
