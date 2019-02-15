@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import ca.fuwafuwa.kaku.Dialogs.StarRatingDialogFragment
 import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -41,12 +42,12 @@ class MainActivity : AppCompatActivity()
 
     private var isActivityVisible = false
     private var mSectionsPagerAdapter: FragmentStatePagerAdapter? = null
-    private var mMediaProjectionManager: MediaProjectionManager? = null
     private lateinit var mStartKakuIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+
         supportActionBar?.hide()
         setContentView(R.layout.activity_main)
 
@@ -56,11 +57,6 @@ class MainActivity : AppCompatActivity()
         tab_indicator.setupWithViewPager(container, true)
 
         setupKakuDatabasesAndFiles(this)
-        checkDrawOnTopPermissions()
-
-        Log.d(TAG, "Sending REQUEST_SCREENSHOT Intent")
-        mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
 
         MobileAds.initialize(this, resources.getString(R.string.ads_app_id))
     }
@@ -68,7 +64,18 @@ class MainActivity : AppCompatActivity()
     override fun onStart()
     {
         super.onStart()
-        startActivityForResult(mMediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
+
+        checkDrawOnTopPermissions()
+        checkScreenRecordPermissions()
+
+        val prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
+        val timesLaunched = prefs.getInt(KAKU_PREF_TIMES_LAUNCHED, 1)
+        val rated = prefs.getBoolean(KAKU_PREF_PLAY_STORE_RATED, false)
+
+        if (timesLaunched % 2 == 0 && !rated)
+        {
+            StarRatingDialogFragment().show(supportFragmentManager, "StarRating")
+        }
     }
 
     override fun onPause()
@@ -87,6 +94,8 @@ class MainActivity : AppCompatActivity()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
     {
+        Log.d(TAG, "onActivityResult")
+
         val relaunchAppText = "Relaunch Kaku after verifying permission"
 
         if (requestCode == REQUEST_DRAW_ON_TOP)
@@ -174,8 +183,15 @@ class MainActivity : AppCompatActivity()
         }
     }
 
+    private fun checkScreenRecordPermissions()
+    {
+        Log.d(TAG, "Sending REQUEST_SCREENSHOT Intent")
+        val mediaProjectionManager: MediaProjectionManager? = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        startActivityForResult(mediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
+    }
+
     companion object
     {
-        private val TAG = MainService::class.java.name
+        private val TAG = MainActivity::class.java.name
     }
 }

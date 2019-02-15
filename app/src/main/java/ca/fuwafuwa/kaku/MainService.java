@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
@@ -30,15 +29,9 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import java.util.HashMap;
-
 import ca.fuwafuwa.kaku.Interfaces.Stoppable;
-import ca.fuwafuwa.kaku.Windows.CaptureWindow;
 import ca.fuwafuwa.kaku.Windows.Window;
 import ca.fuwafuwa.kaku.Windows.WindowCoordinator;
-import kotlin.Function;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
 
 import static androidx.core.app.NotificationCompat.FLAG_FOREGROUND_SERVICE;
 import static androidx.core.app.NotificationCompat.FLAG_ONGOING_EVENT;
@@ -67,6 +60,19 @@ public class MainService extends Service implements Stoppable {
             SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
             boolean imagePreview = prefs.getBoolean(Constants.KAKU_PREF_IMAGE_FILTER, true);
             prefs.edit().putBoolean(Constants.KAKU_PREF_IMAGE_FILTER, !imagePreview).apply();
+
+            KakuTools.startKakuService(context, new Intent(context, MainService.class));
+        }
+    }
+
+    public static class ToggleShowHideMainService extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+            boolean shown = prefs.getBoolean(Constants.KAKU_PREF_SHOW_HIDE, true);
+            prefs.edit().putBoolean(Constants.KAKU_PREF_SHOW_HIDE, !shown).apply();
 
             KakuTools.startKakuService(context, new Intent(context, MainService.class));
         }
@@ -109,8 +115,11 @@ public class MainService extends Service implements Stoppable {
                     if (MediaProjectionStopCallback.this == mMediaProjectionStopCallback){
                         if (mVirtualDisplay != null){
                             mVirtualDisplay.release();
+                            mVirtualDisplay = null;
                         }
                         mMediaProjection.unregisterCallback(MediaProjectionStopCallback.this);
+                        mMediaProjection = null;
+                        mImageReader.close();
                     }
                 }
             });
@@ -137,7 +146,7 @@ public class MainService extends Service implements Stoppable {
     private Point mRealDisplaySize = new Point();
 
     private MediaProjectionStopCallback mMediaProjectionStopCallback;
-    private WindowCoordinator mWindowCoordinator;
+    private WindowCoordinator mWindowCoordinator = new WindowCoordinator(this);
 
     @Override
     public IBinder onBind(Intent intent)
@@ -150,16 +159,26 @@ public class MainService extends Service implements Stoppable {
     public void onCreate()
     {
         super.onCreate();
-        isKakuRunning = true;
+
+        if (!isKakuRunning)
+        {
+            SharedPreferences prefs = getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+            prefs.edit().putBoolean(Constants.KAKU_PREF_SHOW_HIDE, true).apply();
+        }
 
         Log.d(TAG, "CREATING MAINSERVICE: " + System.identityHashCode(this));
         Toast.makeText(this, "Starting capture window...", Toast.LENGTH_LONG).show();
 
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mWindowCoordinator = new WindowCoordinator(this);
         mHandler = new MainServiceHandler(this, mWindowCoordinator);
 
+        // Set preferences for ratings
+        SharedPreferences prefs = getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+        int timesLaunched = prefs.getInt(Constants.KAKU_PREF_TIMES_LAUNCHED, 1);
+        prefs.edit().putInt(Constants.KAKU_PREF_TIMES_LAUNCHED, timesLaunched + 1).apply();
+
         startForeground(NOTIFICATION_ID, getNotification());
+        isKakuRunning = true;
     }
 
     @Override
@@ -175,9 +194,24 @@ public class MainService extends Service implements Stoppable {
             mProjectionResultCode = intent.getExtras().getInt(Constants.EXTRA_PROJECTION_RESULT_CODE);
         }
 
-        // re-init CaptureWindow as prefs may have changed
-        mWindowCoordinator.getWindow(Constants.WINDOW_CAPTURE).reInit(new Window.ReinitOptions());
+        // Determine if we need to start/stop the capture service
+        SharedPreferences prefs = getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+        Boolean shown = prefs.getBoolean(Constants.KAKU_PREF_SHOW_HIDE, true);
+        if (shown)
+        {
+            // Re-init CaptureWindow as well as prefs may have changed (BroadcastReceiver go to onStartCommand())
+            mWindowCoordinator.getWindow(Constants.WINDOW_CAPTURE).reInit(new Window.ReinitOptions());
+        }
+        else
+        {
+            if (mWindowCoordinator.hasWindow(Constants.WINDOW_CAPTURE))
+            {
+                mWindowCoordinator.getWindow(Constants.WINDOW_CAPTURE).stop();
+                stop();
+            }
+        }
 
+        // Set notification text
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, getNotification());
 
@@ -189,25 +223,34 @@ public class MainService extends Service implements Stoppable {
     {
         super.onConfigurationChanged(newConfig);
 
-        final int rotation = mDisplay.getRotation();
-
-        if (rotation != mRotation)
+        if (mWindowCoordinator.hasWindow(Constants.WINDOW_CAPTURE))
         {
-            Log.d(TAG, "Orientation changed");
-            mRotation = rotation;
-            createVirtualDisplay();
-            mWindowCoordinator.reinitAllWindows();
+            final int rotation = mDisplay.getRotation();
+
+            if (rotation != mRotation)
+            {
+                Log.d(TAG, "Orientation changed");
+                mRotation = rotation;
+                createVirtualDisplay();
+                mWindowCoordinator.reinitAllWindows();
+            }
         }
     }
 
     @Override
     public void onDestroy()
     {
+        stopForeground(true);
         Log.d(TAG, "DESTORYING MAINSERVICE: " + System.identityHashCode(this));
-        mWindowCoordinator.stopAllWindows();
+
         stop();
+        mWindowCoordinator.stopAllWindows();
+        mWindowCoordinator = null;
         isKakuRunning = false;
+
         super.onDestroy();
+
+        Log.d(TAG, String.format("MAINSERVICE: %s DESTROYED", System.identityHashCode(this)));
     }
 
     @Override
@@ -267,6 +310,7 @@ public class MainService extends Service implements Stoppable {
             channelId = "";
         }
 
+        PendingIntent toggleShowHide = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_SHOW_HIDE, new Intent(this, ToggleShowHideMainService.class), 0);
         PendingIntent toggleImagePreview = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_IMAGE_PREVIEW, new Intent(this, ToggleImagePreviewMainService.class), 0);
         PendingIntent togglePageMode = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_PAGE_MODE, new Intent(this, TogglePageModeMainService.class), 0);
         PendingIntent toggleInstantMode = PendingIntent.getBroadcast(this, Constants.REQUEST_SERVICE_TOGGLE_INSTANT_MODE, new Intent(this, ToggleInstantModeMainService.class), 0);
@@ -288,16 +332,27 @@ public class MainService extends Service implements Stoppable {
                 break;
         }
 
-        Notification n = new NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.kaku_notification_icon)
-                .setContentTitle(contentTitle)
-                .setContentText(String.format("Black and white filter %s, instant mode %s", prefs.getImageFilterSetting() ? "on" : "off", prefs.getInstantModeSetting() ? "on" : "off"))
-                //.setContentText(String.format("Black and white filter %s", prefs.getImageFilterSetting() ? "on" : "off"))
-                .setContentIntent(closeMainService)
-                .addAction(0, "Text Direction", togglePageMode)
-                .addAction(0, "Image Filter", toggleImagePreview)
-                .addAction(0, "Instant Mode", toggleInstantMode)
-                .build();
+        Notification n;
+        if (prefs.getShowHideSetting())
+        {
+            n = new NotificationCompat.Builder(this, channelId)
+                    .setSmallIcon(R.drawable.kaku_notification_icon)
+                    .setContentTitle(contentTitle)
+                    .setContentText(String.format("Black and white filter %s, instant mode %s", prefs.getImageFilterSetting() ? "on" : "off", prefs.getInstantModeSetting() ? "on" : "off"))
+                    .setContentIntent(toggleShowHide)
+                    .addAction(0, "Instant Mode", toggleShowHide)
+                    .addAction(0, "Image Filter", toggleImagePreview)
+                    .addAction(0, "Close", closeMainService)
+                    .build();
+        }
+        else {
+            n = new NotificationCompat.Builder(this, channelId)
+                    .setSmallIcon(R.drawable.kaku_notification_icon)
+                    .setContentText("Kaku is hidden and in power-saving mode")
+                    .setContentIntent(toggleShowHide)
+                    .build();
+        }
+
         n.flags = FLAG_ONGOING_EVENT | FLAG_FOREGROUND_SERVICE;
 
         return n;

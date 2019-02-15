@@ -245,6 +245,9 @@ public class CaptureWindow extends Window implements WindowListener
     @Override
     public void stop() {
         mOcr.stop();
+        windowCoordinator.getWindow(Constants.WINDOW_HISTORY).hide();
+        mOcr = null;
+        mCommonParser = null;
         super.stop();
     }
 
@@ -293,7 +296,7 @@ public class CaptureWindow extends Window implements WindowListener
     {
         WindowManager.LayoutParams params = super.getDefaultParams();
         params.x = getRealDisplaySize().x / 2 - params.width / 2;
-        params.y = getRealDisplaySize().y / 2 - params.height / 2;
+        params.y = getRealDisplaySize().y / 4 - params.height / 2;
         return params;
     }
 

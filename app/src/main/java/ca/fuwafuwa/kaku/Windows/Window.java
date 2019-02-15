@@ -145,7 +145,7 @@ public abstract class Window implements Stoppable, WindowListener {
     @Override
     public void stop()
     {
-        Log.d(TAG, "WINDOW CLOSING");
+        Log.d(TAG, String.format("Window.stop() for %s called", this.getClass()));
 
         synchronized (this)
         {
@@ -158,7 +158,11 @@ public abstract class Window implements Stoppable, WindowListener {
 
             mWindowClosed = true;
             windowManager.removeView(mDummyViewForSize);
+            windowCoordinator.removeWindow(this);
             if (addedToWindowManager) windowManager.removeView(window);
+
+            context = null;
+            windowCoordinator = null;
         }
     }
 

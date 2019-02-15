@@ -32,7 +32,8 @@ enum class TextDirection(val value: Int) {
 
 data class Prefs(val textDirectionSetting: TextDirection,
                  val imageFilterSetting: Boolean,
-                 val instantModeSetting: Boolean);
+                 val instantModeSetting: Boolean,
+                 val showHideSetting: Boolean);
 
 // NOTE: The defValue here should match the defValue of the BroadcastReceivers, otherwise
 // they will be out of sync the first time.
@@ -43,7 +44,8 @@ fun getPrefs(context: Context): Prefs
     return Prefs(TextDirection.valueOf(
             prefs.getString(KAKU_PREF_TEXT_DIRECTION, TextDirection.AUTO.toString())),
             prefs.getBoolean(KAKU_PREF_IMAGE_FILTER, true),
-            prefs.getBoolean(KAKU_PREF_INSTANT_MODE, true))
+            prefs.getBoolean(KAKU_PREF_INSTANT_MODE, true),
+            prefs.getBoolean(KAKU_PREF_SHOW_HIDE, true))
 }
 
 fun toJson(obj: Any): String
@@ -170,17 +172,25 @@ fun copyFilesIfNotExists(context: Context, filesAndPaths: Map<String, String>)
 
 fun deleteScreenshotsOlderThanOneDay(path: String)
 {
-    var dir = File(path)
-    if (dir.exists())
-    {
-        var listFiles = dir.listFiles()
-        var purgeTime = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000
-        for (file in listFiles)
+    try {
+        var dir = File(path)
+        if (dir.exists())
         {
-            if (file.lastModified() < purgeTime)
+            Log.d(TAG, dir.absolutePath)
+            var listFileNames = dir.list()
+            var purgeTime = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000
+            for (fileName in listFileNames)
             {
-                file.delete()
+                val file = File(fileName)
+                if (file.isFile && file.lastModified() < purgeTime)
+                {
+                    file.delete()
+                }
             }
         }
+    }
+    catch (e: Exception)
+    {
+        Log.d(TAG, e.toString())
     }
 }

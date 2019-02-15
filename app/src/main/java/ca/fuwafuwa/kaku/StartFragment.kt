@@ -14,6 +14,8 @@ import com.google.android.gms.ads.AdView
 class StartFragment : Fragment()
 {
     private lateinit var adView : AdView
+    private lateinit var progressBar : ProgressBar
+    private lateinit var supportText : TextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
@@ -21,8 +23,8 @@ class StartFragment : Fragment()
         val mainActivity = activity as MainActivity
         val rootView = inflater.inflate(R.layout.fragment_start, container, false)
         adView = rootView.findViewById(R.id.adView)
-        val progressBar = rootView.findViewById<ProgressBar>(R.id.progress_bar)
-        val supportText = rootView.findViewById<TextView>(R.id.support_text)
+        progressBar = rootView.findViewById(R.id.progress_bar)
+        supportText = rootView.findViewById(R.id.support_text)
 
         if (MainService.IsRunning())
         {
@@ -58,6 +60,10 @@ class StartFragment : Fragment()
 
         if (!MainService.IsRunning())
         {
+            progressBar.isIndeterminate = true
+            progressBar.progress = 0
+            supportText.text = getString(R.string.kaku_loading)
+
             val adRequest = AdRequest.Builder().build()
             adView.loadAd(adRequest)
         }

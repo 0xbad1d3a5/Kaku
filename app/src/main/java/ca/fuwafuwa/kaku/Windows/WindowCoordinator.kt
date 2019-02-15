@@ -45,6 +45,25 @@ class WindowCoordinator(private val context: Context)
         windows[key] = window
     }
 
+    fun removeWindow(window: Window)
+    {
+        var key : String? = null
+
+        windows.forEach {
+            if (it.value === window)
+            {
+                key = it.key
+            }
+        }
+
+        if (key != null) windows.remove(key!!)
+    }
+
+    fun hasWindow(key: String) : Boolean
+    {
+        return windows.containsKey(key)
+    }
+
     fun reinitAllWindows()
     {
         windows.forEach { it.value.reInit(Window.ReinitOptions()) }
@@ -52,6 +71,7 @@ class WindowCoordinator(private val context: Context)
 
     fun stopAllWindows()
     {
-        windows.forEach { it.value.stop() }
+        val windows = windows.toList()
+        windows.forEach { it.second.stop() }
     }
 }

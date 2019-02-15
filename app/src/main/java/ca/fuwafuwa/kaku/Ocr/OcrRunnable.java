@@ -161,8 +161,10 @@ public class OcrRunnable implements Runnable, Stoppable {
         {
             mThreadRunning = false;
             mOcrParams = null;
+            mCaptureWindow = null;
             if (mTessBaseAPI != null){
                 mTessBaseAPI.stop();
+                mTessBaseAPI.end();
             }
             mOcrLock.notify();
         }

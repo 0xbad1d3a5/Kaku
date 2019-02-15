@@ -23,6 +23,7 @@
         <receiver android:name=".MainService$TogglePageModeMainService" />
         <receiver android:name=".MainService$ToggleInstantModeMainService" />
         <receiver android:name=".MainService$ToggleImagePreviewMainService" />
+        <receiver android:name=".MainService$ToggleShowHideMainService" />
 
         <activity
             android:name=".MainActivity"

@@ -35,7 +35,7 @@
             android:id="@+id/history_window_layout_button"
             android:textColor="@android:color/black"
             android:layout_width="30dp"
-            android:layout_height="29dp"
+            android:layout_height="30dp"
             android:background="@drawable/bg_solid_border_corners_0_white_black_round"
             android:textSize="10dp"
             android:padding="5dp"
