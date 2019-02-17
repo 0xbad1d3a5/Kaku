@@ -1,12 +1,16 @@
 <resources>
     <string name="app_name">Kaku</string>
-    <string name="support_text">Like Kaku? Support by tapping ads below!</string>
-    <string name="kaku_loading">Kaku is loading...</string>
+    <string name="support_text">"Like Kaku? Here's how you can help!"</string>
+    <string name="kaku_loading">Kaku is loading…</string>
     <string name="beta_screen">"Thanks for installing the beta version of Kaku! If you didn't intend to install the beta version, I highly recommend that you go to the Play Store and leave the beta program - the beta version of Kaku may be unstable and more prone to bugs.
 
 If you run into issues (i.e., constant crashes or graphical glitches) in the beta, please let me know at 0xbad1d3a5@gmail.com! Feedback and suggestions are also welcome!
 
 BETA UPDATES:
+
+v1.3.37
+- Removed history window. Not ready for prime time and I didn't particularly find it useful.
+- Added ability to completely hide Kaku's capture window through the notification.
 
 v1.3.34
 - Added history window. This window shows previous kanji that you have looked up.

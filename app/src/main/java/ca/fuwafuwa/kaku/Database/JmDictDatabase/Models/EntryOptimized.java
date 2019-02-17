@@ -38,9 +38,11 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
     @DatabaseField(dataType = DataType.LONG_STRING)
     private String dictionary;
 
-    private boolean onlyKana = false;
+    @Expose
+    @DatabaseField(dataType = DataType.BOOLEAN)
+    private boolean primaryEntry = false;
 
-    private boolean isAltForm = false;
+    private boolean onlyKana = false;
 
     public EntryOptimized(){
     }
@@ -96,14 +98,14 @@ public class EntryOptimized implements Comparable<EntryOptimized> {
         this.onlyKana = onlyKana;
     }
 
-    public boolean isAltForm()
+    public boolean isPrimaryEntry()
     {
-        return isAltForm;
+        return primaryEntry;
     }
 
-    public void setAltForm(boolean altForm)
+    public void setPrimaryEntry(boolean altForm)
     {
-        isAltForm = altForm;
+        primaryEntry = altForm;
     }
 
     public String getPriorities()

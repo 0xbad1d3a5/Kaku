@@ -122,6 +122,7 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
         return results.sortedWith(compareBy(
                 { getDictPriority(it) },
                 { 0 - it.entry.kanji.length },
+                { getEntryPriority(it) },
                 { getPriority(it) }))
     }
 
@@ -133,6 +134,11 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
             result.entry.dictionary == DB_KANJIDICT_NAME -> Int.MAX_VALUE - 1
             else -> Int.MAX_VALUE
         }
+    }
+
+    private fun getEntryPriority(result: JmSearchResult) : Int
+    {
+        return if (result.entry.isPrimaryEntry) 0 else 1
     }
 
     private fun getPriority(result: JmSearchResult) : Int

@@ -204,11 +204,8 @@ public class MainService extends Service implements Stoppable {
         }
         else
         {
-            if (mWindowCoordinator.hasWindow(Constants.WINDOW_CAPTURE))
-            {
-                mWindowCoordinator.getWindow(Constants.WINDOW_CAPTURE).stop();
-                stop();
-            }
+            mWindowCoordinator.stopAllWindows();
+            stop();
         }
 
         // Set notification text
@@ -248,9 +245,8 @@ public class MainService extends Service implements Stoppable {
         mWindowCoordinator = null;
         isKakuRunning = false;
 
-        super.onDestroy();
-
         Log.d(TAG, String.format("MAINSERVICE: %s DESTROYED", System.identityHashCode(this)));
+        super.onDestroy();
     }
 
     @Override
@@ -338,11 +334,11 @@ public class MainService extends Service implements Stoppable {
             n = new NotificationCompat.Builder(this, channelId)
                     .setSmallIcon(R.drawable.kaku_notification_icon)
                     .setContentTitle(contentTitle)
-                    .setContentText(String.format("Black and white filter %s, instant mode %s", prefs.getImageFilterSetting() ? "on" : "off", prefs.getInstantModeSetting() ? "on" : "off"))
+                    .setContentText(String.format("Instant mode %s, black and white filter %s", prefs.getInstantModeSetting() ? "on" : "off", prefs.getImageFilterSetting() ? "on" : "off"))
                     .setContentIntent(toggleShowHide)
-                    .addAction(0, "Instant Mode", toggleShowHide)
+                    .addAction(0, "Instant Mode", toggleInstantMode)
                     .addAction(0, "Image Filter", toggleImagePreview)
-                    .addAction(0, "Close", closeMainService)
+                    .addAction(0, "Shutdown", closeMainService)
                     .build();
         }
         else {

@@ -36,9 +36,9 @@ class InstantKanjiWindow(context: Context,
 
     private val instantInfoWindow = InstantInfoWindow(context, windowCoordinator, this)
 
-    val minHeight = dpToPx(context, 60)
+    private val minHeight = dpToPx(context, 65)
 
-    val minWidth = dpToPx(context, 65)
+    private val minWidth = dpToPx(context, 65)
 
     init
     {
@@ -140,6 +140,12 @@ class InstantKanjiWindow(context: Context,
     {
         instantInfoWindow.hide()
         super.hide()
+    }
+
+    override fun stop()
+    {
+        instantInfoWindow.stop()
+        super.stop()
     }
 
     override fun show()

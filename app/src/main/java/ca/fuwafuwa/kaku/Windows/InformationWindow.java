@@ -278,7 +278,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
 
             if (search.getSquareChar().getUserTouched() && !mSearchedChars.contains(search.getSquareChar()))
             {
-                windowCoordinator.<HistoryWindow>getWindowOfType(Constants.WINDOW_HISTORY).addResult(search.getSquareChar(), results);
+                //windowCoordinator.<HistoryWindow>getWindowOfType(Constants.WINDOW_HISTORY).addResult(search.getSquareChar(), results);
                 mSearchedChars.add(search.getSquareChar());
             }
         }

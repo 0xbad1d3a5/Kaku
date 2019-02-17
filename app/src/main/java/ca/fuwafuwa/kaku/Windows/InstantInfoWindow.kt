@@ -154,7 +154,7 @@ class InstantInfoWindow(context: Context,
         {
             if (search.squareChar.userTouched && !searchedChars.contains(search.squareChar))
             {
-                windowCoordinator.getWindowOfType<HistoryWindow>(WINDOW_HISTORY).addResult(search.squareChar, results)
+                //windowCoordinator.getWindowOfType<HistoryWindow>(WINDOW_HISTORY).addResult(search.squareChar, results)
                 searchedChars.add(search.squareChar)
             }
 
@@ -162,7 +162,7 @@ class InstantInfoWindow(context: Context,
         }
         else
         {
-            textInfo.text = "No entry found"
+            textInfo.text = "No dictionary entry found"
         }
 
         // Highlights words in the window as long as they match

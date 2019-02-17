@@ -57,8 +57,6 @@ class MainActivity : AppCompatActivity()
         tab_indicator.setupWithViewPager(container, true)
 
         setupKakuDatabasesAndFiles(this)
-
-        MobileAds.initialize(this, resources.getString(R.string.ads_app_id))
     }
 
     override fun onStart()

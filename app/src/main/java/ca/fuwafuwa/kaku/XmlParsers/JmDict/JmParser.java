@@ -89,13 +89,20 @@ public class JmParser implements DictParser {
 
         List<EntryOptimized> optimizedEntries = new ArrayList<>();
 
-        // May be multiple kanji entries
+        // May be multiple kanji entries - first entry in k_ele is the primary entry
+        boolean isFirstEntry = true;
         for (JmKEle kEle : jmEntry.getKEle())
         {
             EntryOptimized entryOptimized = new EntryOptimized();
             entryOptimized.setKanji(kEle.getKeb());
             entryOptimized.setPriorities(Joiner.on(",").join(kEle.getKePri()));
             optimizedEntries.add(entryOptimized);
+
+            if (isFirstEntry)
+            {
+                entryOptimized.setPrimaryEntry(true);
+            }
+            isFirstEntry = false;
         }
 
         // If no kanji entries, the reading entry is the kanji
@@ -108,6 +115,12 @@ public class JmParser implements DictParser {
                 entryOptimized.setOnlyKana(true);
                 entryOptimized.setPriorities(Joiner.on(",").join(rEle.getRePri()));
                 optimizedEntries.add(entryOptimized);
+
+                if (isFirstEntry)
+                {
+                    entryOptimized.setPrimaryEntry(true);
+                }
+                isFirstEntry = false;
             }
         }
 

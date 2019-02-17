@@ -1,6 +1,7 @@
 package ca.fuwafuwa.kaku
 
 import android.os.Bundle
+import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,21 +11,40 @@ import android.widget.TextView
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 
 class StartFragment : Fragment()
 {
-    private lateinit var adView : AdView
-    private lateinit var progressBar : ProgressBar
+    private lateinit var rootView : View
+
+    private lateinit var kakuLogo : TextView
+    private lateinit var kakuTitle : TextView
+    private lateinit var instructionText : TextView
+
     private lateinit var supportText : TextView
+    private lateinit var progressBar : ProgressBar
+    private lateinit var adView : AdView
+
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
+        super.onCreate(savedInstanceState)
+        MobileAds.initialize(requireActivity(), resources.getString(R.string.ads_app_id))
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
         val mainActivity = activity as MainActivity
-        val rootView = inflater.inflate(R.layout.fragment_start, container, false)
-        adView = rootView.findViewById(R.id.adView)
-        progressBar = rootView.findViewById(R.id.progress_bar)
+
+        rootView = inflater.inflate(R.layout.fragment_start, container, false)
+
+        kakuLogo = rootView.findViewById(R.id.kaku_logo)
+        kakuTitle = rootView.findViewById(R.id.kaku_title)
+        instructionText = rootView.findViewById(R.id.instruction_text)
+
         supportText = rootView.findViewById(R.id.support_text)
+        progressBar = rootView.findViewById(R.id.progress_bar)
+        adView = rootView.findViewById(R.id.adView)
 
         if (MainService.IsRunning())
         {
@@ -52,6 +72,26 @@ class StartFragment : Fragment()
         adView.loadAd(adRequest)
 
         return rootView
+    }
+
+    override fun onStart()
+    {
+        super.onStart()
+
+        supportText.viewTreeObserver.addOnGlobalLayoutListener {
+            var pos = IntArray(2)
+            supportText.getLocationInWindow(pos)
+            val drawableHeight = rootView.height - pos[1]
+
+            val logoSize = drawableHeight.toFloat() / 2
+            val titleSize = logoSize / 6
+            val textSize = titleSize / 2
+
+            kakuLogo.setTextSize(TypedValue.COMPLEX_UNIT_PX, logoSize)
+            kakuTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleSize)
+            instructionText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
+            supportText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
+        }
     }
 
     override fun onResume()

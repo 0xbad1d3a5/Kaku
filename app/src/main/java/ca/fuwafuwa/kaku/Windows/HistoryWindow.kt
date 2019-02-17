@@ -171,7 +171,7 @@ class HistoryWindow(context: Context,
     private fun recalculateViews()
     {
         pastKanjis.sortByDescending { k -> k.timesSeen }
-        pastKanjis.take(100)
+        pastKanjis = pastKanjis.take(100).toMutableList()
 
         for (i in 0 until pastKanjis.size)
         {
