@@ -6,6 +6,8 @@ import ca.fuwafuwa.kaku.splitTextByChar
 
 open class DisplayData(var squareChars: List<ISquareChar>)
 {
+    open var instantMode = false
+
     val text: String
         get()
         {
@@ -24,8 +26,6 @@ open class DisplayData(var squareChars: List<ISquareChar>)
         {
             return squareChars.count()
         }
-
-    open var instantMode = false
 
     fun recomputeChars()
     {

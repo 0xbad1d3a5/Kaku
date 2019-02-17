@@ -344,7 +344,7 @@ public class MainService extends Service implements Stoppable {
         else {
             n = new NotificationCompat.Builder(this, channelId)
                     .setSmallIcon(R.drawable.kaku_notification_icon)
-                    .setContentText("Kaku is hidden and in power-saving mode")
+                    .setContentTitle("Kaku is hidden and in power-saving mode")
                     .setContentIntent(toggleShowHide)
                     .build();
         }
@@ -380,7 +380,7 @@ public class MainService extends Service implements Stoppable {
         String channelId = Constants.KAKU_CHANNEL_ID;
         String channelName = Constants.KAKU_CHANNEL_NAME;
 
-        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_MIN);
         NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         service.createNotificationChannel(channel);
 

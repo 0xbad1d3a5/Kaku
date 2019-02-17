@@ -8,6 +8,10 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+v1.3.xx
+- Fixed entry ranking issue with dictionary - less common readings of a kanji will rank lower.
+- Fixed icon placement bug with select-to-swap actions in certain cases when the status bar / navigation bar is showing.
+
 v1.3.37
 - Removed history window. Not ready for prime time and I didn't particularly find it useful.
 - Added ability to completely hide Kaku's capture window through the notification.

@@ -34,7 +34,12 @@ class PassthroughActivity : AppCompatActivity()
 
         if (processText != null)
         {
-            InformationWindow(applicationContext, WindowCoordinator(applicationContext)).setResult(processText)
+            val windowCoordinator = WindowCoordinator(applicationContext)
+            val infoWindow = windowCoordinator.getWindow(WINDOW_INFO) as InformationWindow
+
+            infoWindow.setResult(processText)
+            infoWindow.show()
+
             finish()
         }
     }

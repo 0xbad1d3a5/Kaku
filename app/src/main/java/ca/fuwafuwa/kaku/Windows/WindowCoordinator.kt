@@ -39,12 +39,9 @@ class WindowCoordinator(private val context: Context)
         return getWindow(key) as WindowType
     }
 
-    // WARNING: DO NOT USE THIS UNLESS YOU KNOW WHAT YOU ARE DOING
-    fun setWindow(key: String, window: Window)
-    {
-        windows[key] = window
-    }
-
+    /**
+     * Should only be called by {@link Window#stop()} - calling this outside that method may result in a memory leak
+     */
     fun removeWindow(window: Window)
     {
         var key : String? = null

@@ -3,24 +3,28 @@ package ca.fuwafuwa.kaku.Windows.Views
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
-import android.view.*
+import android.view.GestureDetector
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
-
 import ca.fuwafuwa.kaku.*
 import ca.fuwafuwa.kaku.Ocr.BoxParams
-import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Windows.*
+import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Interfaces.ICopyText
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
-import ca.fuwafuwa.kaku.Windows.Window
 
 /**
  * Created by 0xbad1d3a5 on 5/5/2016.
  */
-class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalculateKanjiViews
+class KanjiCharacterView : FrameLayout, GestureDetector.OnGestureListener, IRecalculateKanjiViews
 {
     private lateinit var mContext: Context
     private lateinit var mGestureDetector: GestureDetector
@@ -29,6 +33,9 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
     private lateinit var mKanjiChoiceWindow: KanjiChoiceWindow
     private lateinit var mEditWindow: EditWindow
     private lateinit var mSquareChar: ISquareChar
+
+    private lateinit var mKanjiTextView: TextView
+    private lateinit var mIconImageView: ImageView
 
     private var mCellSizePx: Int = 0
     private var mScrollStartEvent: MotionEvent? = null
@@ -57,6 +64,16 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
     {
         mContext = context
         mGestureDetector = GestureDetector(mContext, this)
+
+        mKanjiTextView = TextView(mContext)
+        mKanjiTextView.gravity = Gravity.CENTER
+        mKanjiTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20.toFloat())
+        mKanjiTextView.setTextColor(Color.BLACK)
+        addView(mKanjiTextView)
+
+        mIconImageView = ImageView(mContext)
+        mIconImageView.visibility = INVISIBLE
+        addView(mIconImageView)
     }
 
     fun getSquareChar(): ISquareChar
@@ -76,7 +93,7 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
     fun setText(squareChar: ISquareChar)
     {
         mSquareChar = squareChar
-        text = squareChar.char
+        mKanjiTextView.text = squareChar.char
     }
 
     fun setCellSize(px: Int)
@@ -101,9 +118,14 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int)
     {
-        gravity = Gravity.CENTER
-        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20.toFloat())
-        setTextColor(Color.BLACK)
+        val cellWidthSpec = View.MeasureSpec.makeMeasureSpec(mCellSizePx, View.MeasureSpec.EXACTLY)
+        val cellHeightSpec = View.MeasureSpec.makeMeasureSpec(mCellSizePx, View.MeasureSpec.EXACTLY)
+
+        for (i in 0 until childCount)
+        {
+            getChildAt(i).measure(cellWidthSpec, cellHeightSpec)
+        }
+
         setMeasuredDimension(mCellSizePx, mCellSizePx)
     }
 
@@ -119,19 +141,25 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
             {
                 mScrollStartEvent = null
 
+                mKanjiTextView.visibility = View.VISIBLE
+                mIconImageView.visibility = View.INVISIBLE
+
                 val choiceResult = mKanjiChoiceWindow.onSquareScrollEnd(e)
                 when (choiceResult.first)
                 {
                     ChoiceResultType.SWAP ->
                     {
-                        text = choiceResult.second
+                        mKanjiTextView.text = choiceResult.second
                         mSquareChar.text = choiceResult.second
                         recalculateKanjiViews()
                     }
                     ChoiceResultType.EDIT ->
                     {
                         val window = getProperWindow<Window>()
-                        window.hide()
+                        if (mSquareChar.displayData is DisplayDataOcr)
+                        {
+                            window.hide()
+                        }
 
                         mEditWindow.setInfo(mSquareChar)
                         mEditWindow.setInputDoneCallback(this)
@@ -175,17 +203,20 @@ class KanjiCharacterView : TextView, GestureDetector.OnGestureListener, IRecalcu
         // scroll event start
         if (mScrollStartEvent == null)
         {
+            Log.d(TAG, "ScrollStart")
             mScrollStartEvent = motionEvent
 
             unhighlight()
+            mKanjiTextView.visibility = View.INVISIBLE
+            mIconImageView.visibility = View.VISIBLE
+            mIconImageView.setImageResource(R.drawable.icon_swap)
 
-            visibility = View.INVISIBLE
-
-            mKanjiChoiceWindow.onSquareScrollStart(mSquareChar, getKanjiBoxParams(), mSquareChar.displayData.instantMode)
+            mKanjiChoiceWindow.onSquareScrollStart(mSquareChar, getKanjiBoxParams())
         }
         // scroll event continuing
         else {
-            mKanjiChoiceWindow.onSquareScroll(motionEvent1)
+            Log.d(TAG, "ScrollContinue")
+            mIconImageView.setImageResource(mKanjiChoiceWindow.onSquareScroll(motionEvent1))
         }
 
         return true

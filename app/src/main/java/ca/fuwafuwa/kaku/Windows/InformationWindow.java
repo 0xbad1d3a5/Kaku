@@ -14,7 +14,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.TextSwitcher;
 
 import org.jetbrains.annotations.NotNull;
@@ -87,11 +86,6 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
 
     public void setResult(String textResult)
     {
-        // We need to do this because text-only InfoWindow can still trigger an EditWindow - in which
-        // case if we don't add this InfoWindow to the WindowCoordinator, EditWindow will crash due
-        // to not being able to find the correct window in WindowCoordinator
-        windowCoordinator.setWindow(Constants.WINDOW_INFO, this);
-
         List<String> charList = KakuTools.splitTextByChar(textResult);
         List<ISquareChar> squareCharList = new ArrayList<>();
         DisplayData displayData = new DisplayData(squareCharList);
@@ -100,6 +94,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
 
         mKanjiGrid.setText(displayData);
         performSearch(displayData.getSquareChars().get(0));
+
         mTextOnlyLookup = true;
     }
 

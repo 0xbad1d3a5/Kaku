@@ -31,15 +31,11 @@ enum class ChoiceResultType
 class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_kanji_choice)
 {
     private val choiceWindow = window.findViewById<RelativeLayout>(R.id.kanji_choice_window)!!
-    private val choiceIcon = ImageView(context)
     private val currentKanjiViews = mutableListOf<View>()
 
-    private var drawnOnTop = false
+    private lateinit var mKanjiBoxParams : BoxParams
 
-    init
-    {
-        choiceWindow.addView(choiceIcon)
-    }
+    private var drawnOnTop = false
 
     /**
      * KanjiChoiceWindow does not need to reInit layout as its getDefaultParams() are all relative. Re-initing will cause bugs.
@@ -50,16 +46,15 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         super.reInit(options)
     }
 
-    fun onSquareScrollStart(squareChar: ISquareChar, kanjiBoxParams: BoxParams, isInstantMode: Boolean)
+    fun onSquareScrollStart(squareChar: ISquareChar, kanjiBoxParams: BoxParams)
     {
-        choiceIcon.x = kanjiBoxParams.x.toFloat()
-        choiceIcon.y = kanjiBoxParams.y.toFloat() - statusBarHeight
-        choiceIcon.layoutParams = RelativeLayout.LayoutParams(kanjiBoxParams.width, kanjiBoxParams.height)
-        choiceIcon.setImageResource(R.drawable.icon_swap)
-
         if (squareChar !is SquareCharOcr)
         {
             show()
+
+            mKanjiBoxParams = kanjiBoxParams
+            mKanjiBoxParams.y -= statusBarHeight
+
             return
         }
 
@@ -77,10 +72,13 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
             drawOnTop(squareChar, kanjiBoxParams, calculateBounds(kanjiBoxParams, topRectHeight, bottomRectHeight))
         }
 
+        mKanjiBoxParams = kanjiBoxParams
+        mKanjiBoxParams.y -= statusBarHeight
+
         show()
     }
 
-    fun onSquareScroll(e: MotionEvent)
+    fun onSquareScroll(e: MotionEvent) : Int
     {
         var inKanji = false
 
@@ -99,19 +97,19 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
             }
         }
 
-        when (getResultTypeForMotionEvent(e, inKanji, drawnOnTop))
+        return when (getResultTypeForMotionEvent(e, inKanji, drawnOnTop))
         {
             ChoiceResultType.EDIT ->
             {
-                choiceIcon.setImageResource(R.drawable.icon_edit)
+                R.drawable.icon_edit
             }
             ChoiceResultType.DELETE ->
             {
-                choiceIcon.setImageResource(R.drawable.icon_delete)
+                R.drawable.icon_delete
             }
             else ->
             {
-                choiceIcon.setImageResource(R.drawable.icon_swap)
+                R.drawable.icon_swap
             }
         }
     }
@@ -141,8 +139,8 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
             return ChoiceResultType.SWAP
         }
 
-        val midpoint = choiceIcon.x + (choiceIcon.width / 2)
-        val height = if (drawnOnTop) choiceIcon.y + choiceIcon.height + statusBarHeight else choiceIcon.y + statusBarHeight
+        val midpoint = mKanjiBoxParams.x + (mKanjiBoxParams.width / 2)
+        val height = if (drawnOnTop) mKanjiBoxParams.y + mKanjiBoxParams.height + statusBarHeight else mKanjiBoxParams.y + statusBarHeight
 
         return if (e.rawX < midpoint && heightCheckForResult(e, height, drawnOnTop))
         {
@@ -158,7 +156,7 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         }
     }
 
-    private fun heightCheckForResult(e: MotionEvent, height: Float, drawnOnTop: Boolean) : Boolean
+    private fun heightCheckForResult(e: MotionEvent, height: Int, drawnOnTop: Boolean) : Boolean
     {
         return if (drawnOnTop) e.rawY > height else e.rawY < height
     }
