@@ -36,7 +36,7 @@ public class MainServiceHandler extends Handler {
         {
             OcrResult result = (OcrResult) message.obj;
 
-            Log.e(TAG, result.toString());
+            Log.d(TAG, result.toString());
 
             if (result.getDisplayData().getInstantMode())
             {

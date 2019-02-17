@@ -108,7 +108,7 @@ public class MainService extends Service implements Stoppable {
     private class MediaProjectionStopCallback extends MediaProjection.Callback{
         @Override
         public void onStop(){
-            Log.e(TAG, "Stopping projection");
+            Log.d(TAG, "Stopping projection");
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -366,7 +366,7 @@ public class MainService extends Service implements Stoppable {
         mDisplay.getRealSize(mRealDisplaySize);
 
         // start capture reader
-        Log.e(TAG, String.format("Starting Projection: %dx%d", mRealDisplaySize.x, mRealDisplaySize.y));
+        Log.d(TAG, String.format("Starting Projection: %dx%d", mRealDisplaySize.x, mRealDisplaySize.y));
         if (mVirtualDisplay != null){
             mVirtualDisplay.release();
         }
@@ -380,7 +380,7 @@ public class MainService extends Service implements Stoppable {
         String channelId = Constants.KAKU_CHANNEL_ID;
         String channelName = Constants.KAKU_CHANNEL_NAME;
 
-        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_MIN);
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
         NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         service.createNotificationChannel(channel);
 
