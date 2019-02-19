@@ -1,27 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:orientation="vertical">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_indicator"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        app:tabMaxWidth="0dp"
-        app:tabGravity="fill"
-        app:tabMode="fixed"
-        app:tabIndicatorHeight="10dp"
-        app:tabBackground="@android:color/background_dark"
-        app:tabIndicatorColor="@android:color/darker_gray"/>
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
+<fragment
+    android:id="@+id/main_fragment"
+    android:name="ca.fuwafuwa.kaku.MainStartFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
 </LinearLayout>

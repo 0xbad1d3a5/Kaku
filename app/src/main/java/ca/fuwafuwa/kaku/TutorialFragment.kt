@@ -1,6 +1,5 @@
 package ca.fuwafuwa.kaku
 
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -11,13 +10,13 @@ import android.widget.TextView
 import android.widget.VideoView
 import androidx.fragment.app.Fragment
 
-class InstructionFragment : Fragment()
+class TutorialFragment : Fragment()
 {
     lateinit var mVideoView: VideoView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        val rootView = inflater.inflate(R.layout.fragment_instruction, container, false)
+        val rootView = inflater.inflate(R.layout.fragment_tutorial, container, false)
 
         mVideoView = rootView.findViewById(R.id.instruction_video_view) as VideoView
         val pos = arguments?.getInt(ARG_SECTION_NUMBER)!!
@@ -26,12 +25,6 @@ class InstructionFragment : Fragment()
         mVideoView.setVideoURI(Uri.parse("android.resource://ca.fuwafuwa.kaku/${getVideoForSectionNumber(pos)}"))
         mVideoView.setOnPreparedListener { it.isLooping = true }
         mVideoView.start()
-
-        val mTitleText = rootView.findViewById(R.id.instruction_title_text) as TextView
-        mTitleText.text = getTitleTextForSectionNumber(pos)
-
-        val mText = rootView.findViewById(R.id.instruction_text) as TextView
-        mText.text = getTextForSectionNumber(pos)
 
         return rootView
     }
@@ -92,12 +85,12 @@ class InstructionFragment : Fragment()
 
     companion object
     {
-        private val TAG = InstructionFragment::class.java.name
+        private val TAG = TutorialFragment::class.java.name
         private val ARG_SECTION_NUMBER = "section_number"
 
-        fun newInstance(sectionNumber: Int): InstructionFragment
+        fun newInstance(sectionNumber: Int): TutorialFragment
         {
-            val fragment = InstructionFragment()
+            val fragment = TutorialFragment()
             val args = Bundle()
             args.putInt(ARG_SECTION_NUMBER, sectionNumber)
             fragment.arguments = args

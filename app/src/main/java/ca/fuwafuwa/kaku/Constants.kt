@@ -19,6 +19,7 @@ const val KAKU_PREF_SHOW_HIDE = "ShowHide"
 const val KAKU_PREF_IMAGE_FILTER = "ImageFilter"
 const val KAKU_PREF_TEXT_DIRECTION = "TextDirection"
 const val KAKU_PREF_INSTANT_MODE = "InstantMode"
+const val KAKU_PREF_FIRST_LAUNCH = "FirstLaunch"
 const val KAKU_PREF_TIMES_LAUNCHED = "TimesLaunched"
 const val KAKU_PREF_PLAY_STORE_RATED = "PlayStoreRated"
 

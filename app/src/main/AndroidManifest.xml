@@ -34,6 +34,15 @@
 
         </activity>
 
+        <activity
+            android:name=".TutorialActivity"
+            android:label="Kaku Tutorial"
+            android:noHistory="false"
+            android:launchMode="standard"
+            android:screenOrientation="portrait">
+
+        </activity>
+
         <activity android:name=".BetaActivity"
             android:label="Kaku Beta"
             android:noHistory="false"

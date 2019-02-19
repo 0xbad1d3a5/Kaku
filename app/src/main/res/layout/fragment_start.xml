@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/Primary"
-    tools:context=".StartFragment">
+    tools:context=".MainStartFragment">
 
     <TextView
         android:id="@+id/kaku_logo"
@@ -34,13 +34,13 @@
         app:layout_constraintTop_toBottomOf="@+id/kaku_logo" />
 
     <TextView
-        android:id="@+id/instruction_text"
+        android:id="@+id/kaku_tutorial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
-        android:text="Slide right for instructions"
-        android:textColor="@color/important"
+        android:text="Tap Here to View Tutorial"
+        android:textColor="@color/blue_dark"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

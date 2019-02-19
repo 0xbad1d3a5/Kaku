@@ -3,6 +3,7 @@ package ca.fuwafuwa.kaku
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
@@ -18,45 +19,33 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import ca.fuwafuwa.kaku.Dialogs.StarRatingDialogFragment
-import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity()
 {
-    inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm)
-    {
-        override fun getItem(position: Int): Fragment
-        {
-            if (position == 0){
-                return StartFragment.newInstance()
-            }
-            return InstructionFragment.newInstance(position + 1)
-        }
+    private var mIsActivityVisible = false
 
-        override fun getCount(): Int
-        {
-            return 10
-        }
-    }
-
-    private var isActivityVisible = false
-    private var mSectionsPagerAdapter: FragmentStatePagerAdapter? = null
+    private lateinit var mPrefs : SharedPreferences
     private lateinit var mStartKakuIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
 
-        supportActionBar?.hide()
-        setContentView(R.layout.activity_main)
+        mPrefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
 
-        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
-        container.adapter = mSectionsPagerAdapter
-        container.offscreenPageLimit = 0
-        tab_indicator.setupWithViewPager(container, true)
+        if (false)
+        {
+            startActivity(Intent(this, TutorialActivity::class.java))
+            finish()
+        }
+        else {
+            supportActionBar?.hide()
+            setContentView(R.layout.activity_main)
 
-        setupKakuDatabasesAndFiles(this)
+            setupKakuDatabasesAndFiles(this)
+        }
     }
 
     override fun onStart()
@@ -66,28 +55,21 @@ class MainActivity : AppCompatActivity()
         checkDrawOnTopPermissions()
         checkScreenRecordPermissions()
 
-        val prefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
-        val timesLaunched = prefs.getInt(KAKU_PREF_TIMES_LAUNCHED, 1)
-        val rated = prefs.getBoolean(KAKU_PREF_PLAY_STORE_RATED, false)
-
-        if (timesLaunched % 2 == 0 && !rated)
-        {
-            StarRatingDialogFragment().show(supportFragmentManager, "StarRating")
-        }
+        showRatingDialog()
     }
 
     override fun onPause()
     {
         super.onPause()
         Log.d(TAG, "ACTIVITY INVISIBLE")
-        isActivityVisible = false
+        mIsActivityVisible = false
     }
 
     override fun onResume()
     {
         super.onResume()
         Log.d(TAG, "ACTIVITY VISIBLE")
-        isActivityVisible = true
+        mIsActivityVisible = true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
@@ -126,7 +108,7 @@ class MainActivity : AppCompatActivity()
         }
     }
 
-    fun startKakuService(progressBar: ProgressBar, supportText: TextView)
+    fun startKaku(progressBar: ProgressBar, supportText: TextView)
     {
         if (MainService.IsRunning())
         {
@@ -136,13 +118,14 @@ class MainActivity : AppCompatActivity()
         if (::mStartKakuIntent.isInitialized)
         {
             progressBar.progress = 0
+            progressBar.isIndeterminate = true
 
             val totalDuration = 2000
             object : CountDownTimer(totalDuration.toLong(), 10)
             {
                 override fun onFinish()
                 {
-                    if (isActivityVisible)
+                    if (mIsActivityVisible)
                     {
                         progressBar.isIndeterminate = false
                         progressBar.progress = 100
@@ -186,6 +169,22 @@ class MainActivity : AppCompatActivity()
         Log.d(TAG, "Sending REQUEST_SCREENSHOT Intent")
         val mediaProjectionManager: MediaProjectionManager? = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         startActivityForResult(mediaProjectionManager!!.createScreenCaptureIntent(), REQUEST_SCREENSHOT)
+    }
+
+    private fun showRatingDialog()
+    {
+        val timesLaunched = mPrefs.getInt(KAKU_PREF_TIMES_LAUNCHED, 1)
+        val rated = mPrefs.getBoolean(KAKU_PREF_PLAY_STORE_RATED, false)
+
+        if (timesLaunched % 2 == 0 && !rated)
+        {
+            StarRatingDialogFragment().show(supportFragmentManager, "StarRating")
+        }
+    }
+
+    private fun isFirstLaunch() : Boolean
+    {
+        return mPrefs.getBoolean(KAKU_PREF_FIRST_LAUNCH, true)
     }
 
     companion object
