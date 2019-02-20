@@ -6,32 +6,62 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.view.ViewTreeObserver
+import android.widget.LinearLayout
 import android.widget.VideoView
 import androidx.fragment.app.Fragment
 
 class TutorialFragment : Fragment()
 {
-    lateinit var mVideoView: VideoView
+    private lateinit var mRootView : View
+    private lateinit var mVideoView : VideoView
+    private lateinit var mTutorialButtons : LinearLayout
+    private var mPos : Int = -1
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
-        val rootView = inflater.inflate(R.layout.fragment_tutorial, container, false)
+        mRootView = inflater.inflate(R.layout.fragment_tutorial, container, false)
 
-        mVideoView = rootView.findViewById(R.id.instruction_video_view) as VideoView
-        val pos = arguments?.getInt(ARG_SECTION_NUMBER)!!
-        Log.d(TAG, "Video View for fragment $pos created")
+        mVideoView = mRootView.findViewById(R.id.instruction_video_view) as VideoView
+        mTutorialButtons = mRootView.findViewById(R.id.tutorial_buttons) as LinearLayout
 
-        mVideoView.setVideoURI(Uri.parse("android.resource://ca.fuwafuwa.kaku/${getVideoForSectionNumber(pos)}"))
+        mPos = arguments?.getInt(ARG_SECTION_NUMBER)!!
+
+        Log.d(TAG, "onCreateView $mPos")
+
+        return mRootView
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+
+        mVideoView.setVideoURI(Uri.parse("android.resource://ca.fuwafuwa.kaku/${getVideoForSectionNumber(mPos)}"))
         mVideoView.setOnPreparedListener { it.isLooping = true }
         mVideoView.start()
+    }
 
-        return rootView
+    override fun onStart()
+    {
+        super.onStart()
+
+        mTutorialButtons.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener
+        {
+            override fun onGlobalLayout()
+            {
+                val drawableHeight = mTutorialButtons.y.toInt()
+
+                mVideoView.layoutParams.height = drawableHeight - dpToPx(context!!, 20)
+                mVideoView.requestLayout()
+
+                mTutorialButtons.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        })
     }
 
     private fun getVideoForSectionNumber(num: Int): Int
     {
-        val pos = num - 1
+        val pos = num
         when (pos){
             1 -> return R.raw.tut1_drag_to_move
             2 -> return R.raw.tut2_drag_to_resize
@@ -49,7 +79,7 @@ class TutorialFragment : Fragment()
 
     private fun getTitleTextForSectionNumber(num: Int): String
     {
-        val pos = num - 1
+        val pos = num
         when (pos){
             1 -> return "DRAG TO MOVE"
             2 -> return "DRAG TO RESIZE"

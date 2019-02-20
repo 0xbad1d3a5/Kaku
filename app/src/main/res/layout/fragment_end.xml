@@ -30,17 +30,26 @@
         <TextView
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:text="Welcome to Kaku!"
+            android:text="Enjoy Kaku!"
             android:textColor="@color/PrimaryDark"
             android:textSize="32dp" />
 
         <TextView
+            android:id="@+id/tutorial_end_text"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Please take the next few minutes to read through the tutorial and familiarize yourself with Kaku. There's a lot to learn!\n\nTo begin, slide right."
+            android:text="Good luck in your Japanese journey. The road will be long and hard, but it will be worth it."
             android:textColor="@color/PrimaryDark"
             android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/tutorial_end_start_kaku"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:text="Start Kaku"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

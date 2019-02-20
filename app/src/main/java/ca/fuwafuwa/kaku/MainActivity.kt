@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity()
 
         mPrefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
 
-        if (false)
+        if (isFirstLaunch())
         {
             startActivity(Intent(this, TutorialActivity::class.java))
             finish()

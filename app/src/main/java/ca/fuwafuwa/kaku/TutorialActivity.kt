@@ -16,12 +16,17 @@ class TutorialActivity : AppCompatActivity()
             if (position == 0){
                 return TutorialWelcomeFragment.newInstance()
             }
-            return TutorialFragment.newInstance(position + 1)
+            if (position in 1..9)
+            {
+                return TutorialFragment.newInstance(position)
+            }
+
+            return TutorialEndFragment.newInstance()
         }
 
         override fun getCount(): Int
         {
-            return 10
+            return 11
         }
 
         fun setProgress(progress: Int)
@@ -30,7 +35,7 @@ class TutorialActivity : AppCompatActivity()
         }
     }
 
-    private var mSectionsPagerAdapter: FragmentStatePagerAdapter? = null
+    private lateinit var mSectionsPagerAdapter: FragmentStatePagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -42,17 +47,11 @@ class TutorialActivity : AppCompatActivity()
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         container.adapter = mSectionsPagerAdapter
         container.offscreenPageLimit = 1
+        tab_indicator.setupWithViewPager(container)
+    }
 
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.addTab(tab_indicator.newTab())
-        tab_indicator.getTabAt(4)!!.select()
+    companion object
+    {
+        private val TAG = TutorialActivity::class.java.name
     }
 }
