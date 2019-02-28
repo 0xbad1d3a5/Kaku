@@ -8,6 +8,10 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+v1.3.39
+- Revamped tutorial and shows on first start of the app
+- Fix minor bugs
+
 v1.3.38
 - Fixed entry ranking issue with dictionary - less common readings of a kanji will rank lower.
 - Fixed icon placement bug with select-to-swap actions in certain cases when the status bar / navigation bar is showing.

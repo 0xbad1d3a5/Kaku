@@ -72,8 +72,8 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
 
         while (word.isNotEmpty())
         {
+            // Find deinflections and add them
             val deinfResultsList: List<DeinflectionInfo> = mDeinflector.getPotentialDeinflections(word)
-
             var count = 0
             for (deinfInfo in deinfResultsList)
             {
@@ -92,7 +92,6 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
 
                     var valid = true
 
-                    /*
                     if (count > 0)
                     {
                         valid = (deinfInfo.type and 1 != 0) && (entry.pos.contains("v1")) ||
@@ -101,7 +100,6 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
                                 (deinfInfo.type and 8 != 0) && (entry.pos.contains("vk")) ||
                                 (deinfInfo.type and 16 != 0) && (entry.pos.contains("vs-"))
                     }
-                    */
 
                     if (valid){
                         results.add(JmSearchResult(entry, deinfInfo, word))
@@ -111,6 +109,20 @@ constructor(private val mSearchInfo: SearchInfo, private val mSearchJmTaskDone: 
                     count++
                 }
             }
+
+            // Add all exact matches as well
+            val filteredEntry: List<EntryOptimized> = entries.filter { entry -> entry.kanji == word }
+            for (entry in filteredEntry)
+            {
+                if (seenEntries.contains(entry))
+                {
+                    continue
+                }
+
+                results.add(JmSearchResult(entry, DeinflectionInfo(word, 0, ""), word))
+                seenEntries.add(entry)
+            }
+
             word = word.substring(0, word.length - 1)
         }
 

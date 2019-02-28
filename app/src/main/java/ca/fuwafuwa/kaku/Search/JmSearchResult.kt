@@ -5,6 +5,6 @@ import ca.fuwafuwa.kaku.Deinflictor.DeinflectionInfo
 
 data class JmSearchResult(
         val entry: EntryOptimized,
-        val deinfInfo: DeinflectionInfo?,
+        val deinfInfo: DeinflectionInfo,
         val word: String
 )

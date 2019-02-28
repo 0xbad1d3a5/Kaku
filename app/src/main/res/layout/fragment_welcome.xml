@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:text="Welcome to Kaku!"
             android:textColor="@color/PrimaryDark"
-            android:textSize="32dp" />
+            android:textSize="28dp" />
 
         <TextView
             android:layout_width="300dp"

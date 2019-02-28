@@ -28,11 +28,6 @@ class TutorialActivity : AppCompatActivity()
         {
             return 11
         }
-
-        fun setProgress(progress: Int)
-        {
-
-        }
     }
 
     private lateinit var mSectionsPagerAdapter: FragmentStatePagerAdapter

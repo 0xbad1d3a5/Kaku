@@ -84,7 +84,7 @@ class Deinflector(context: Context) {
 
         // Map of possible deinflections to its deinfWordList index
         var prevSeenDeinfWords = HashMap<String, Int>()
-        prevSeenDeinfWords.put(text, 0)
+        prevSeenDeinfWords[text] = 0
 
         var currWordChainIndex = 0
 
@@ -127,7 +127,7 @@ class Deinflector(context: Context) {
                             rule.type shr 8,
                             if (currDeinflectionInfo.reason.isNotEmpty()) "< ${rule.reason} ${currDeinflectionInfo.reason}" else "< ${rule.reason}"
                     )
-                    prevSeenDeinfWords.put(newWord, deinfWordChain.size)
+                    prevSeenDeinfWords[newWord] = deinfWordChain.size
                     deinfWordChain.add(newDeinflectedWord)
                 }
             }
