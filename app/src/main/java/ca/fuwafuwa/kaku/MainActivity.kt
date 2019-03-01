@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity()
         val timesLaunched = mPrefs.getInt(KAKU_PREF_TIMES_LAUNCHED, 1)
         val rated = mPrefs.getBoolean(KAKU_PREF_PLAY_STORE_RATED, false)
 
-        if (timesLaunched % 2 == 0 && !rated)
+        if (timesLaunched % 20 == 0 && !rated)
         {
             StarRatingDialogFragment().show(supportFragmentManager, "StarRating")
         }
