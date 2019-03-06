@@ -72,7 +72,6 @@ fun pxToDp(context: Context, px: Int): Int
  */
 fun splitTextByChar(text: String): List<String>
 {
-
     val charList = ArrayList<String>()
 
     val length = text.length

@@ -25,8 +25,18 @@ class LangUtils {
                 0x3071, 0x3074, 0x3077, 0x307A, 0x307D
         )
 
-        fun ConvertKanatanaToHiragana(text: String): String {
+        fun IsHiragana(char: Char) : Boolean
+        {
+            return Character.UnicodeBlock.of(char) == Character.UnicodeBlock.HIRAGANA
+        }
 
+        fun IsKatakana(char: Char) : Boolean
+        {
+            return Character.UnicodeBlock.of(char) == Character.UnicodeBlock.KATAKANA
+        }
+
+        fun ConvertKanatanaToHiragana(text: String): String
+        {
             var result: StringBuilder = StringBuilder()
             var ordPrev: Int = 0;
 

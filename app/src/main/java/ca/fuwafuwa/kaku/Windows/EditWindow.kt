@@ -131,7 +131,7 @@ class EditWindow(context: Context, windowCoordinator: WindowCoordinator) : Windo
             }
             for (yRight in yPos until height + yPos)
             {
-                orig.setPixel(xPos + width, yRight, Color.RED)
+                orig.setPixel(xPos + width, yRight, Color.RED) // TODO: We're crashing here - investigate
             }
             orig.setPixel(xPos + width, yPos + height, Color.RED)
 

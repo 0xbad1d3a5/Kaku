@@ -8,6 +8,9 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+v1.3.xx
+- Add similar kana to swap quick text action in case that OCR engine doesn't give that recommendation
+
 v1.3.42
 - Reduce size of tutorial videos
 
