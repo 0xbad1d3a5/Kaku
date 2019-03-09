@@ -19,6 +19,7 @@ import ca.fuwafuwa.kaku.MainService
 import ca.fuwafuwa.kaku.Windows.CaptureWindow
 import ca.fuwafuwa.kaku.Windows.Data.ChoiceCertainty
 import ca.fuwafuwa.kaku.Windows.Data.DisplayDataOcr
+import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Data.SquareCharOcr
 
 /**
@@ -28,7 +29,8 @@ class OcrRunnable(context: Context, private var mCaptureWindow: CaptureWindow?) 
 {
     private val mContext: MainService = context as MainService
     private val mOcrLock = java.lang.Object()
-    private val mOcrCorrections = loadOcrCorrections()
+    private val mSimilarChars = loadSimilarChars()
+    private val mCommonMistakes = loadCommonMistakes()
 
     private var mTessBaseAPI: TessBaseAPI? = null
     private var mThreadRunning = true
@@ -170,17 +172,37 @@ class OcrRunnable(context: Context, private var mCaptureWindow: CaptureWindow?) 
     {
         for (squareChar in displayData.squareChars as List<SquareCharOcr>)
         {
-            val similarKana = mOcrCorrections[squareChar.char]
+            val similarChars = mSimilarChars[squareChar.char]
 
-            if (similarKana != null)
+            if (similarChars != null)
             {
-                for (kana in similarKana)
+                for (c in similarChars)
                 {
-                    if (squareChar.allChoices.indexOfFirst { it.first == kana } < 0)
-                    {
-                        squareChar.addChoice(kana, ChoiceCertainty.UNCERTAIN)
-                    }
+                    squareChar.addChoice(c, ChoiceCertainty.UNCERTAIN)
                 }
+            }
+        }
+
+        for (squareChar in displayData.squareChars as List<SquareCharOcr>)
+        {
+            correctCommonMistake(squareChar, "く")
+            correctCommonMistake(squareChar, "し")
+            correctCommonMistake(squareChar, "、")
+            correctCommonMistake(squareChar, "。")
+        }
+    }
+
+    private fun correctCommonMistake(squareChar: SquareCharOcr, char: String)
+    {
+        if (mCommonMistakes[squareChar.char] == char)
+        {
+            val prev = squareChar.prev
+            val next = squareChar.next
+
+            if (prev?.char != null && LangUtils.IsJapaneseChar(prev.char[0]) ||
+                next?.char != null && LangUtils.IsJapaneseChar(next.char[0]))
+            {
+                squareChar.addChoice(char, ChoiceCertainty.CERTAIN)
             }
         }
     }
@@ -218,11 +240,11 @@ class OcrRunnable(context: Context, private var mCaptureWindow: CaptureWindow?) 
         return displayData
     }
 
-    private fun loadOcrCorrections(): HashMap<String, List<String>>
+    private fun loadSimilarChars(): HashMap<String, List<String>>
     {
-        val similarKanas = HashMap<String, List<String>>()
+        val similarChars = HashMap<String, List<String>>()
 
-        for (list in OcrCorrection.CommonKanaLookalikes)
+        for (list in OcrCorrection.CommonLookalikes)
         {
             for ((index, kana) in list.withIndex())
             {
@@ -231,18 +253,46 @@ class OcrRunnable(context: Context, private var mCaptureWindow: CaptureWindow?) 
                     continue
                 }
 
-                val kanaMap: List<String> = when (index)
+                val kanaList: List<String> = when (index)
                 {
                     0 -> list.takeLast(list.size - 1)
                     list.size - 1 -> list.take(list.size - 1)
-                    else -> list.subList(0, index) + list.subList(index + 1, list.size - 1)
+                    else -> list.subList(0, index) + list.subList(index + 1, list.size)
                 }
 
-                similarKanas[kana] = kanaMap
+                if (similarChars.containsKey(kana))
+                {
+                    for (k in kanaList)
+                    {
+                        if (!similarChars[kana]!!.contains(k))
+                        {
+                            similarChars[kana] = kanaList + listOf(k)
+                        }
+                    }
+                }
+                else
+                {
+                    similarChars[kana] = kanaList
+                }
             }
         }
 
-        return similarKanas
+        return similarChars
+    }
+
+    private fun loadCommonMistakes(): HashMap<String, String>
+    {
+        val commonMistakes = HashMap<String, String>()
+
+        for (pair in OcrCorrection.CommonMistakes)
+        {
+            for (c in pair.first)
+            {
+                commonMistakes[c] = pair.second
+            }
+        }
+
+        return commonMistakes
     }
 
     private fun sendOcrResultToContext(result: OcrResult)

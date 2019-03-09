@@ -83,9 +83,6 @@ open class DisplayData(var squareChars: List<ISquareChar>)
     {
         if (squareChar is SquareCharOcr)
         {
-            val matchIndex = squareChar.allChoices.indexOfFirst { x -> x.first == choice}
-            if (matchIndex >= 0) squareChar.allChoices.removeAt(matchIndex)
-
             squareChar.addChoice(choice, ChoiceCertainty.CERTAIN)
         }
     }

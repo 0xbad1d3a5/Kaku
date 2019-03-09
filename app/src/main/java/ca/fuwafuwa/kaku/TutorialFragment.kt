@@ -60,7 +60,7 @@ class TutorialFragment : Fragment()
             {
                 val drawableHeight = mButtonLayout.y.toInt()
 
-                mVideoView.layoutParams.height = drawableHeight - dpToPx(context!!, 20)
+                mVideoView.layoutParams.height = drawableHeight - dpToPx(context!!, 20) // TODO: NRE here, probably LayoutParams?
                 mVideoView.requestLayout()
 
                 mButtonLayout.viewTreeObserver.removeOnGlobalLayoutListener(this)

@@ -183,7 +183,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
                 }
                 else
                 {
-                    windowCoordinator.stopAllWindows();
+                    windowCoordinator.stopAllWindows(); // TODO: NRE here
                 }
             }
         });

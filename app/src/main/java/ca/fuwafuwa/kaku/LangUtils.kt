@@ -35,6 +35,21 @@ class LangUtils {
             return Character.UnicodeBlock.of(char) == Character.UnicodeBlock.KATAKANA
         }
 
+        fun IsKanji(char: Char) : Boolean
+        {
+            val block = Character.UnicodeBlock.of(char)
+            return block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS ||
+                   block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A ||
+                   block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B ||
+                   block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C ||
+                   block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D
+        }
+
+        fun IsJapaneseChar(char: Char) : Boolean
+        {
+            return IsHiragana(char) || IsKatakana(char) || IsKanji(char)
+        }
+
         fun ConvertKanatanaToHiragana(text: String): String
         {
             var result: StringBuilder = StringBuilder()

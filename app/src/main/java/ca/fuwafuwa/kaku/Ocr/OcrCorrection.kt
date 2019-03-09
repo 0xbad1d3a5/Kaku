@@ -4,22 +4,22 @@ class OcrCorrection
 {
     companion object
     {
-        val CommonKanaLookalikes: List<List<String>> = listOf(
+        val CommonLookalikes: List<List<String>> = listOf(
 
                 // Hiragana
                 listOf("あ", "ぁ", "お", "ぉ"),
                 listOf("い", "ぃ"),
                 listOf("う", "ぅ"),
                 listOf("え", "ぇ"),
-                listOf("お", "ぉ"),
+                listOf("お", "ぉ", "あ", "ぁ"),
 
-                listOf("か", "が"),
-                listOf("き", "ぎ"),
+                listOf("か", "が", "カ", "ガ", "ヵ", "力"),
+                listOf("き", "ぎ", "さ", "ざ"),
                 listOf("く", "ぐ", "〈", "<", "＜"),
                 listOf("け", "げ"),
                 listOf("こ", "ご"),
 
-                listOf("さ", "ざ"),
+                listOf("さ", "ざ", "き", "ぎ"),
                 listOf("し", "じ", "L", "Ｌ"),
                 listOf("す", "ず"),
                 listOf("せ", "ぜ"),
@@ -70,7 +70,7 @@ class OcrCorrection
                 listOf("エ", "ェ"),
                 listOf("オ", "ォ"),
 
-                listOf("カ", "ガ", "ヵ"),
+                listOf("カ", "ガ", "ヵ", "か", "が", "力"),
                 listOf("キ", "ギ"),
                 listOf("ク", "グ", "ㇰ"),
                 listOf("ケ", "ゲ", "ヶ"),
@@ -96,7 +96,7 @@ class OcrCorrection
 
                 listOf("ハ", "バ", "パ", "ㇵ"),
                 listOf("ヒ", "ビ", "ピ", "ㇶ"),
-                listOf("フ", "ブ", "プ", "ㇷ", "\u31f7\u309a"),
+                listOf("フ", "ブ", "プ", "ㇷ"), //, "\u31f7\u309a"),
                 listOf("ヘ", "ベ", "ペ", "ㇸ"),
                 listOf("ホ", "ボ", "ポ", "ㇹ"),
 
@@ -121,7 +121,17 @@ class OcrCorrection
                 listOf("ン"),
 
                 // Other
-                listOf("ー", "一", "―", "‐", "—", "－", "-", "_")
+                listOf("ー", "一", "―", "‐", "—", "－", "-", "_"),
+                listOf("、", "`", "ヽ"),
+                listOf("。", "o")
+        )
+
+        val CommonMistakes : List<Pair<List<String>, String>> = listOf(
+
+                Pair(listOf("〈", "<", "＜"), "く"),
+                Pair(listOf("L", "Ｌ"), "し"),
+                Pair(listOf("`", "ヽ"), "、"),
+                Pair(listOf("o"), "。")
         )
     }
 }

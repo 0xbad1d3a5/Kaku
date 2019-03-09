@@ -15,4 +15,7 @@
     <color name="blue_dark_translucent">#330064ff</color>
     <color name="blue_solid_highlight">#cce0ff</color>
     <color name="red_capture_window_ready">#ffd50000</color>
+
+    <color name="kana_pink">#C71585</color>
+    <color name="kana_blue">#0000CD</color>
 </resources>

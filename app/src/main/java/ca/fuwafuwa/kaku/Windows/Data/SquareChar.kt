@@ -8,6 +8,10 @@ interface ISquareChar
 
     var text: String?
 
+    var prev: ISquareChar?
+
+    var next: ISquareChar?
+
     var userTouched: Boolean
 
     val displayData: DisplayData
@@ -28,6 +32,32 @@ open class SquareChar(override val displayData: DisplayData,
         val returnText = field
         field = null
         return returnText
+    }
+
+    override var prev : ISquareChar? = null
+    get()
+    {
+        return if (index == 0)
+        {
+            null
+        }
+        else
+        {
+            displayData.squareChars[index - 1]
+        }
+    }
+
+    override var next: ISquareChar? = null
+    get()
+    {
+        return if (index == displayData.squareChars.size - 1)
+        {
+            null
+        }
+        else
+        {
+            displayData.squareChars[index + 1]
+        }
     }
 
     override fun clone(): ISquareChar
@@ -55,9 +85,30 @@ class SquareCharOcr(override val displayData: DisplayDataOcr,
 
     fun addChoice(char: String, certainty: ChoiceCertainty)
     {
+        val matchIndex = allChoices.indexOfFirst { x -> x.first == char}
+
+        if (certainty == ChoiceCertainty.CERTAIN)
+        {
+            if (matchIndex >= 0) allChoices.removeAt(matchIndex)
+
+            allChoices.add(0, Pair(char, 100.0))
+            this.char = char
+        }
+        else
+        {
+            if (matchIndex < 0)
+            {
+                allChoices.add(Pair(char, 0.0))
+            }
+        }
+    }
+
+    fun addChoice1(char: String, certainty: ChoiceCertainty)
+    {
         if (certainty == ChoiceCertainty.CERTAIN)
         {
             allChoices.add(0, Pair(char, 100.0))
+            this.char = char
         }
         else {
             allChoices.add(Pair(char, 0.0))

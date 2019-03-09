@@ -14,6 +14,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import ca.fuwafuwa.kaku.LangUtils
 import ca.fuwafuwa.kaku.Ocr.BoxParams
 import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
@@ -291,7 +293,15 @@ class KanjiChoiceWindow(context: Context, windowCoordinator: WindowCoordinator) 
         tv.text = kanji
         tv.gravity = Gravity.CENTER
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, (kanjiWidth / 1.5).toFloat())
-        tv.setTextColor(Color.BLACK)
+
+        when
+        {
+            LangUtils.IsHiragana(kanji[0]) -> tv.setTextColor(ContextCompat.getColor(context, R.color.kana_pink))
+            LangUtils.IsKatakana(kanji[0]) -> tv.setTextColor(ContextCompat.getColor(context, R.color.kana_blue))
+            LangUtils.IsKanji(kanji[0]) -> tv.setTextColor(Color.BLACK)
+            else -> tv.setTextColor(Color.GRAY)
+        }
+
         tv.setBackgroundResource(R.drawable.bg_solid_border_0_white_black)
         tv.width = kanjiWidth
         tv.height = kanjiHeight
