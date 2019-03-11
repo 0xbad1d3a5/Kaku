@@ -24,7 +24,7 @@ open class DisplayData(var squareChars: List<ISquareChar>)
     val count: Int
         get()
         {
-            return squareChars.count()
+            return squareChars.size
         }
 
     fun recomputeChars()

@@ -15,7 +15,7 @@ class OcrCorrection
 
                 listOf("か", "が", "カ", "ガ", "ヵ", "力"),
                 listOf("き", "ぎ", "さ", "ざ"),
-                listOf("く", "ぐ", "〈", "<", "＜"),
+                listOf("く", "ぐ", "〈", "<", "＜", "("),
                 listOf("け", "げ"),
                 listOf("こ", "ご"),
 
@@ -27,7 +27,7 @@ class OcrCorrection
 
                 listOf("た", "だ"),
                 listOf("ち", "ぢ"),
-                listOf("つ", "づ", "っ"),
+                listOf("つ", "づ", "っ", "ウ", "ゥ", "ワ", "ヮ"),
                 listOf("て", "で"),
                 listOf("と", "ど"),
 
@@ -54,7 +54,7 @@ class OcrCorrection
                 listOf("よ", "ょ"),
 
                 listOf("ら"),
-                listOf("り"),
+                listOf("り", "リ", "ㇼ"),
                 listOf("る"),
                 listOf("れ"),
                 listOf("ろ"),
@@ -66,7 +66,7 @@ class OcrCorrection
                 // Katakana
                 listOf("ア", "ァ"),
                 listOf("イ", "ィ"),
-                listOf("ウ", "ゥ"),
+                listOf("ウ", "ゥ", "つ", "づ", "っ", "ワ", "ヮ"),
                 listOf("エ", "ェ"),
                 listOf("オ", "ォ"),
 
@@ -111,17 +111,17 @@ class OcrCorrection
                 listOf("ヨ", "ョ"),
 
                 listOf("ラ", "ㇻ"),
-                listOf("リ", "ㇼ"),
+                listOf("リ", "ㇼ", "り"),
                 listOf("ル", "ㇽ"),
                 listOf("レ", "ㇾ"),
-                listOf("ロ", "ㇿ"),
+                listOf("ロ", "ㇿ", "口"),
 
-                listOf("ワ", "ヮ"),
+                listOf("ワ", "ヮ", "ウ", "ゥ", "つ", "づ", "っ"),
                 listOf("ヲ"),
                 listOf("ン"),
 
                 // Other
-                listOf("ー", "一", "―", "‐", "—", "－", "-", "_"),
+                listOf("ー", "一", "―", "‐", "—", "－", "-", "_", "|"),
                 listOf("、", "`", "ヽ"),
                 listOf("。", "o")
         )
@@ -131,7 +131,10 @@ class OcrCorrection
                 Pair(listOf("〈", "<", "＜"), "く"),
                 Pair(listOf("L", "Ｌ"), "し"),
                 Pair(listOf("`", "ヽ"), "、"),
-                Pair(listOf("o"), "。")
+                Pair(listOf("o"), "。"),
+
+                // Special cases for multiple mappings
+                Pair(listOf("ー", "一", "―", "‐", "—", "－", "-", "_", "|"), "")
         )
     }
 }

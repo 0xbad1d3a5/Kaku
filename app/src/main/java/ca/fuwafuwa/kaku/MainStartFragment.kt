@@ -120,7 +120,7 @@ class MainStartFragment : Fragment()
                     mainActivity.startKaku(progressBar, supportText)
                 }
             }
-        }, 6000)
+        }, 4000)
     }
 
     companion object

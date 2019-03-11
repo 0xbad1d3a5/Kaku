@@ -2,14 +2,13 @@ package ca.fuwafuwa.kaku.Windows.Views
 
 import android.content.Context
 import android.util.AttributeSet
-
-import java.util.ArrayList
-
 import ca.fuwafuwa.kaku.Windows.Data.DisplayData
 import ca.fuwafuwa.kaku.Windows.Data.ISquareChar
 import ca.fuwafuwa.kaku.Windows.Interfaces.IRecalculateKanjiViews
 import ca.fuwafuwa.kaku.Windows.Interfaces.ISearchPerformer
 import ca.fuwafuwa.kaku.Windows.WindowCoordinator
+import java.util.*
+
 
 /**
  * Created by 0xbad1d3a5 on 5/5/2016.
@@ -20,7 +19,10 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
     private lateinit var mSearchPerformer: ISearchPerformer
     private lateinit var mDisplayData: DisplayData
 
-    private val kanjiCellSize = squareCellSize
+    private val mKanjiCellSize = squareCellSize
+
+    var offset: Int = 0
+        private set
 
     val kanjiViewList: List<KanjiCharacterView>
         get()
@@ -61,38 +63,14 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
     fun setText(displayData: DisplayData)
     {
         mDisplayData = displayData
+        offset = 0
 
-        for (squareChar in displayData.squareChars)
-        {
-            val kanjiView = KanjiCharacterView(context)
-            kanjiView.setDependencies(mWindowCoordinator, mSearchPerformer)
-            kanjiView.setCellSize(kanjiCellSize)
-            kanjiView.setText(squareChar)
-
-            addView(kanjiView)
-        }
-
-        setItemCount(displayData.count)
-        postInvalidate()
+        ensureViews()
     }
 
     fun getText() : String
     {
-        val sb = StringBuilder()
-        var i = 0
-
-        for (k in kanjiViewList)
-        {
-            i++
-            if (i > maxSquares)
-            {
-                break
-            }
-
-            sb.append(k.getSquareChar().char)
-        }
-
-        return sb.toString()
+        return mDisplayData.text
     }
 
     fun clearText()
@@ -117,11 +95,41 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
         }
     }
 
+    fun scrollNext()
+    {
+        if (offset + maxSquares < mDisplayData.count)
+        {
+            offset += maxSquares
+        }
+
+        ensureViews()
+    }
+
+    fun scrollPrev()
+    {
+        if (offset - maxSquares >= 0)
+        {
+            offset -= maxSquares
+        }
+        else
+        {
+            offset = 0
+        }
+
+        ensureViews()
+    }
+
     override fun recalculateKanjiViews()
     {
         mDisplayData.recomputeChars()
+
+        ensureViews()
+    }
+
+    private fun ensureViews()
+    {
         val kanjiViews = kanjiViewList
-        val numChars = mDisplayData.count
+        val numChars = mDisplayData.count - offset
         val kanjiViewSize = kanjiViews.size
 
         if (numChars > kanjiViewSize)
@@ -132,7 +140,7 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
             removeKanjiViews(kanjiViewSize - numChars)
         }
 
-        for ((index, squareChar) in mDisplayData.squareChars.withIndex())
+        for ((index, squareChar) in mDisplayData.squareChars.subList(offset, mDisplayData.count).withIndex())
         {
             val kanjiView = getChildAt(index) as KanjiCharacterView
             kanjiView.setText(squareChar)
@@ -149,7 +157,7 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
         {
             val kanjiView = KanjiCharacterView(context)
             kanjiView.setDependencies(mWindowCoordinator, mSearchPerformer)
-            kanjiView.setCellSize(kanjiCellSize)
+            kanjiView.setCellSize(mKanjiCellSize)
 
             addView(kanjiView)
         }

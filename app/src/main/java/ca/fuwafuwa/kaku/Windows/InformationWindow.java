@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextSwitcher;
 
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +50,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
 
     private GestureDetector mGestureDetector;
     private float mMaxFlingVelocity;
+    private LinearLayout mInfoWindow;
     private KanjiGridView mKanjiGrid;
     private TextSwitcher mDictResults;
     private Searcher mSearcher;
@@ -61,6 +63,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
 
         mMaxFlingVelocity = ViewConfiguration.get(this.context).getScaledMaximumFlingVelocity();
         mGestureDetector = new GestureDetector(this.context, this);
+        mInfoWindow = window.findViewById(R.id.info_window);
         mKanjiGrid = window.findViewById(R.id.kanji_grid);
         mDictResults = window.findViewById(R.id.dict_results);
 
@@ -127,7 +130,8 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     }
 
     @Override
-    protected WindowManager.LayoutParams getDefaultParams() {
+    protected WindowManager.LayoutParams getDefaultParams()
+    {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -142,11 +146,9 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     }
 
     @Override
-    public boolean onTouch(MotionEvent e){
-
-        if (mGestureDetector.onTouchEvent(e)){
-            return true;
-        }
+    public boolean onTouch(MotionEvent e)
+    {
+        mGestureDetector.onTouchEvent(e);
 
         if (e.getAction() == MotionEvent.ACTION_UP){
             params.y = 0;
@@ -219,9 +221,30 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     }
 
     @Override
-    public boolean onSingleTapUp(MotionEvent motionEvent)
+    public boolean onSingleTapUp(MotionEvent e)
     {
-        hide();
+        if (e.getY() < mKanjiGrid.getY() + mKanjiGrid.getHeight())
+        {
+            int triggerAreaSize = getViewWidth() / 8;
+            if (e.getX() > getViewWidth() - triggerAreaSize)
+            {
+                mKanjiGrid.scrollNext();
+            }
+            else if (e.getX() < triggerAreaSize)
+            {
+                mKanjiGrid.scrollPrev();
+            }
+        }
+        else if (mInfoWindow.getX() < e.getX() && e.getX() < (mInfoWindow.getX() + mInfoWindow.getWidth()) &&
+                 mInfoWindow.getY() < e.getY() && e.getY() < (mInfoWindow.getY() + mInfoWindow.getHeight()))
+        {
+            // Do nothing
+        }
+        else
+        {
+            hide();
+        }
+
         return true;
     }
 
@@ -279,7 +302,7 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
         }
 
         // Highlights words in the window as long as they match
-        int start = search.getIndex();
+        int start = search.getIndex() - mKanjiGrid.getOffset();
         if (results.size() > 0){
             String kanji = results.get(0).getWord();
             for (int i = start; i < start + kanji.codePointCount(0, kanji.length()); i++){

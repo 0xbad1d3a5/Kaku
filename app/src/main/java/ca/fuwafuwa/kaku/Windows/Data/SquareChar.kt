@@ -50,7 +50,7 @@ open class SquareChar(override val displayData: DisplayData,
     override var next: ISquareChar? = null
     get()
     {
-        return if (index == displayData.squareChars.size - 1)
+        return if (index == displayData.count - 1)
         {
             null
         }
@@ -100,18 +100,6 @@ class SquareCharOcr(override val displayData: DisplayDataOcr,
             {
                 allChoices.add(Pair(char, 0.0))
             }
-        }
-    }
-
-    fun addChoice1(char: String, certainty: ChoiceCertainty)
-    {
-        if (certainty == ChoiceCertainty.CERTAIN)
-        {
-            allChoices.add(0, Pair(char, 100.0))
-            this.char = char
-        }
-        else {
-            allChoices.add(Pair(char, 0.0))
         }
     }
 

@@ -49,10 +49,7 @@ public class ResizeView extends LinearLayout implements GestureDetector.OnGestur
     @Override
     public boolean onTouchEvent(MotionEvent e)
     {
-        if (mDetector.onTouchEvent(e))
-        {
-            return mWindowListener.onDoubleTap(e);
-        }
+        mDetector.onTouchEvent(e);
 
         return mWindowListener.onResize(e);
     }
@@ -66,7 +63,7 @@ public class ResizeView extends LinearLayout implements GestureDetector.OnGestur
     @Override
     public boolean onDoubleTap(MotionEvent e)
     {
-        return true;
+        return mWindowListener.onDoubleTap(e);
     }
 
     @Override

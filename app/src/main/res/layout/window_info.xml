@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ca.fuwafuwa.kaku.Windows.Views.LinearLayout
+    <LinearLayout
         android:id="@+id/info_window"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -73,6 +73,6 @@
 
         </LinearLayout>
 
-    </ca.fuwafuwa.kaku.Windows.Views.LinearLayout>
+    </LinearLayout>
 
 </FrameLayout>

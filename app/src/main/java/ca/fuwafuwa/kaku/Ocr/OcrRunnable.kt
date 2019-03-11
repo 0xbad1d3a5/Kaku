@@ -189,6 +189,9 @@ class OcrRunnable(context: Context, private var mCaptureWindow: CaptureWindow?) 
             correctCommonMistake(squareChar, "し")
             correctCommonMistake(squareChar, "、")
             correctCommonMistake(squareChar, "。")
+
+            correctKanjiOne(squareChar)
+            correctKatakanaDash(squareChar)
         }
     }
 
@@ -203,6 +206,32 @@ class OcrRunnable(context: Context, private var mCaptureWindow: CaptureWindow?) 
                 next?.char != null && LangUtils.IsJapaneseChar(next.char[0]))
             {
                 squareChar.addChoice(char, ChoiceCertainty.CERTAIN)
+            }
+        }
+    }
+
+    private fun correctKatakanaDash(squareChar: SquareCharOcr)
+    {
+        if (mCommonMistakes[squareChar.char] != null)
+        {
+            val prev = squareChar.prev
+
+            if (prev?.char != null && LangUtils.IsKatakana(prev.char[0]))
+            {
+                squareChar.addChoice("ー", ChoiceCertainty.CERTAIN)
+            }
+        }
+    }
+
+    private fun correctKanjiOne(squareChar: SquareCharOcr)
+    {
+        if (mCommonMistakes[squareChar.char] != null)
+        {
+            val next = squareChar.next
+
+            if (next?.char != null && (LangUtils.IsKanji(next.char[0]) || LangUtils.IsHiragana(next.char[0])))
+            {
+                squareChar.addChoice("一", ChoiceCertainty.CERTAIN)
             }
         }
     }

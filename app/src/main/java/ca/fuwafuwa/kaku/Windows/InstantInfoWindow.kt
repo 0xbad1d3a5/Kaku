@@ -166,7 +166,7 @@ class InstantInfoWindow(context: Context,
         }
 
         // Highlights words in the window as long as they match
-        val start = search.index
+        val start = search.index - instantKanjiWindow.getKanjiView().offset
         if (results.size > 0)
         {
             val kanji = results[0].word
