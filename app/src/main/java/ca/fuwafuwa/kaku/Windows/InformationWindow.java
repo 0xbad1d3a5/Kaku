@@ -216,7 +216,16 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     @Override
     public boolean onDoubleTap(MotionEvent e)
     {
-        hide();
+        if (mInfoWindow.getX() < e.getX() && e.getX() < (mInfoWindow.getX() + mInfoWindow.getWidth()) &&
+            mInfoWindow.getY() < e.getY() && e.getY() < (mInfoWindow.getY() + mInfoWindow.getHeight()))
+        {
+            // Do nothing
+        }
+        else
+        {
+            hide();
+        }
+
         return true;
     }
 

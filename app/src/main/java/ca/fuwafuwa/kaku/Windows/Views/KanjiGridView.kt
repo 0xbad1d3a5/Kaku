@@ -19,6 +19,8 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
     private lateinit var mSearchPerformer: ISearchPerformer
     private lateinit var mDisplayData: DisplayData
 
+    private var mScrollValue: Int = 0
+
     private val mKanjiCellSize = squareCellSize
 
     var offset: Int = 0
@@ -100,6 +102,7 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
         if (offset + maxSquares < mDisplayData.count)
         {
             offset += maxSquares
+            mScrollValue = maxSquares
         }
 
         ensureViews()
@@ -107,9 +110,9 @@ class KanjiGridView : SquareGridView, IRecalculateKanjiViews
 
     fun scrollPrev()
     {
-        if (offset - maxSquares >= 0)
+        if (offset - mScrollValue >= 0)
         {
-            offset -= maxSquares
+            offset -= mScrollValue
         }
         else
         {
