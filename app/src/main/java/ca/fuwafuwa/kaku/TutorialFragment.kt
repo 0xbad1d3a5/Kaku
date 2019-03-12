@@ -3,10 +3,8 @@ package ca.fuwafuwa.kaku
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.VideoView
@@ -41,15 +39,6 @@ class TutorialFragment : Fragment()
         return mRootView
     }
 
-    override fun onResume()
-    {
-        super.onResume()
-
-        mVideoView.setVideoURI(Uri.parse("android.resource://ca.fuwafuwa.kaku/${getVideoForSectionNumber(mPos)}"))
-        mVideoView.setOnPreparedListener { it.isLooping = true }
-        mVideoView.start()
-    }
-
     override fun onStart()
     {
         super.onStart()
@@ -60,12 +49,24 @@ class TutorialFragment : Fragment()
             {
                 val drawableHeight = mButtonLayout.y.toInt()
 
-                mVideoView.layoutParams.height = drawableHeight - dpToPx(context!!, 20) // TODO: NRE here, probably LayoutParams?
+                val params = LinearLayout.LayoutParams(WRAP_CONTENT, drawableHeight - dpToPx(context!!, 20))
+                params.gravity = Gravity.CENTER_HORIZONTAL
+                params.setMargins(0, dpToPx(context!!, 20), 0, 0)
+                mVideoView.layoutParams = params
                 mVideoView.requestLayout()
 
                 mButtonLayout.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         })
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+
+        mVideoView.setVideoURI(Uri.parse("android.resource://ca.fuwafuwa.kaku/${getVideoForSectionNumber(mPos)}"))
+        mVideoView.setOnPreparedListener { it.isLooping = true }
+        mVideoView.start()
     }
 
     private fun getExplainDialogForFragment(num: Int) : DialogFragment

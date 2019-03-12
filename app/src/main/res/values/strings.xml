@@ -8,8 +8,15 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+v1.3.47
+- Fix minor crashes in Kaku
+
+v1.3.46
+- Improve recognition of commonly mis-recognized kana such as ー or 一
+- Improved normal mode so that the entire sentence can be copied, tap the sides of the normal mode window to scroll
+
 v1.3.45
-- Improve recognition of commonly mis-recognized kana such as "く" or "し"
+- Improve recognition of commonly mis-recognized kana such as く or し
 
 v1.3.43
 - Add similar kana to swap quick text action in case that OCR engine doesn't give that recommendation

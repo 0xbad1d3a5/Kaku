@@ -85,7 +85,7 @@ class MainStartFragment : Fragment()
         supportText.viewTreeObserver.addOnGlobalLayoutListener {
             var pos = IntArray(2)
             supportText.getLocationInWindow(pos)
-            val drawableHeight = rootView.height - pos[1]
+            val drawableHeight = rootView.height - pos[1] - dpToPx(mainActivity, 20)
 
             val logoSize = drawableHeight.toFloat() / 2
             val titleSize = logoSize / 5

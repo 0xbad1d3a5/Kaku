@@ -185,7 +185,11 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
                 }
                 else
                 {
-                    windowCoordinator.stopAllWindows(); // TODO: NRE here
+                    // hide() may have been called multiple times - this isn't thread-safe but whatever
+                    if (windowCoordinator != null)
+                    {
+                        windowCoordinator.stopAllWindows();
+                    }
                 }
             }
         });

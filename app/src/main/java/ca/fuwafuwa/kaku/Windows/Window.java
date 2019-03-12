@@ -70,7 +70,7 @@ public abstract class Window implements Stoppable, WindowListener {
         window = inflater.inflate(R.layout.window, null);
         mRealDisplaySize = getRealDisplaySizeFromContext();
         params = getDefaultParams();
-        minSize = KakuTools.dpToPx(context, 20);
+        minSize = KakuTools.dpToPx(context, 15);
         mOnHeightKnownListeners = new ArrayList<>();
 
         WindowView windowView = window.findViewById(R.id.window_view);
