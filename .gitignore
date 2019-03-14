@@ -1,7 +1,13 @@
-# Ignore data files for Kaku
+# Ignore data files for Kaku - these shouldn't be checked in
 app/src/main/assets/*
 app/src/main/res/raw/*
+
+# Ignore private and sensitive configuration files for Kaku
+# If you pull the repo, you will need to create and populate these files yourself
+# !!!! DO NOT EVER COMMIT THESE FILES AS THEY CONTAIN EXTREMELY SENSITIVE INFORMATION !!!!
 app/src/main/res/values/private_strings.xml
+keystore.properties
+service_account.json
 
 # Created by https://www.gitignore.io/api/android
 # Edit at https://www.gitignore.io/?templates=android

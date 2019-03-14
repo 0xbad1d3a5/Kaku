@@ -1,8 +1,25 @@
+plugins {
+    id 'com.android.application'
+    id 'com.github.triplet.play' version '2.1.0'
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+
+    signingConfigs {
+        release {
+            Properties properties = new Properties()
+            properties.load(rootProject.file('keystore.properties').newDataInputStream())
+
+            storeFile file(properties.getProperty('RELEASE_STORE_FILE'))
+            storePassword properties.getProperty('RELEASE_STORE_PASSWORD')
+            keyAlias properties.getProperty('RELEASE_KEY_ALIAS')
+            keyPassword properties.getProperty('RELEASE_KEY_PASSWORD')
+        }
+    }
 
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
@@ -12,18 +29,20 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    def versionPrefix = "1.3"
     defaultConfig {
         applicationId "ca.fuwafuwa.kaku"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 47
-        versionName "1.3.$versionCode"
+        versionCode 50
+        versionName "$versionPrefix.$versionCode"
     }
 
     buildTypes {
         release {
             debuggable false
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -47,10 +66,20 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
+    play {
+        track = 'internal'
+        fromTrack = "internal"
+        serviceAccountCredentials = file("..\\service_account.json")
+
+        resolutionStrategy = "auto"
+        outputProcessor {
+            versionNameOverride = "$versionPrefix.$versionCode"
+        }
+    }
 }
 
 dependencies {
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.rmtheis:tess-two:9.0.0'
     implementation 'com.google.guava:guava:20.0'
@@ -59,14 +88,11 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
     implementation 'com.google.android.gms:play-services-ads:17.1.3'
-
     implementation 'com.atilika.kuromoji:kuromoji-core:0.9.0'
     implementation 'com.atilika.kuromoji:kuromoji-ipadic:0.9.0'
-
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.12'
-
     // Probably just delete all these was trying to get GenerateDictionary to work as a Unit Test
     testImplementation 'com.j256.ormlite:ormlite-core:5.1'
     testImplementation 'com.j256.ormlite:ormlite-jdbc:5.1'

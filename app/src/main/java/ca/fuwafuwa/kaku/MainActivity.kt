@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.provider.Settings
@@ -15,11 +14,8 @@ import android.util.Log
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.appcompat.app.AppCompatActivity
 import ca.fuwafuwa.kaku.Dialogs.StarRatingDialogFragment
-import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity()
@@ -136,9 +132,6 @@ class MainActivity : AppCompatActivity()
 
                 override fun onTick(millisUntilFinished: Long)
                 {
-                    val currDuration = totalDuration - millisUntilFinished
-                    val total = (currDuration.toFloat() / totalDuration.toFloat() * 100.0).toInt()
-                    progressBar.progress = total
                 }
             }.start()
         }
