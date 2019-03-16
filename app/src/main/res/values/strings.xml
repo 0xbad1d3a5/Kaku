@@ -8,6 +8,14 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+v1.3.56
+- Minor bugfixes
+- Added dialog in tutorial explaining Kaku's permissions
+
+v1.3.55
+- No Kaku updates, just backend changes
+- Bump Kotlin version, use Triple-T for automated Play Console uploads
+
 v1.3.47
 - Fix minor crashes in Kaku
 

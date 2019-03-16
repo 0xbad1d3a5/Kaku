@@ -115,7 +115,6 @@ public class MainService extends Service implements Stoppable {
                     if (MediaProjectionStopCallback.this == mMediaProjectionStopCallback){
                         if (mVirtualDisplay != null){
                             mVirtualDisplay.release();
-                            mVirtualDisplay = null;
                         }
                         mMediaProjection.unregisterCallback(MediaProjectionStopCallback.this);
                         mMediaProjection = null;

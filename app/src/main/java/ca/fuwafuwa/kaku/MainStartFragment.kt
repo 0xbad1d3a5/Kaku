@@ -85,7 +85,7 @@ class MainStartFragment : Fragment()
         supportText.viewTreeObserver.addOnGlobalLayoutListener {
             var pos = IntArray(2)
             supportText.getLocationInWindow(pos)
-            val drawableHeight = rootView.height - pos[1] - dpToPx(mainActivity, 20)
+            val drawableHeight = rootView.height - pos[1] - dpToPx(mainActivity, 30)
 
             val logoSize = drawableHeight.toFloat() / 2
             val titleSize = logoSize / 5
@@ -120,7 +120,7 @@ class MainStartFragment : Fragment()
                     mainActivity.startKaku(progressBar, supportText)
                 }
             }
-        }, 4000)
+        }, 500)
     }
 
     companion object

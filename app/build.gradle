@@ -68,8 +68,7 @@ android {
     }
 
     play {
-        track = 'internal'
-        fromTrack = "internal"
+        track = 'beta'
         serviceAccountCredentials = file("..\\service_account.json")
 
         resolutionStrategy = "auto"

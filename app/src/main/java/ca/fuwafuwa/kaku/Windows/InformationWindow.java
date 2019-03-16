@@ -199,9 +199,6 @@ public class InformationWindow extends Window implements Searcher.SearchDictDone
     public void stop()
     {
         mSearcher.unregisterCallback();
-        mGestureDetector = null;
-        mKanjiGrid  = null;
-        mSearcher = null;
         super.stop();
     }
 
