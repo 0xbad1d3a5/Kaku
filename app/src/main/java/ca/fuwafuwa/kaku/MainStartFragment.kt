@@ -122,7 +122,7 @@ class MainStartFragment : Fragment()
                     mainActivity.startKaku(this@MainStartFragment)
                 }
             }
-        }, 4000)
+        }, 3000)
     }
 
     fun onKakuLoadStart()
