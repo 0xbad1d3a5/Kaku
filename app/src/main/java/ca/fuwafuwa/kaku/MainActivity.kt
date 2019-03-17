@@ -11,8 +11,6 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.provider.Settings
 import android.util.Log
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import ca.fuwafuwa.kaku.Dialogs.StarRatingDialogFragment
@@ -104,7 +102,7 @@ class MainActivity : AppCompatActivity()
         }
     }
 
-    fun startKaku(progressBar: ProgressBar, supportText: TextView)
+    fun startKaku(startFragment: MainStartFragment)
     {
         if (MainService.IsRunning())
         {
@@ -113,8 +111,7 @@ class MainActivity : AppCompatActivity()
 
         if (::mStartKakuIntent.isInitialized)
         {
-            progressBar.progress = 0
-            progressBar.isIndeterminate = true
+            startFragment.onKakuLoadStart()
 
             val totalDuration = 2000
             object : CountDownTimer(totalDuration.toLong(), 10)
@@ -123,9 +120,7 @@ class MainActivity : AppCompatActivity()
                 {
                     if (mIsActivityVisible)
                     {
-                        progressBar.isIndeterminate = false
-                        progressBar.progress = 100
-                        supportText.text = getString(R.string.support_text)
+                        startFragment.onKakuLoaded()
                         startKakuService(this@MainActivity, mStartKakuIntent)
                     }
                 }

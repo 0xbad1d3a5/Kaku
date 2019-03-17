@@ -20,7 +20,7 @@ class GrantPermissionDialogFragment : DialogFragment()
             val builder = AlertDialog.Builder(it)
 
             builder.setTitle("Grant Kaku Permissions")
-                    .setMessage("Kaku uses optical character recognition (OCR) to detect text from images and works by automatically taking screenshots of your screen. After granting permissions, please restart Kaku.\n\nAside from one non-intrusive ad that appears on app start, Kaku works completely offline and WILL NEVER transmit ANY user data encountered during usage.")
+                    .setMessage("Kaku uses optical character recognition (OCR) to detect text from images and works by automatically taking screenshots of your screen when active. After granting permissions, please restart Kaku.\n\nKaku works completely offline and WILL NEVER transmit ANY user data encountered during usage.")
                     .setPositiveButton("GRANT")
                     {
                         _, _ ->
