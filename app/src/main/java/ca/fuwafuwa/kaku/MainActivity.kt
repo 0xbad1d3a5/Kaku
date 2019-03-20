@@ -19,6 +19,7 @@ import ca.fuwafuwa.kaku.Dialogs.StarRatingDialogFragment
 class MainActivity : AppCompatActivity()
 {
     private var mIsActivityVisible = false
+    private var mShownRating = false
 
     private lateinit var mPrefs : SharedPreferences
     private lateinit var mStartKakuIntent: Intent
@@ -26,6 +27,11 @@ class MainActivity : AppCompatActivity()
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+
+        if (isBeta())
+        {
+            startActivity(Intent(this, BetaActivity::class.java))
+        }
 
         mPrefs = getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
 
@@ -111,7 +117,10 @@ class MainActivity : AppCompatActivity()
 
         if (::mStartKakuIntent.isInitialized)
         {
-            startFragment.onKakuLoadStart()
+            if (mIsActivityVisible)
+            {
+                startFragment.onKakuLoadStart()
+            }
 
             val totalDuration = 2000
             object : CountDownTimer(totalDuration.toLong(), 10)
@@ -161,6 +170,13 @@ class MainActivity : AppCompatActivity()
 
     private fun showRatingDialog()
     {
+        if (mShownRating)
+        {
+            return
+        }
+
+        mShownRating = true
+
         val timesLaunched = mPrefs.getInt(KAKU_PREF_TIMES_LAUNCHED, 1)
         val rated = mPrefs.getBoolean(KAKU_PREF_PLAY_STORE_RATED, false)
 
@@ -173,6 +189,12 @@ class MainActivity : AppCompatActivity()
     private fun isFirstLaunch() : Boolean
     {
         return mPrefs.getBoolean(KAKU_PREF_FIRST_LAUNCH, true)
+    }
+
+    private fun isBeta() : Boolean
+    {
+        val CURRENT_PROD_VERSION = 61 // just hardcoded, change when a build is ready to be rolled out to prod
+        return BuildConfig.VERSION_CODE > CURRENT_PROD_VERSION
     }
 
     companion object

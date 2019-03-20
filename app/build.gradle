@@ -34,7 +34,7 @@ android {
         applicationId "ca.fuwafuwa.kaku"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 50
+        versionCode 62
         versionName "$versionPrefix.$versionCode"
     }
 

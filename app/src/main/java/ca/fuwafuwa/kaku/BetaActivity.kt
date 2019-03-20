@@ -14,7 +14,7 @@ class BetaActivity : AppCompatActivity()
         setContentView(R.layout.activity_beta)
 
         findViewById<Button>(R.id.beta_button_start).setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
 
         val emailIntent = Intent(android.content.Intent.ACTION_SENDTO)
