@@ -115,23 +115,22 @@ class MainActivity : AppCompatActivity()
             return
         }
 
+        if (!mIsActivityVisible)
+        {
+            return
+        }
+
         if (::mStartKakuIntent.isInitialized)
         {
-            if (mIsActivityVisible)
-            {
-                startFragment.onKakuLoadStart()
-            }
+            startFragment.onKakuLoadStart()
 
             val totalDuration = 2000
             object : CountDownTimer(totalDuration.toLong(), 10)
             {
                 override fun onFinish()
                 {
-                    if (mIsActivityVisible)
-                    {
-                        startFragment.onKakuLoaded()
-                        startKakuService(this@MainActivity, mStartKakuIntent)
-                    }
+                    startFragment.onKakuLoaded()
+                    startKakuService(this@MainActivity, mStartKakuIntent)
                 }
 
                 override fun onTick(millisUntilFinished: Long)
