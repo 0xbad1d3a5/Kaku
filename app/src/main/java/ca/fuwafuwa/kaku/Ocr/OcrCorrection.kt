@@ -10,7 +10,7 @@ class OcrCorrection
                 listOf("あ", "ぁ", "お", "ぉ"),
                 listOf("い", "ぃ"),
                 listOf("う", "ぅ"),
-                listOf("え", "ぇ"),
+                listOf("え", "ぇ", "z", "Z"),
                 listOf("お", "ぉ", "あ", "ぁ"),
 
                 listOf("か", "が", "カ", "ガ", "ヵ", "力"),
@@ -20,7 +20,7 @@ class OcrCorrection
                 listOf("こ", "ご"),
 
                 listOf("さ", "ざ", "き", "ぎ"),
-                listOf("し", "じ", "L", "Ｌ"),
+                listOf("し", "じ", "L", "Ｌ", "U"),
                 listOf("す", "ず"),
                 listOf("せ", "ぜ"),
                 listOf("そ", "ぞ"),
