@@ -20,6 +20,7 @@ service_account.json
 
 # Release files
 app/release/*
+app/debug/*
 
 # Files for the ART/Dalvik VM
 *.dex

@@ -96,7 +96,7 @@ class OcrCorrection
 
                 listOf("ハ", "バ", "パ", "ㇵ"),
                 listOf("ヒ", "ビ", "ピ", "ㇶ"),
-                listOf("フ", "ブ", "プ", "ㇷ"), //, "\u31f7\u309a"),
+                listOf("フ", "ブ", "プ", "ㇷ", "ン"), //, "\u31f7\u309a"),
                 listOf("ヘ", "ベ", "ペ", "ㇸ"),
                 listOf("ホ", "ボ", "ポ", "ㇹ"),
 
@@ -130,6 +130,8 @@ class OcrCorrection
 
                 Pair(listOf("〈", "<", "＜"), "く"),
                 Pair(listOf("L", "Ｌ"), "し"),
+                Pair(listOf("z", "Z"), "え"),
+                Pair(listOf("U"), "じ"),
                 Pair(listOf("`", "ヽ"), "、"),
                 Pair(listOf("o"), "。"),
 

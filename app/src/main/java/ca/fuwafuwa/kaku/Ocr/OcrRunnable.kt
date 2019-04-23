@@ -187,6 +187,8 @@ class OcrRunnable(context: Context, private var mCaptureWindow: CaptureWindow?) 
         {
             correctCommonMistake(squareChar, "く")
             correctCommonMistake(squareChar, "し")
+            correctCommonMistake(squareChar, "じ")
+            correctCommonMistake(squareChar, "え")
             correctCommonMistake(squareChar, "、")
             correctCommonMistake(squareChar, "。")
 

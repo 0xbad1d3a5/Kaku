@@ -86,6 +86,11 @@ public class CaptureWindow extends Window implements WindowListener
             return binarizedBitmap;
         }
 
+        private void kMeansClustering()
+        {
+
+        }
+
         private Bitmap calculateFuriganaPosition(Bitmap bitmap)
         {
             Bitmap screen = bitmap.copy(bitmap.getConfig(), true);
@@ -205,11 +210,6 @@ public class CaptureWindow extends Window implements WindowListener
 
             return screen;
         }
-    }
-
-    private class Nullable<T>
-    {
-        public T value;
     }
 
     private static final String TAG = CaptureWindow.class.getName();

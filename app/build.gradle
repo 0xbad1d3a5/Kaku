@@ -34,7 +34,7 @@ android {
         applicationId "ca.fuwafuwa.kaku"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 62
+        versionCode 64
         versionName "$versionPrefix.$versionCode"
     }
 
@@ -68,7 +68,7 @@ android {
     }
 
     play {
-        track = 'beta'
+        track = 'internal'
         serviceAccountCredentials = file("..\\service_account.json")
 
         resolutionStrategy = "auto"
