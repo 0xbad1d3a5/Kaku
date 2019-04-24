@@ -192,7 +192,7 @@ class MainActivity : AppCompatActivity()
 
     private fun isBeta() : Boolean
     {
-        val CURRENT_PROD_VERSION = 63 // just hardcoded, change when a build is ready to be rolled out to prod
+        val CURRENT_PROD_VERSION = 64 // just hardcoded, change when a build is ready to be rolled out to prod
         return BuildConfig.VERSION_CODE > CURRENT_PROD_VERSION
     }
 
