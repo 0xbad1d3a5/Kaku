@@ -440,8 +440,6 @@ class MainStartFragment : Fragment()
                 //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68958428
                 //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68433759
                 //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57793633
-
-                //ImgData(R.raw.sae, "", "", "")
         )
 
         return imgs.random()

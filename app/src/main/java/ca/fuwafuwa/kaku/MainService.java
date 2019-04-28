@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -105,6 +106,18 @@ public class MainService extends Service implements Stoppable {
         }
     }
 
+    public static class ScreenOffReceiver extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            SharedPreferences prefs = context.getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
+            prefs.edit().putBoolean(Constants.KAKU_PREF_SHOW_HIDE, false).apply();
+
+            KakuTools.startKakuService(context, new Intent(context, MainService.class));
+        }
+    }
+
     private class MediaProjectionStopCallback extends MediaProjection.Callback{
         @Override
         public void onStop(){
@@ -129,6 +142,9 @@ public class MainService extends Service implements Stoppable {
 
     private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
     private static final int NOTIFICATION_ID = 1;
+
+    private IntentFilter mIntentFilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+    private ScreenOffReceiver mScreenOffReceiver = new ScreenOffReceiver();
 
     private Intent mProjectionResultIntent;
     private int mProjectionResultCode;
@@ -175,6 +191,8 @@ public class MainService extends Service implements Stoppable {
         SharedPreferences prefs = getSharedPreferences(Constants.KAKU_PREF_FILE, Context.MODE_PRIVATE);
         int timesLaunched = prefs.getInt(Constants.KAKU_PREF_TIMES_LAUNCHED, 1);
         prefs.edit().putInt(Constants.KAKU_PREF_TIMES_LAUNCHED, timesLaunched + 1).apply();
+
+        registerReceiver(mScreenOffReceiver, mIntentFilter);
 
         startForeground(NOTIFICATION_ID, getNotification());
         isKakuRunning = true;

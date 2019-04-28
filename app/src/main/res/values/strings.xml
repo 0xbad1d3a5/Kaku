@@ -8,6 +8,10 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+v1.3.66
+- Stop screen capture when device is put to sleep
+- Minor bugfixes
+
 v1.3.62
 - Updating beta version of Kaku will longer remove the icon from the home screen after this update
 - Improve artist text

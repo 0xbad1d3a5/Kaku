@@ -40,7 +40,7 @@ import ca.fuwafuwa.kaku.XmlParsers.CommonParser
  */
 class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Window(context, windowCoordinator, R.layout.window_capture), WindowListener
 {
-    private var mOcr: OcrRunnable? = null
+    private val mOcr: OcrRunnable
     private val mWindowBox: View
     private val mImageView: ImageView
     private val mFadeRepeat: Animation
@@ -322,7 +322,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
             {
                 if (System.currentTimeMillis() > mLastDoubleTapTime + mLastDoubleTapIgnoreDelay)
                 {
-                    mOcr!!.cancel()
+                    mOcr.cancel()
                 }
 
                 if (mInLongPress && mPrefs!!.imageFilterSetting)
@@ -347,7 +347,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     {
         hideInstantWindows()
 
-        mOcr!!.cancel()
+        mOcr.cancel()
         mImageView.setImageResource(0)
         setBorderStyle(e)
         return super.onResize(e)
@@ -373,10 +373,8 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
     override fun stop()
     {
-        mOcr!!.stop()
+        mOcr.stop()
         //windowCoordinator.getWindow(Constants.WINDOW_HISTORY).hide();
-        mOcr = null
-        mCommonParser = null
         super.stop()
     }
 
@@ -488,9 +486,9 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         {
             if (!instant)
             {
-                while (!mOcr!!.isReadyForOcr)
+                while (!mOcr.isReadyForOcr)
                 {
-                    mOcr!!.cancel()
+                    mOcr.cancel()
                     Thread.sleep(10)
                 }
             }
@@ -509,7 +507,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                 textDirection = if (mScreenshotForOcr!!.params!!.width >= mScreenshotForOcr!!.params!!.height) TextDirection.HORIZONTAL else TextDirection.VERTICAL
             }
 
-            mOcr!!.runTess(OcrParams(processedImage!!, mScreenshotForOcr!!.crop!!, mScreenshotForOcr!!.params!!, textDirection, instant))
+            mOcr.runTess(OcrParams(processedImage!!, mScreenshotForOcr!!.crop!!, mScreenshotForOcr!!.params!!, textDirection, instant))
         } catch (e: Exception)
         {
             e.printStackTrace()
