@@ -1,7 +1,10 @@
 package ca.fuwafuwa.kaku
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableStringBuilder
@@ -45,13 +48,21 @@ class MainStartFragment : Fragment()
 
     private lateinit var imgData : ImgData
 
-    private val adsEnabled = false
+    private var showAds = false
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
 
-        if (adsEnabled)
+        // Switch off deprecated network API
+        val cm = activity!!.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+
+        val adsEnabled = false
+        val internetEnabled = activeNetwork?.isConnectedOrConnecting == true
+
+        showAds = adsEnabled && internetEnabled
+        if (showAds)
         {
             MobileAds.initialize(requireActivity(), resources.getString(R.string.ads_app_id))
         }
@@ -75,7 +86,7 @@ class MainStartFragment : Fragment()
         adView = rootView.findViewById(R.id.adView)
         saeView = rootView.findViewById(R.id.saeView)
 
-        configureBottomPromo(adsEnabled)
+        configureBottomPromo(showAds)
 
         tutorialText.setOnClickListener {
             startActivity(Intent(mainActivity, TutorialActivity::class.java))
@@ -108,7 +119,7 @@ class MainStartFragment : Fragment()
     {
         super.onResume()
 
-        if (adsEnabled)
+        if (showAds)
         {
             val adRequest = AdRequest.Builder().build()
             adView.loadAd(adRequest)
@@ -203,6 +214,7 @@ class MainStartFragment : Fragment()
                 ImgData(R.raw.sae2, "@ultonesan", "https://twitter.com/ultonesan", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68641857"),
                 ImgData(R.raw.sae3, "@ultonesan", "https://twitter.com/ultonesan", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71950613"),
                 ImgData(R.raw.sae21, "@ultonesan", "https://twitter.com/ultonesan", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73297155"),
+                ImgData(R.raw.sae44, "@ultonesan", "https://twitter.com/ultonesan", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60987977"),
                 ImgData(R.raw.sae4, "@yamoyamo18", "https://twitter.com/yamoyamo18", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73628894"),
                 ImgData(R.raw.sae5, "@yamoyamo18", "https://twitter.com/yamoyamo18", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72424727"),
                 ImgData(R.raw.sae9, "@yamoyamo18", "https://twitter.com/yamoyamo18", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72008999"),
@@ -222,6 +234,7 @@ class MainStartFragment : Fragment()
                 ImgData(R.raw.sae10, "@ultimate_force6", "https://twitter.com/ultimate_force6", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68200934"),
                 ImgData(R.raw.sae19, "@ultimate_force6", "https://twitter.com/ultimate_force6", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65491060"),
                 ImgData(R.raw.sae20, "@ultimate_force6", "https://twitter.com/ultimate_force6", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71977064"),
+                ImgData(R.raw.sae57, "@ultimate_force6", "https://twitter.com/ultimate_force6", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=74363079"),
                 ImgData(R.raw.sae11, "@RomanticGACHA", "https://twitter.com/RomanticGACHA", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71885557"),
                 ImgData(R.raw.sae13, "ちゅんこ", "https://www.pixiv.net/member.php?id=15933874", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=70193706"),
                 ImgData(R.raw.sae14, "ちゅんこ", "https://www.pixiv.net/member.php?id=15933874", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69105225"),
@@ -234,166 +247,166 @@ class MainStartFragment : Fragment()
                 ImgData(R.raw.sae33, "@Hachita888", "https://twitter.com/Hachita888", "https://twitter.com/Hachita888/status/1101056129159749632"),
                 ImgData(R.raw.sae34, "Toffee", "https://www.pixiv.net/member.php?id=13274275", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62893744"),
                 ImgData(R.raw.sae35, "@N1__03", "https://twitter.com/N1__03", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63248104"),
-                ImgData(R.raw.sae36, "@yu_hi0420", "https://twitter.com/yu_hi0420", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60998374")
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63199962
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62945449
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62176436
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61738328
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61109132
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60911262
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60871513
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60987977
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60860221
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60254903
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60128230
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59980990
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59770209
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59521673
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59907147
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59536025
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59420528
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59213920
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59283209
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59145679
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58950389
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58574011
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58034287
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57976156
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57758102
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63206782
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57615504
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57126244
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62991879
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=53882354
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59642129
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59989777
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=54029940
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=53105182
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=51178608
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59695678
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=51344144
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=49375938
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=49664984
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47906259
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47913066
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59537085
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46008331
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=43285880
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46606608
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=41998732
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=36906360
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=33659173
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=29860757
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32349060
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59587222
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32728220
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=42247716
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68160948
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73269188
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73671294
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73262536
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73191911
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73112698
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=56959669
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=56880664
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59882410
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72524370
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=44565332
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57042341
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72574413
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72300606
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72319649
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72091546
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72010515
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71846364
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71576086
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71445592
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61286524
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71264363
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71223663
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68815242
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72880878
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69776652
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=70563899
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69883575
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61621521
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69759435
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69644506
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69541575
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67888363
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69598154
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69176611
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69297967
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68515979
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=55885699
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66886065
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67197908
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67050561
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61808784
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62053790
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=55045464
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68054335
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61583824
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66970564
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66662471
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61854663
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61246834
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66365255
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66254674
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66285209
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46928698
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66066299
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65987865
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65879293
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62559423
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65712553
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61596965
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46623623
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63860848
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61191380
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65481843
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60867649
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63856945
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65490674
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63372013
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63350634
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=64114259
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61097071
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=41853425
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=27614826
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61628173
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63524058
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61897582
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62103143
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65479372
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=25326404
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65479726
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=26138046
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60727676
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61046820
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65479738
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63951102
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65028532
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=24908091
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=64290897
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58546816
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62556140
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59703065
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=64076559
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=36896429
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=31847612
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52125154
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32441611
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57866673
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=54074753
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=56498215
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57458361
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60134647
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58973257
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52640454
-                //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=51140952
-                //https://twitter.com/_citrusmikan/status/1084315711516770305
-                //https://twitter.com/frenchmaid_/status/794449492128825344
+                ImgData(R.raw.sae36, "@yu_hi0420", "https://twitter.com/yu_hi0420", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60998374"),
+                ImgData(R.raw.sae37, "@nike_abc", "https://twitter.com/nike_abc", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63199962"),
+                ImgData(R.raw.sae38, "iwawo", "https://www.pixiv.net/member.php?id=1926865", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62945449"),
+                ImgData(R.raw.sae39, "tamamooon", "https://www.pixiv.net/member.php?id=3796056", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62176436"),
+                ImgData(R.raw.sae40, "Ametama", "https://www.pixiv.net/member.php?id=10122880", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61738328"),
+                ImgData(R.raw.sae41, "@2cFirefly", "https://twitter.com/2cFirefly", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61109132"),
+                ImgData(R.raw.sae42, "LP", "https://www.pixiv.net/member.php?id=9774145", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60911262"),
+                ImgData(R.raw.sae43, "@haikimono", "https://twitter.com/haikimono", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60871513"),
+                ImgData(R.raw.sae45, "@xx__lotus", "https://twitter.com/xx__lotus", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60860221"),
+                ImgData(R.raw.sae46, "@kamonabe_44", "https://twitter.com/kamonabe_44", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60254903"),
+                ImgData(R.raw.sae47, "@Yunagi_Amane", "https://twitter.com/Yunagi_Amane", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60128230"),
+                ImgData(R.raw.sae48, "@Azmo_dan", "https://twitter.com/Azmo_dan", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59980990"),
+                ImgData(R.raw.sae49, "@takeashiro", "https://twitter.com/takeashiro", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59770209"),
+                ImgData(R.raw.sae50, "@watanseru", "https://twitter.com/watanseru", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59521673"),
+                ImgData(R.raw.sae51, "@gin_no_te", "https://twitter.com/gin_no_te", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59907147"),
+                ImgData(R.raw.sae52, "miazi", "https://www.pixiv.net/member.php?id=2551745", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59536025"),
+                ImgData(R.raw.sae53, "ちゅんこ", "https://www.pixiv.net/member.php?id=15933874", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59420528"),
+                ImgData(R.raw.sae54, "@shiredo326", "https://twitter.com/shiredo326", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59213920"),
+                ImgData(R.raw.sae55, "@kashinoshishi", "https://twitter.com/kashinoshishi", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59283209"),
+                ImgData(R.raw.sae56, "@xxSuite_Peexx", "https://twitter.com/xxSuite_Peexx", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=74367771"),
+                ImgData(R.raw.sae58, "@minami_nyan", "https://twitter.com/minami_nyan", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59145679"),
+                ImgData(R.raw.sae59, "@magchomp8", "https://twitter.com/magchomp8", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58950389"),
+                ImgData(R.raw.sae60, "みなみ茶哂", "https://www.pixiv.net/member.php?id=4939449", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58574011"),
+                ImgData(R.raw.sae61, "@k_nishiwaki", "https://twitter.com/k_nishiwaki", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58034287"),
+                ImgData(R.raw.sae62, "Koji", "https://www.pixiv.net/member.php?id=19228899", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57976156"),
+                ImgData(R.raw.sae63, "@P_KiGiSi", "https://twitter.com/P_KiGiSi", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57758102")
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63206782"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57615504"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57126244"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62991879"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=53882354"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59642129"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59989777"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=54029940"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=53105182"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=51178608"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59695678"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=51344144"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=49375938"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=49664984"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47906259"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47913066"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59537085"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46008331"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=43285880"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46606608"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=41998732"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=36906360"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=33659173"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=29860757"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32349060"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59587222"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32728220"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=42247716"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68160948"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73269188"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73671294"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73262536"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73191911"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=73112698"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=56959669"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=56880664"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59882410"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72524370"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=44565332"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57042341"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72574413"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72300606"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72319649"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72091546"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72010515"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71846364"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71576086"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71445592"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61286524"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71264363"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=71223663"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68815242"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72880878"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69776652"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=70563899"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69883575"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61621521"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69759435"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69644506"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69541575"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67888363"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69598154"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69176611"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69297967"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68515979"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=55885699"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66886065"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67197908"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67050561"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61808784"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62053790"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=55045464"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=68054335"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61583824"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66970564"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66662471"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61854663"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61246834"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66365255"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66254674"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66285209"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46928698"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=66066299"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65987865"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65879293"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62559423"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65712553"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61596965"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46623623"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63860848"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61191380"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65481843"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60867649"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63856945"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65490674"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63372013"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63350634"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=64114259"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61097071"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=41853425"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=27614826"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61628173"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63524058"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61897582"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62103143"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65479372"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=25326404"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65479726"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=26138046"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60727676"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=61046820"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65479738"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63951102"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65028532"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=24908091"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=64290897"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58546816"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62556140"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=59703065"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=64076559"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=36896429"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=31847612"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52125154"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=32441611"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57866673"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=54074753"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=56498215"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57458361"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60134647"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=58973257"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52640454"),
+                //ImgData(R.raw.sae, "", "", "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=51140952"),
+                //ImgData(R.raw.sae, "", "", "https://twitter.com/_citrusmikan/status/1084315711516770305"),
+                //ImgData(R.raw.sae, "", "", "https://twitter.com/frenchmaid_/status/794449492128825344"),
 
                 //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=46620217
                 //https://www.pixiv.net/member_illust.php?mode=medium&illust_id=60477054
@@ -432,7 +445,7 @@ class MainStartFragment : Fragment()
 
     private fun writeSupportText()
     {
-        if (!adsEnabled && imgData.hasImg)
+        if (!showAds && imgData.hasImg)
         {
             val saeName = "小早川紗枝"
             val artText = "\uD83C\uDF38 $saeName by ${imgData.name} \uD83C\uDF38"
