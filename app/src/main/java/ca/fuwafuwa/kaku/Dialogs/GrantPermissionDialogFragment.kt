@@ -35,7 +35,7 @@ class GrantPermissionDialogFragment : DialogFragment()
                     .setNegativeButton("CANCEL")
                     {
                         _, _ ->
-                        {
+                        run {
                         }
                     }
 

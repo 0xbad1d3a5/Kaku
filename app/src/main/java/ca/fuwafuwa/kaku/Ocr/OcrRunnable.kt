@@ -161,7 +161,6 @@ class OcrRunnable(context: Context, private var mCaptureWindow: CaptureWindow?) 
             if (mTessBaseAPI != null)
             {
                 mTessBaseAPI!!.stop()
-                mTessBaseAPI!!.end()
             }
 
             mOcrLock.notify()

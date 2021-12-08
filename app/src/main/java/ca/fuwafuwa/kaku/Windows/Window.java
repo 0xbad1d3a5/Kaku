@@ -3,6 +3,7 @@ package ca.fuwafuwa.kaku.Windows;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.hardware.input.InputManager;
 import android.os.Build;
 import androidx.core.view.GestureDetectorCompat;
 import android.util.Log;
@@ -93,6 +94,7 @@ public abstract class Window implements Stoppable, WindowListener {
         heightViewParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         heightViewParams.format = PixelFormat.TRANSPARENT;
         heightViewParams.gravity = Gravity.END | Gravity.TOP;
+        heightViewParams.alpha = 0.0F;
         mDummyViewForSize = new View(context);
         mDummyViewForSize.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
         {
@@ -364,6 +366,7 @@ public abstract class Window implements Stoppable, WindowListener {
         params.type = Build.VERSION.SDK_INT > 25 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
         params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         params.format = PixelFormat.TRANSLUCENT;
+        params.alpha = 0.8F;
         params.x = 0;
         params.y = 0;
         params.gravity = Gravity.TOP | Gravity.LEFT;

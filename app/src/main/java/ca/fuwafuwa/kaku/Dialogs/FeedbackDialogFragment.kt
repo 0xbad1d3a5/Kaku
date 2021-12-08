@@ -38,7 +38,7 @@ class FeedbackDialogFragment : DialogFragment()
                     .setNegativeButton("CANCEL")
                     {
                         _, _ ->
-                        {
+                        run {
                         }
                     }
 

@@ -42,7 +42,7 @@ fun getPrefs(context: Context): Prefs
     val prefs = context.getSharedPreferences(KAKU_PREF_FILE, Context.MODE_PRIVATE)
 
     return Prefs(
-            TextDirection.valueOf(prefs.getString(KAKU_PREF_TEXT_DIRECTION, TextDirection.AUTO.toString())),
+            TextDirection.valueOf(prefs.getString(KAKU_PREF_TEXT_DIRECTION, TextDirection.AUTO.toString()).toString()),
             prefs.getBoolean(KAKU_PREF_IMAGE_FILTER, true),
             prefs.getBoolean(KAKU_PREF_INSTANT_MODE, true),
             prefs.getBoolean(KAKU_PREF_SHOW_HIDE, true))

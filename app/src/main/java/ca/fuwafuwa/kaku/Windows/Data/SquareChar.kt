@@ -71,11 +71,6 @@ class SquareCharOcr(override val displayData: DisplayDataOcr,
                     val bitmapPos: IntArray) : SquareChar(displayData, "")
 {
     override var char : String = ""
-    set(value)
-    {
-        assert(allChoices.any { x -> x.first == char })
-        field = value
-    }
 
     init
     {

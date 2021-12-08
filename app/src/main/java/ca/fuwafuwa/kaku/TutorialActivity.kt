@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import kotlinx.android.synthetic.main.activity_tutorial.*
+import ca.fuwafuwa.kaku.databinding.ActivityTutorialBinding
 
 class TutorialActivity : AppCompatActivity()
 {
@@ -31,18 +31,20 @@ class TutorialActivity : AppCompatActivity()
     }
 
     private lateinit var mSectionsPagerAdapter: FragmentStatePagerAdapter
+    private lateinit var mBinding: ActivityTutorialBinding
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+        mBinding = ActivityTutorialBinding.inflate(layoutInflater)
 
         supportActionBar?.hide()
-        setContentView(R.layout.activity_tutorial)
+        setContentView(mBinding.root)
 
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
-        container.adapter = mSectionsPagerAdapter
-        container.offscreenPageLimit = 1
-        tab_indicator.setupWithViewPager(container)
+        mBinding.container.adapter = mSectionsPagerAdapter
+        mBinding.container.offscreenPageLimit = 1
+        mBinding.tabIndicator.setupWithViewPager(mBinding.container)
     }
 
     companion object

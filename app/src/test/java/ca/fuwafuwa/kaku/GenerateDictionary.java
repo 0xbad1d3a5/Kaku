@@ -51,13 +51,13 @@ public class GenerateDictionary
     @Test
     public void generateDic() throws Exception {
 
-        String dbPath = "D:/KakuData/kaku_edict.sqlite";
-        String xmlPath = "D:/KakuData/JmDictOriginal.xml";
+        String dbPath = "D:/Dev/KakuFiles/kaku_edict.sqlite";
+        String xmlPath = "D:/Dev/KakuFiles/JMdictOriginal.xml";
         String databaseUrl = String.format("jdbc:sqlite:%s", dbPath);
 
         Files.deleteIfExists(Paths.get(dbPath));
 
-        FileInputStream mDictXml = new FileInputStream(new File(xmlPath));
+        FileInputStream mDictXml = new FileInputStream(xmlPath);
         XmlPullParser mParser = new KXmlParser();
         mParser.setInput(mDictXml, null);
 

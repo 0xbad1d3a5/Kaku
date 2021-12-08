@@ -131,7 +131,7 @@ class InstantKanjiWindow(context: Context,
     {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText(null, kanjiGrid.getText())
-        clipboard.primaryClip = clip
+        clipboard.setPrimaryClip(clip)
 
         hide()
     }

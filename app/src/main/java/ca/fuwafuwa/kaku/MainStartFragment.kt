@@ -21,10 +21,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.*
 import java.util.*
 
 
@@ -55,7 +52,7 @@ class MainStartFragment : Fragment()
         super.onCreate(savedInstanceState)
 
         // Switch off deprecated network API
-        val cm = activity!!.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cm = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
 
         val adsEnabled = false
@@ -64,7 +61,7 @@ class MainStartFragment : Fragment()
         showAds = adsEnabled && internetEnabled
         if (showAds)
         {
-            MobileAds.initialize(requireActivity(), resources.getString(R.string.ads_app_id))
+            MobileAds.initialize(requireActivity())
         }
     }
 
@@ -184,8 +181,7 @@ class MainStartFragment : Fragment()
                 mainActivity.startKaku(this@MainStartFragment)
             }
 
-            override fun onAdFailedToLoad(p0: Int)
-            {
+            override fun onAdFailedToLoad(p0: LoadAdError) {
                 super.onAdFailedToLoad(p0)
                 mainActivity.startKaku(this@MainStartFragment)
             }

@@ -95,7 +95,7 @@ class StarRatingDialogFragment : DialogFragment()
                     .setNegativeButton("Cancel")
                     {
                         _, _ ->
-                        {
+                        run {
                         }
                     }
 

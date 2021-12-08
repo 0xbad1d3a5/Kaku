@@ -8,6 +8,10 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+v1.3.72
+- Emergency fix for Android 12
+- Update Tesseract libraries
+
 v1.3.66
 - Stop screen capture when device is put to sleep
 - Minor bugfixes

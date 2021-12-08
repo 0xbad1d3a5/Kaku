@@ -57,7 +57,7 @@ class LangUtils {
 
             for (i in text){
 
-                var ordCurr: Int = i.toInt()
+                var ordCurr: Int = i.code
 
                 // Full-width katakana to hiragana
                 if ((ordCurr >= 0x30A1) && (ordCurr <= 0x30F3))

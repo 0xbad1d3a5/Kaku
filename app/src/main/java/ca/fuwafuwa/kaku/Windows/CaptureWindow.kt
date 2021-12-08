@@ -14,14 +14,8 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 
-import com.googlecode.leptonica.android.GrayQuant
-import com.googlecode.leptonica.android.Pix
-import com.googlecode.leptonica.android.ReadFile
-import com.googlecode.leptonica.android.WriteFile
-
 import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.ByteBuffer
 
 import androidx.core.content.ContextCompat
 import ca.fuwafuwa.kaku.*
@@ -34,6 +28,7 @@ import ca.fuwafuwa.kaku.R
 import ca.fuwafuwa.kaku.TextDirection
 import ca.fuwafuwa.kaku.Windows.Interfaces.WindowListener
 import ca.fuwafuwa.kaku.XmlParsers.CommonParser
+import com.googlecode.leptonica.android.*
 
 /**
  * Created by 0xbad1d3a5 on 4/13/2016.
@@ -101,7 +96,8 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         fun getProcessedScreenshot(threshold: Int): Bitmap
         {
             val pix = ReadFile.readBitmap(crop)
-            val pixT = GrayQuant.pixThresholdToBinary(pix, threshold)
+            val pix8 = Convert.convertTo8(pix)
+            val pixT = GrayQuant.pixThresholdToBinary(pix8, threshold)
 
             val binarizedBitmap = WriteFile.writeBitmap(pixT)
 
@@ -297,11 +293,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         mLastDoubleTapTime = System.currentTimeMillis()
         performOcr(false)
 
-        //        try {
-        //            mCommonParser.parseJmDict();
-        //        } catch (Exception e1) {
-        //            e1.printStackTrace();
-        //        }
+        // mCommonParser!!.parseJmDict()
 
         return true
     }
@@ -419,6 +411,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         val params = super.getDefaultParams()
         params.x = realDisplaySize.x / 2 - params.width / 2
         params.y = realDisplaySize.y / 4 - params.height / 2
+        params.alpha = 0.8F
         return params
     }
 
@@ -521,7 +514,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         Log.d(TAG, String.format("X:%d Y:%d (%dx%d)", box.x, box.y, box.width, box.height))
 
         var screenshotReady: Boolean
-        val startTime = System.nanoTime()
+        val startTime = System.currentTimeMillis()
         var screenshot: Bitmap
 
         do
@@ -544,7 +537,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
             box.width = params.width
             box.height = params.height
 
-        } while (!screenshotReady && System.nanoTime() < startTime + 4000000000L)
+        } while (!screenshotReady && System.currentTimeMillis() < startTime + 2000)
 
         val croppedBitmap = getCroppedBitmap(screenshot, box)
 
@@ -571,7 +564,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
         for (x in box.x until box.x + box.width)
         {
-            if (!isRGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y)))
+            if (!isRGBWithinTolerance(readyColor, screenshot.getPixel(x, box.y)))
             {
                 return false
             }
@@ -579,7 +572,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
         for (x in box.x until box.x + box.width)
         {
-            if (!isRGBWithinTolorance(readyColor, screenshot.getPixel(x, box.y + box.height - 1)))
+            if (!isRGBWithinTolerance(readyColor, screenshot.getPixel(x, box.y + box.height - 1)))
             {
                 return false
             }
@@ -587,7 +580,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
         for (y in box.y until box.y + box.height)
         {
-            if (!isRGBWithinTolorance(readyColor, screenshot.getPixel(box.x, y)))
+            if (!isRGBWithinTolerance(readyColor, screenshot.getPixel(box.x, y)))
             {
                 return false
             }
@@ -595,7 +588,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
 
         for (y in box.y until box.y + box.height)
         {
-            if (!isRGBWithinTolorance(readyColor, screenshot.getPixel(box.x + box.width - 1, y)))
+            if (!isRGBWithinTolerance(readyColor, screenshot.getPixel(box.x + box.width - 1, y)))
             {
                 return false
             }
@@ -630,20 +623,15 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
         return isValid
     }
 
-    private fun isRGBWithinTolorance(color: Int, colorToCheck: Int): Boolean
+    private fun isRGBWithinTolerance(color: Int, colorToCheck: Int): Boolean
     {
-        var isColorWithinTolorance = true
+        val redRatio = (colorToCheck shr 16 and 0xFF) / 3;
+        var isColorWithinTolerance: Boolean = ((colorToCheck and 0xFF) < redRatio)
+        isColorWithinTolerance = isColorWithinTolerance and ((colorToCheck shr 8 and 0xFF) < redRatio)
+        isColorWithinTolerance = isColorWithinTolerance and ((colorToCheck shr 16 and 0xFF) > 140)
+        // Log.d("RGB", "R: ${colorToCheck shr 16 and 0xFF} G: ${colorToCheck shr 8 and 0xFF}B: ${colorToCheck and 0xFF}")
 
-        isColorWithinTolorance = isColorWithinTolorance and isColorWithinTolorance(color and 0xFF, colorToCheck and 0xFF)
-        isColorWithinTolorance = isColorWithinTolorance and isColorWithinTolorance(color shr 8 and 0xFF, colorToCheck shr 8 and 0xFF)
-        isColorWithinTolorance = isColorWithinTolorance and isColorWithinTolorance(color shr 16 and 0xFF, colorToCheck shr 16 and 0xFF)
-
-        return isColorWithinTolorance
-    }
-
-    private fun isColorWithinTolorance(color: Int, colorToCheck: Int): Boolean
-    {
-        return color - 2 <= colorToCheck && colorToCheck <= color + 2
+        return isColorWithinTolerance
     }
 
     @Throws(OutOfMemoryError::class)
@@ -665,10 +653,11 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
     private fun getCroppedBitmap(screenshot: Bitmap, box: BoxParams): Bitmap
     {
         val borderSize = dpToPx(context, 1) + 1 // +1 due to rounding errors
-        return Bitmap.createBitmap(screenshot, box.x + borderSize,
+        return Bitmap.createBitmap(screenshot,
+                box.x + borderSize,
                 box.y + borderSize,
                 box.width - 2 * borderSize,
-                box.height - 2 * borderSize)
+                box.height - 2 * borderSize).copy(Bitmap.Config.ARGB_8888, false)
     }
 
     @Throws(IOException::class)

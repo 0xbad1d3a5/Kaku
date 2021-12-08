@@ -35,7 +35,7 @@ class PlayStoreRatingDialogFragment : DialogFragment()
                     .setNegativeButton("NO")
                     {
                         _, _ ->
-                        {
+                        run {
                         }
                     }
                     .setNeutralButton("NEVER ASK AGAIN")
