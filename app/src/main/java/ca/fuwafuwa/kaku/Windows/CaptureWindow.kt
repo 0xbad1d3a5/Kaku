@@ -657,7 +657,7 @@ class CaptureWindow(context: Context, windowCoordinator: WindowCoordinator) : Wi
                 box.x + borderSize,
                 box.y + borderSize,
                 box.width - 2 * borderSize,
-                box.height - 2 * borderSize).copy(Bitmap.Config.ARGB_8888, false)
+                box.height - 2 * borderSize)
     }
 
     @Throws(IOException::class)
