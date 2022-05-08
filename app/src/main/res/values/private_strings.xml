@@ -1,5 +1,5 @@
 <resources>
-    <string name="ads_app_id"></string>
-    <string name="ads_unit_id_start_screen"></string>
-    <string name="ads_unit_id_test"></string>
+    <string name="ads_app_id">ca-app-pub-3940256099942544~3347511713</string> <!-- SAMPLE ID -->
+    <string name="ads_unit_id_start_screen">ca-app-pub-3940256099942544/5224354917</string> <!-- SAMPLE ID -->
+    <string name="ads_unit_id_test">ca-app-pub-3940256099942544/5224354917</string> <!-- SAMPLE ID -->
 </resources>
