@@ -1,0 +1,5 @@
+<resources>
+    <string name="ads_app_id"></string>
+    <string name="ads_unit_id_start_screen"></string>
+    <string name="ads_unit_id_test"></string>
+</resources>

@@ -8,15 +8,27 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable-anydpi/icon_delete.xml" value="0.8484375" />
         <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/bg_solid_border_0_blue_black.xml" value="0.590625" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/bg_solid_border_0_white_black.xml" value="0.8484375" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/bg_solid_border_corners_0_white_black_round.xml" value="0.8484375" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/bg_translucent_border_0_blue_blue.xml" value="0.8484375" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/bg_transparent_border_0_nil_default.xml" value="0.8484375" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/bg_transparent_border_0_nil_ready.xml" value="0.8484375" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/ic_baseline_arrow_right_alt_24.xml" value="0.8484375" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/icon_capture.xml" value="1.0" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/drawable/kakucaptureicon.xml" value="0.8053435114503816" />
         <entry key="..\:/Dev/Kaku/app/src/main/res/layout/activity_beta.xml" value="0.3638948116560057" />
         <entry key="..\:/Dev/Kaku/app/src/main/res/layout/activity_tutorial.xml" value="0.77265625" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/layout/fragment_start.xml" value="0.3017241379310345" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/layout/window.xml" value="0.8" />
         <entry key="..\:/Dev/Kaku/app/src/main/res/layout/window_capture.xml" value="0.4943778110944528" />
         <entry key="..\:/Dev/Kaku/app/src/main/res/layout/window_edit.xml" value="0.56640625" />
+        <entry key="..\:/Dev/Kaku/app/src/main/res/layout/window_info.xml" value="0.8" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

@@ -8,6 +8,10 @@ If you run into issues (i.e., constant crashes or graphical glitches) in the bet
 
 BETA UPDATES:
 
+vLATEST
+- Revert Tesseract library update as that was causing vertical OCR recognition issues
+- Fresh build from clone
+
 v1.3.72
 - Emergency fix for Android 12
 - Update Tesseract libraries
