@@ -48,6 +48,19 @@
         app:layout_constraintTop_toBottomOf="@+id/kaku_title" />
 
     <TextView
+        android:id="@+id/kaku_github"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:padding="10dp"
+        android:text="Dev? GitHub Here"
+        android:textColor="@color/blue_dark"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/kaku_tutorial" />
+
+    <TextView
         android:id="@+id/support_text"
         android:layout_width="300dp"
         android:layout_height="wrap_content"

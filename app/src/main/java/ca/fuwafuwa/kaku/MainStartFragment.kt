@@ -35,6 +35,7 @@ class MainStartFragment : Fragment()
     private lateinit var kakuLogo : TextView
     private lateinit var kakuTitle : TextView
     private lateinit var tutorialText : TextView
+    private lateinit var githubText : TextView
 
     private lateinit var supportText : TextView
     private lateinit var progressBar : ProgressBar
@@ -75,6 +76,7 @@ class MainStartFragment : Fragment()
         kakuLogo = rootView.findViewById(R.id.kaku_logo)
         kakuTitle = rootView.findViewById(R.id.kaku_title)
         tutorialText = rootView.findViewById(R.id.kaku_tutorial)
+        githubText = rootView.findViewById(R.id.kaku_github)
 
         supportText = rootView.findViewById(R.id.support_text)
         progressBar = rootView.findViewById(R.id.progress_bar)
@@ -87,6 +89,11 @@ class MainStartFragment : Fragment()
 
         tutorialText.setOnClickListener {
             startActivity(Intent(mainActivity, TutorialActivity::class.java))
+        }
+
+        githubText.setOnClickListener {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/0xbad1d3a5/Kaku"))
+            startActivity(browserIntent)
         }
 
         return rootView
