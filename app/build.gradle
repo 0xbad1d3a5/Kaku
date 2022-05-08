@@ -1,24 +1,11 @@
 plugins {
     id 'com.android.application'
-    id 'com.github.triplet.play' version '2.1.0'
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-
-    signingConfigs {
-        release {
-            Properties properties = new Properties()
-            properties.load(rootProject.file('keystore.properties').newDataInputStream())
-
-            storeFile file(properties.getProperty('RELEASE_STORE_FILE'))
-            storePassword properties.getProperty('RELEASE_STORE_PASSWORD')
-            keyAlias properties.getProperty('RELEASE_KEY_ALIAS')
-            keyPassword properties.getProperty('RELEASE_KEY_PASSWORD')
-        }
-    }
 
     compileSdkVersion 31
 
@@ -32,7 +19,7 @@ android {
         applicationId "ca.fuwafuwa.kaku"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 74
+        versionCode 78
         versionName "$versionPrefix.$versionCode"
     }
 
@@ -44,7 +31,6 @@ android {
         release {
             debuggable false
             minifyEnabled false
-            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -60,16 +46,6 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
-    }
-
-    play {
-        track = 'internal'
-        serviceAccountCredentials = file("..\\service_account.json")
-
-        resolutionStrategy = "auto"
-        outputProcessor {
-            versionNameOverride = "$versionPrefix.$versionCode"
-        }
     }
 }
 
